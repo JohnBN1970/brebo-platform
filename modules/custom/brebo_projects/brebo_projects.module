@@ -1,0 +1,21 @@
+<?php
+
+/**
+ * @file
+ * Theme hooks for the BREBO Projects module.
+ */
+
+/**
+ * Implements hook_theme().
+ */
+function brebo_projects_theme($existing, $type, $theme, $path): array {
+  return [
+    'brebo_projects_section' => [
+      'variables' => [
+        'projects' => [],
+        'projects_url' => '/projecten',
+      ],
+      'template' => 'brebo-projects-section',
+    ],
+  ];
+}

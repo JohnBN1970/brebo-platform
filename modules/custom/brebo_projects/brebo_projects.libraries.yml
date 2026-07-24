@@ -1,0 +1,10 @@
+projects:
+  version: 1.x
+  css:
+    theme:
+      css/brebo-projects.css: {}
+  js:
+    js/brebo-projects.js: {}
+  dependencies:
+    - core/drupal
+    - core/once

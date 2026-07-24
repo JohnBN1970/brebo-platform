@@ -1,0 +1,30 @@
+global:
+  version: 5.1.0
+  css:
+    base:
+      css/variables.css: {}
+      css/base.css: {}
+    layout:
+      css/layout.css: {}
+      css/landing.css: {}
+      css/views.css: {}
+    component:
+      css/header.css: {}
+      css/navigation.css: {}
+      css/components.css: {}
+      css/services.css: {}
+      css/footer.css: {}
+    theme:
+      css/pages.css: {}
+      css/utilities.css: {}
+  js:
+    js/navigation.js: {}
+  dependencies:
+    - core/drupal
+    - core/once
+
+service-detail:
+  version: 5.1.0
+  css:
+    component:
+      css/service-detail.css: {}

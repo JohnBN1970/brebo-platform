@@ -1,0 +1,5 @@
+name: 'BREBO Hero'
+type: module
+description: 'Levert de vaste BREBO-homepagehero als plaatsbaar Drupal-blok.'
+package: 'BREBO'
+core_version_requirement: ^11

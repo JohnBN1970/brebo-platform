@@ -1,0 +1,20 @@
+<?php
+
+/**
+ * @file
+ * Theme hooks for the BREBO Drie Pijlers module.
+ */
+
+/**
+ * Implements hook_theme().
+ */
+function brebo_pillars_theme($existing, $type, $theme, $path): array {
+  return [
+    'brebo_pillars' => [
+      'variables' => [
+        'items' => [],
+      ],
+      'template' => 'brebo-pillars',
+    ],
+  ];
+}

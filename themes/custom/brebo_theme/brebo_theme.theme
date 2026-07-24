@@ -1,0 +1,21 @@
+<?php
+
+/**
+ * @file
+ * Theme hooks and preprocess functions for BREBO Theme.
+ */
+
+/**
+ * Implements hook_preprocess_node().
+ */
+function brebo_theme_preprocess_node(array &$variables): void {
+  $node = $variables['node'] ?? NULL;
+
+  if (
+    $node &&
+    $node->bundle() === 'dienst' &&
+    ($variables['view_mode'] ?? '') === 'full'
+  ) {
+    $variables['#attached']['library'][] = 'brebo_theme/service-detail';
+  }
+}

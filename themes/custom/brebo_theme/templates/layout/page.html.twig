@@ -1,0 +1,37 @@
+<div class="site-page">
+  {% if page.header %}
+    <div class="site-page__header">
+      {{ page.header }}
+    </div>
+  {% endif %}
+
+  {% if page.hero %}
+    <div class="site-page__hero">
+      {{ page.hero }}
+    </div>
+  {% endif %}
+
+  {% if page.content_top %}
+    <div class="site-page__content-top">
+      {{ page.content_top }}
+    </div>
+  {% endif %}
+
+  <main class="site-page__main" id="main-content">
+    {{ page.content }}
+  </main>
+
+  {% if page.content_bottom %}
+    <div class="site-page__content-bottom">
+      {{ page.content_bottom }}
+    </div>
+  {% endif %}
+
+  {% if page.cta %}
+    <div class="site-page__cta">
+      {{ page.cta }}
+    </div>
+  {% endif %}
+
+  {% include '@brebo_theme/components/footer.html.twig' %}
+</div>

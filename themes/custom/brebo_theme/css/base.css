@@ -1,0 +1,56 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--brebo-surface);
+  color: var(--brebo-text);
+  font-family: var(--brebo-font);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+img,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+a {
+  color: inherit;
+  text-underline-offset: 0.18em;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0 0 0.75em;
+  line-height: 1.15;
+}
+
+p,
+ul,
+ol,
+blockquote {
+  margin-top: 0;
+  margin-bottom: 1.25rem;
+}

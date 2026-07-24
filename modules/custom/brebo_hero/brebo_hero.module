@@ -1,0 +1,21 @@
+<?php
+
+/**
+ * @file
+ * Theme hooks voor de BREBO Hero-module.
+ */
+
+/**
+ * Implements hook_theme().
+ */
+function brebo_hero_theme($existing, $type, $theme, $path): array {
+  return [
+    'brebo_hero' => [
+      'variables' => [
+        'desktop_image_url' => NULL,
+        'mobile_image_url' => NULL,
+      ],
+      'template' => 'brebo-hero',
+    ],
+  ];
+}

@@ -1,0 +1,40 @@
+{% import _self as menus %}
+
+<nav id="brebo-main-navigation" class="main-navigation" aria-label="{{ 'Hoofdnavigatie'|t }}">
+  {{ menus.menu_links(items, attributes, 0) }}
+</nav>
+
+{% macro menu_links(items, attributes, menu_level) %}
+  {% import _self as menus %}
+
+  {% if items %}
+    {% set menu_classes = menu_level == 0
+      ? ['main-menu']
+      : ['main-menu', 'main-menu--sub']
+    %}
+
+    <ul{{ attributes.addClass(menu_classes) }}>
+      {% for item in items %}
+        {% set item_classes = ['main-menu__item'] %}
+        {% set link_classes = ['main-menu__link'] %}
+
+        {% if item.in_active_trail %}
+          {% set item_classes = item_classes|merge(['main-menu__item--active-trail']) %}
+          {% set link_classes = link_classes|merge(['is-active']) %}
+        {% endif %}
+
+        {% if item.below %}
+          {% set item_classes = item_classes|merge(['main-menu__item--expanded']) %}
+        {% endif %}
+
+        <li{{ item.attributes.addClass(item_classes) }}>
+          {{ link(item.title, item.url, {'class': link_classes}) }}
+
+          {% if item.below %}
+            {{ menus.menu_links(item.below, attributes.removeClass(menu_classes), menu_level + 1) }}
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endmacro %}

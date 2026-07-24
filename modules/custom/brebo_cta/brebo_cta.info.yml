@@ -1,0 +1,5 @@
+name: 'BREBO CTA'
+type: module
+description: 'Herbruikbaar call-to-action blok voor de BREBO-website.'
+package: BREBO
+core_version_requirement: ^11

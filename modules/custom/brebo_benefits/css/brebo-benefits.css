@@ -1,0 +1,163 @@
+.brebo-benefits {
+  padding-block: clamp(5rem, 9vw, 8rem);
+  background: #fafafa;
+}
+
+.brebo-benefits__intro {
+  max-width: 760px;
+  margin-bottom: clamp(2.5rem, 5vw, 4rem);
+}
+
+.brebo-benefits__eyebrow {
+  display: inline-block;
+  margin-bottom: 1rem;
+  color: var(--brebo-purple, #7a3fb1);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.brebo-benefits__title {
+  margin: 0 0 1.25rem;
+  color: var(--brebo-text, #111827);
+  font-size: clamp(2.25rem, 4.5vw, 4.75rem);
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+}
+
+.brebo-benefits__lead {
+  max-width: 680px;
+  margin: 0;
+  color: var(--brebo-muted, #6b7280);
+  font-size: clamp(1.05rem, 1.5vw, 1.22rem);
+  line-height: 1.7;
+}
+
+.brebo-benefits__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(1rem, 2vw, 1.5rem);
+}
+
+.brebo-benefit {
+  position: relative;
+  min-height: 340px;
+  padding: clamp(2rem, 3.2vw, 3rem);
+  overflow: hidden;
+  border: 1px solid var(--brebo-border, #e5e7eb);
+  border-radius: 0;
+  background: var(--brebo-surface, #ffffff);
+  box-shadow: 0 5px 22px rgba(17, 24, 39, 0.04);
+  transition:
+    transform var(--brebo-transition, 180ms ease),
+    box-shadow var(--brebo-transition, 180ms ease),
+    border-color var(--brebo-transition, 180ms ease);
+}
+
+.brebo-benefit__accent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    var(--brebo-blue, #168bff),
+    var(--brebo-purple, #7a3fb1)
+  );
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--brebo-transition, 180ms ease);
+}
+
+.brebo-benefit:hover {
+  transform: translateY(-6px);
+  border-color: rgba(122, 63, 177, 0.22);
+  box-shadow: 0 18px 42px rgba(17, 24, 39, 0.10);
+}
+
+.brebo-benefit:hover .brebo-benefit__accent {
+  transform: scaleX(1);
+}
+
+.brebo-benefit__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 58px;
+  height: 58px;
+  margin-bottom: 2rem;
+  border-radius: 50%;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(22, 139, 255, 0.11),
+      rgba(122, 63, 177, 0.12)
+    );
+  color: var(--brebo-purple, #7a3fb1);
+}
+
+.brebo-benefit__icon svg {
+  width: 28px;
+  height: 28px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.brebo-benefit__title {
+  margin: 0 0 1rem;
+  color: var(--brebo-text, #111827);
+  font-size: clamp(1.2rem, 1.5vw, 1.375rem);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.brebo-benefit__text {
+  margin: 0;
+  color: var(--brebo-muted, #6b7280);
+  line-height: 1.72;
+}
+
+@media (max-width: 1080px) {
+  .brebo-benefits__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .brebo-benefit {
+    min-height: 300px;
+  }
+}
+
+@media (max-width: 640px) {
+  .brebo-benefits {
+    padding-block: 4rem;
+  }
+
+  .brebo-benefits__title {
+    font-size: clamp(2.25rem, 12vw, 3.5rem);
+  }
+
+  .brebo-benefits__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .brebo-benefit {
+    min-height: 0;
+    padding: 2rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brebo-benefit,
+  .brebo-benefit__accent {
+    transition: none;
+  }
+
+  .brebo-benefit:hover {
+    transform: none;
+  }
+}

@@ -1,0 +1,24 @@
+<?php
+
+/**
+ * @file
+ * Hooks voor de BREBO CTA-module.
+ */
+
+/**
+ * Implements hook_theme().
+ */
+function brebo_cta_theme($existing, $type, $theme, $path): array {
+  return [
+    'brebo_cta' => [
+      'variables' => [
+        'eyebrow' => NULL,
+        'title' => NULL,
+        'text' => NULL,
+        'button_label' => NULL,
+        'button_url' => NULL,
+      ],
+      'template' => 'brebo-cta',
+    ],
+  ];
+}

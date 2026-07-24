@@ -1,0 +1,283 @@
+.brebo-projects {
+  --brebo-blue: #1787f7;
+  --brebo-purple: #7440c4;
+  --brebo-ink: #14201d;
+  --brebo-text: #53605d;
+  --brebo-line: #e2e5e8;
+  --brebo-surface: #ffffff;
+  --brebo-bg: #f8f9fb;
+  background: var(--brebo-bg);
+  padding: clamp(72px, 8vw, 128px) 24px;
+}
+
+.brebo-projects * {
+  box-sizing: border-box;
+}
+
+.brebo-projects__inner {
+  width: min(1220px, 100%);
+  margin: 0 auto;
+}
+
+.brebo-projects__header {
+  max-width: 680px;
+  margin-bottom: clamp(38px, 5vw, 64px);
+}
+
+.brebo-projects__eyebrow,
+.brebo-project__label {
+  margin: 0 0 12px;
+  color: var(--brebo-purple);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.brebo-projects__title {
+  max-width: 760px;
+  margin: 0;
+  color: var(--brebo-ink);
+  font-size: clamp(38px, 5vw, 68px);
+  line-height: .98;
+  letter-spacing: -.045em;
+}
+
+.brebo-projects__intro {
+  max-width: 650px;
+  margin: 24px 0 0;
+  color: var(--brebo-text);
+  font-size: clamp(16px, 1.5vw, 19px);
+  line-height: 1.7;
+}
+
+.brebo-projects__list {
+  display: grid;
+  gap: 22px;
+}
+
+.brebo-project {
+  display: grid;
+  grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+  overflow: hidden;
+  min-height: 360px;
+  background: var(--brebo-surface);
+  border: 1px solid var(--brebo-line);
+  border-radius: 14px;
+  box-shadow: 0 18px 50px rgba(16, 31, 37, .06);
+}
+
+.brebo-project--reverse .brebo-project__media {
+  order: 2;
+}
+
+.brebo-project__media {
+  position: relative;
+  display: block;
+  min-height: 100%;
+  overflow: hidden;
+  background: #e9edf1;
+}
+
+.brebo-project__media img,
+.brebo-project__image-placeholder {
+  width: 100%;
+  height: 100%;
+  min-height: 360px;
+  object-fit: cover;
+  transition: transform .45s ease;
+}
+
+.brebo-project:hover .brebo-project__media img {
+  transform: scale(1.025);
+}
+
+.brebo-project__content {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.brebo-project__pillars {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 28px;
+  padding: 22px 34px;
+  border-bottom: 1px solid var(--brebo-line);
+}
+
+.brebo-project__pillar {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #9aa1a0;
+  font-size: 12px;
+  font-weight: 750;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+
+.brebo-project__pillar.is-active {
+  color: var(--brebo-purple);
+}
+
+.brebo-project__pillar-dot {
+  display: grid;
+  width: 26px;
+  height: 26px;
+  place-items: center;
+  color: inherit;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  font-size: 9px;
+}
+
+.brebo-project__body {
+  flex: 1;
+  padding: clamp(28px, 3.5vw, 48px);
+}
+
+.brebo-project__question {
+  max-width: 700px;
+}
+
+.brebo-project__heading {
+  margin: 0;
+  color: var(--brebo-ink);
+  font-size: clamp(24px, 2.3vw, 36px);
+  line-height: 1.12;
+  letter-spacing: -.025em;
+}
+
+.brebo-project__columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 34px;
+  margin-top: 32px;
+}
+
+.brebo-project__text {
+  margin: 0;
+  color: var(--brebo-text);
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.brebo-project__results {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.brebo-project__results li {
+  position: relative;
+  padding-left: 24px;
+  color: var(--brebo-text);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.brebo-project__results li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--brebo-purple);
+  font-weight: 800;
+}
+
+.brebo-project__link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin: 0 34px 28px;
+  color: var(--brebo-purple);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.brebo-project__link span,
+.brebo-projects__all span {
+  transition: transform .2s ease;
+}
+
+.brebo-project__link:hover span,
+.brebo-project__link:focus-visible span,
+.brebo-projects__all:hover span,
+.brebo-projects__all:focus-visible span {
+  transform: translateX(6px);
+}
+
+.brebo-projects__footer {
+  display: flex;
+  justify-content: center;
+  margin-top: 38px;
+}
+
+.brebo-projects__all {
+  display: inline-flex;
+  align-items: center;
+  gap: 18px;
+  padding: 16px 24px;
+  color: #fff;
+  background: linear-gradient(90deg, var(--brebo-blue), var(--brebo-purple));
+  border-radius: 999px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+@media (max-width: 900px) {
+  .brebo-project,
+  .brebo-project--reverse {
+    grid-template-columns: 1fr;
+  }
+
+  .brebo-project--reverse .brebo-project__media {
+    order: 0;
+  }
+
+  .brebo-project__media,
+  .brebo-project__media img,
+  .brebo-project__image-placeholder {
+    min-height: 300px;
+  }
+}
+
+@media (max-width: 620px) {
+  .brebo-projects {
+    padding-inline: 16px;
+  }
+
+  .brebo-project {
+    border-radius: 10px;
+  }
+
+  .brebo-project__pillars {
+    gap: 10px 16px;
+    padding: 18px 20px;
+  }
+
+  .brebo-project__body {
+    padding: 26px 20px;
+  }
+
+  .brebo-project__columns {
+    grid-template-columns: 1fr;
+    gap: 26px;
+  }
+
+  .brebo-project__link {
+    margin-inline: 20px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brebo-project__media img,
+  .brebo-project__link span,
+  .brebo-projects__all span {
+    transition: none;
+  }
+}

@@ -1,0 +1,214 @@
+/* =========================================================
+   BREBO — Definitieve dienstkaart
+   Bestand: css/services.css
+   ========================================================= */
+
+.service-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #ffffff;
+  border: 0;
+  border-radius: 14px;
+  box-shadow: 0 10px 34px rgba(15, 31, 52, 0.08);
+  transition:
+    transform 220ms ease,
+    box-shadow 220ms ease;
+}
+
+.service-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 22px 54px rgba(15, 31, 52, 0.14);
+}
+
+/* ---------------------------------------------------------
+   Afbeelding
+   --------------------------------------------------------- */
+
+.service-card__media {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  height: 290px;
+  color: #ffffff;
+  text-decoration: none;
+  background: #dfe4e8;
+}
+
+.service-card__image,
+.service-card__image > div,
+.service-card__image .field,
+.service-card__image .field__item {
+  width: 100%;
+  height: 100%;
+}
+
+.service-card__image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: transform 500ms cubic-bezier(.2, .7, .2, 1);
+}
+
+.service-card:hover .service-card__image img {
+  transform: scale(1.045);
+}
+
+.service-card__overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(7, 19, 33, 0.00) 20%,
+      rgba(7, 19, 33, 0.10) 52%,
+      rgba(7, 19, 33, 0.76) 100%
+    );
+}
+
+/* ---------------------------------------------------------
+   Titel op beeld
+   --------------------------------------------------------- */
+
+.service-card__heading {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 2;
+  padding: 30px 34px 32px;
+}
+
+.service-card__title {
+  max-width: 100%;
+  margin: 0;
+  color: #ffffff;
+  font-size: clamp(1.75rem, 2.1vw, 2.25rem);
+  font-weight: 700;
+  line-height: 1.08;
+  text-wrap: balance;
+}
+
+/* ---------------------------------------------------------
+   Inhoud
+   --------------------------------------------------------- */
+
+.service-card__content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 30px 34px 32px;
+}
+
+.service-card__intro {
+  display: -webkit-box;
+  margin: 0 0 28px;
+  overflow: hidden;
+  color: #5d6672;
+  font-size: 1rem;
+  line-height: 1.65;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.service-card__intro p,
+.service-card__intro div {
+  margin: 0;
+}
+
+/* ---------------------------------------------------------
+   CTA
+   --------------------------------------------------------- */
+
+.service-card__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: auto;
+  color: #0f1f34;
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-decoration: none;
+}
+
+.service-card__arrow {
+  transition: transform 220ms ease;
+}
+
+.service-card__link:hover .service-card__arrow,
+.service-card__link:focus-visible .service-card__arrow {
+  transform: translateX(4px);
+}
+
+/* ---------------------------------------------------------
+   Focus
+   --------------------------------------------------------- */
+
+.service-card a:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
+}
+
+/* ---------------------------------------------------------
+   Tablet
+   --------------------------------------------------------- */
+
+@media (max-width: 1024px) {
+  .service-card__media {
+    height: 260px;
+  }
+
+  .service-card__heading,
+  .service-card__content {
+    padding-right: 28px;
+    padding-left: 28px;
+  }
+}
+
+/* ---------------------------------------------------------
+   Mobiel
+   --------------------------------------------------------- */
+
+@media (max-width: 680px) {
+  .service-card {
+    border-radius: 12px;
+  }
+
+  .service-card__media {
+    height: 240px;
+  }
+
+  .service-card__heading {
+    padding: 24px;
+  }
+
+  .service-card__content {
+    padding: 24px;
+  }
+
+  .service-card__intro {
+    -webkit-line-clamp: 4;
+  }
+}
+
+/* ---------------------------------------------------------
+   Minder animatie
+   --------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .service-card,
+  .service-card__image img,
+  .service-card__arrow {
+    transition: none;
+  }
+
+  .service-card:hover {
+    transform: none;
+  }
+}

@@ -1,0 +1,5 @@
+benefits:
+  version: 2.0.0
+  css:
+    component:
+      css/brebo-benefits.css: {}

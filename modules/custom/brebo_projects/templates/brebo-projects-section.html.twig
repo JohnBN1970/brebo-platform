@@ -1,0 +1,84 @@
+<section class="brebo-projects" aria-labelledby="brebo-projects-title">
+  <div class="brebo-projects__inner">
+    <header class="brebo-projects__header">
+      <p class="brebo-projects__eyebrow">Bewezen in de praktijk</p>
+      <h2 class="brebo-projects__title" id="brebo-projects-title">
+        Gebouwen die vandaag beter presteren dan gisteren.
+      </h2>
+      <p class="brebo-projects__intro">
+        Geen twee gebouwen zijn hetzelfde. Daarom begint ieder project met een goed begrip van uw situatie.
+        Vanuit inzicht organiseren we de juiste aanpak en zorgen we voor een uitvoering die past bij uw gebouw én de lange termijn.
+      </p>
+    </header>
+
+    <div class="brebo-projects__list">
+      {% for project in projects %}
+        <article class="brebo-project {{ loop.index is even ? 'brebo-project--reverse' : '' }}">
+          <a class="brebo-project__media" href="{{ project.url }}" aria-label="Bekijk project {{ project.title }}">
+            {% if project.image_url %}
+              <img src="{{ project.image_url }}" alt="{{ project.image_alt }}" loading="lazy">
+            {% else %}
+              <span class="brebo-project__image-placeholder" aria-hidden="true"></span>
+            {% endif %}
+          </a>
+
+          <div class="brebo-project__content">
+            <div class="brebo-project__pillars" aria-label="Toegepaste pijlers">
+              <span class="brebo-project__pillar {{ project.pillars.insight ? 'is-active' : '' }}">
+                <span class="brebo-project__pillar-dot" aria-hidden="true">◉</span>
+                Inzicht
+              </span>
+              <span class="brebo-project__pillar {{ project.pillars.regie ? 'is-active' : '' }}">
+                <span class="brebo-project__pillar-dot" aria-hidden="true">◉</span>
+                Regie
+              </span>
+              <span class="brebo-project__pillar {{ project.pillars.realisatie ? 'is-active' : '' }}">
+                <span class="brebo-project__pillar-dot" aria-hidden="true">◉</span>
+                Realisatie
+              </span>
+            </div>
+
+            <div class="brebo-project__body">
+              <div class="brebo-project__question">
+                <p class="brebo-project__label">Klantvraag</p>
+                <h3 class="brebo-project__heading">
+                  {{ project.question ?: project.title }}
+                </h3>
+              </div>
+
+              <div class="brebo-project__columns">
+                <div>
+                  <p class="brebo-project__label">Aanpak</p>
+                  <p class="brebo-project__text">{{ project.approach }}</p>
+                </div>
+
+                {% if project.results %}
+                  <div>
+                    <p class="brebo-project__label">Resultaat</p>
+                    <ul class="brebo-project__results">
+                      {% for result in project.results %}
+                        <li>{{ result }}</li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+
+            <a class="brebo-project__link" href="{{ project.url }}">
+              Bekijk project
+              <span aria-hidden="true">→</span>
+            </a>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+
+    <div class="brebo-projects__footer">
+      <a class="brebo-projects__all" href="{{ projects_url }}">
+        Bekijk alle projecten
+        <span aria-hidden="true">→</span>
+      </a>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,94 @@
+###############################################################################
+# BREBO Platform - Git Ignore
+###############################################################################
+
+#
+# Drupal runtime
+#
+sites/*/files/
+sites/*/private/
+sites/simpletest/
+
+#
+# Local configuration
+#
+sites/*/settings.local.php
+sites/*/services.local.yml
+
+#
+# Environment
+#
+.env
+.env.*
+
+#
+# IDE
+#
+.vscode/
+.idea/
+
+#
+# OS
+#
+.DS_Store
+Thumbs.db
+
+#
+# Logs
+#
+*.log
+
+#
+# Cache
+#
+tmp/
+cache/
+
+#
+# Composer
+#
+vendor/bin/
+
+#
+# Node
+#
+node_modules/
+
+#
+# PHPUnit
+#
+phpunit.xml
+
+#
+# Backups
+#
+*.sql
+*.sql.gz
+backup/
+backups/
+
+#
+# Hostinger
+#
+error_log
+
+#
+# Drupal generated files
+#
+sites/*/files/styles/
+sites/*/files/css/
+sites/*/files/js/
+sites/*/files/php/
+
+#
+# Composer
+#
+vendor/bin/
+composer.phar
+
+#
+# Git
+#
+.git-credentials
+
+echo "sites/*/settings.php" >> .gitignore

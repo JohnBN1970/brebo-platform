@@ -1,0 +1,25 @@
+{% if content %}
+  <header class="site-header" role="banner">
+    <div class="site-container site-header__inner">
+      <div{{ attributes.addClass('region', 'region-header') }}>
+        {{ content }}
+
+        <a class="site-header__cta button button--header" href="/contact">
+          {{ 'Offerte aanvragen'|t }}
+        </a>
+
+        <button
+          class="site-header__toggle"
+          type="button"
+          aria-expanded="false"
+          aria-controls="brebo-mobile-navigation"
+          aria-label="{{ 'Menu openen of sluiten'|t }}"
+        >
+          <span class="site-header__toggle-icon" aria-hidden="true"></span>
+        </button>
+      </div>
+    </div>
+
+    <div class="site-header__overlay" hidden></div>
+  </header>
+{% endif %}

@@ -1,0 +1,24 @@
+<section class="brebo-cta" aria-labelledby="brebo-cta-title-{{ configuration_id|default('default')|clean_class }}">
+  <div class="brebo-cta__inner">
+    <div class="brebo-cta__content">
+      {% if eyebrow %}
+        <p class="brebo-cta__eyebrow">{{ eyebrow }}</p>
+      {% endif %}
+
+      <h2 class="brebo-cta__title" id="brebo-cta-title-{{ configuration_id|default('default')|clean_class }}">
+        {{ title }}
+      </h2>
+
+      {% if text %}
+        <p class="brebo-cta__text">{{ text }}</p>
+      {% endif %}
+    </div>
+
+    <div class="brebo-cta__action">
+      <a class="brebo-cta__button" href="{{ button_url }}">
+        <span>{{ button_label }}</span>
+        <span class="brebo-cta__arrow" aria-hidden="true">→</span>
+      </a>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,14 @@
+name: 'BREBO Projecten'
+type: module
+description: 'Dynamische BREBO-projecten via een Drupal contenttype en View.'
+package: BREBO
+core_version_requirement: ^10.3 || ^11
+dependencies:
+  - drupal:block
+  - drupal:field
+  - drupal:file
+  - drupal:image
+  - drupal:node
+  - drupal:options
+  - drupal:text
+  - drupal:views

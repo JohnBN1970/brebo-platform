@@ -1,0 +1,5 @@
+hero:
+  version: 1.x
+  css:
+    component:
+      css/brebo-hero.css: {}

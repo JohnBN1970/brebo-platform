@@ -1,0 +1,6 @@
+name: 'BREBO Drie Pijlers'
+type: module
+description: 'Homepageblok met de BREBO-aanpak: Inzicht, Regie en Realisatie.'
+package: 'BREBO'
+core_version_requirement: ^10.3 || ^11
+version: '2.2.0'

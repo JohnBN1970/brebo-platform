@@ -1,0 +1,152 @@
+{#
+/**
+ * @file
+ * BREBO — definitieve volledige weergave van contenttype Dienst.
+ *
+ * Plaats als:
+ * templates/content/node--dienst--full.html.twig
+ */
+#}
+
+{% set intro = content.field_intro|render %}
+{% set body = content.field_body|render %}
+{% set key_points = content.field_key_points|render %}
+{% set related_projects = content.field_related_projects|render %}
+
+<article{{ attributes.addClass('service-detail') }}>
+
+  <header class="service-detail__hero">
+
+    {# Afbeeldingsvelden niet met striptags testen: een afbeelding bevat geen tekst. #}
+    {% if node.field_hero_afbeelding is not empty %}
+      <div class="service-detail__hero-image">
+        {{ content.field_hero_afbeelding }}
+      </div>
+    {% endif %}
+
+    <div class="service-detail__hero-overlay" aria-hidden="true"></div>
+
+    <div class="service-detail__hero-inner">
+      <p class="service-detail__eyebrow">{{ 'Dienst'|t }}</p>
+
+      <h1 class="service-detail__title">{{ node.label }}</h1>
+
+      {% if intro|striptags|trim %}
+        <div class="service-detail__lead">
+          {{ intro }}
+        </div>
+      {% endif %}
+    </div>
+
+  </header>
+
+  <main class="service-detail__main">
+
+    {% if body|striptags|trim %}
+      <section class="service-detail__body">
+        {{ body }}
+      </section>
+    {% endif %}
+
+    {% if key_points|striptags|trim %}
+      <section class="service-detail__key-points" aria-labelledby="dienst-kernpunten">
+        <div class="service-detail__section-heading">
+          <p class="service-detail__section-eyebrow">
+            {{ 'Wat u van BREBO mag verwachten'|t }}
+          </p>
+
+          <h2 id="dienst-kernpunten">
+            {{ 'Onze aanpak in het kort'|t }}
+          </h2>
+        </div>
+
+        <div class="service-detail__key-points-list">
+          {{ key_points }}
+        </div>
+      </section>
+    {% endif %}
+
+    <section class="service-detail__lens" aria-labelledby="dienst-lens">
+      <div class="service-detail__lens-intro">
+        <p class="service-detail__section-eyebrow">
+          {{ 'De BREBO Lens'|t }}
+        </p>
+
+        <h2 id="dienst-lens">
+          {{ 'Van inzicht naar een beheersbaar resultaat'|t }}
+        </h2>
+
+        <p>
+          {{ 'Wij bekijken niet alleen de afzonderlijke werkzaamheden, maar de complete buitenzijde van het gebouw. Zo ontstaat één samenhangend plan met één aanspreekpunt en één planning.'|t }}
+        </p>
+      </div>
+
+      <div class="service-detail__lens-steps">
+
+        <div class="service-detail__lens-step">
+          <span class="service-detail__lens-number">01</span>
+          <div>
+            <h3>{{ 'Inzicht'|t }}</h3>
+            <p>{{ 'We brengen de technische staat, aandachtspunten en samenhang van het gebouw in beeld.'|t }}</p>
+          </div>
+        </div>
+
+        <div class="service-detail__lens-step">
+          <span class="service-detail__lens-number">02</span>
+          <div>
+            <h3>{{ 'Regie'|t }}</h3>
+            <p>{{ 'We vertalen het inzicht naar een duidelijke aanpak, planning en afstemming tussen disciplines.'|t }}</p>
+          </div>
+        </div>
+
+        <div class="service-detail__lens-step">
+          <span class="service-detail__lens-number">03</span>
+          <div>
+            <h3>{{ 'Realisatie'|t }}</h3>
+            <p>{{ 'We bewaken uitvoering, kwaliteit en voortgang tot en met de oplevering.'|t }}</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    {% if related_projects|striptags|trim %}
+      <section class="service-detail__projects" aria-labelledby="dienst-projecten">
+        <div class="service-detail__section-heading">
+          <p class="service-detail__section-eyebrow">
+            {{ 'In de praktijk'|t }}
+          </p>
+
+          <h2 id="dienst-projecten">
+            {{ 'Gerelateerde projecten'|t }}
+          </h2>
+        </div>
+
+        <div class="service-detail__projects-grid">
+          {{ related_projects }}
+        </div>
+      </section>
+    {% endif %}
+
+  </main>
+
+  <section class="service-detail__cta">
+    <div class="service-detail__cta-inner">
+      <div class="service-detail__cta-copy">
+        <p class="service-detail__cta-eyebrow">
+          {{ 'Uw gebouw centraal'|t }}
+        </p>
+
+        <h2>
+          {{ 'Wilt u weten wat BREBO voor uw gebouw kan betekenen?'|t }}
+        </h2>
+      </div>
+
+      <a class="service-detail__cta-button" href="/offerte-aanvragen">
+        <span>{{ 'Offerte aanvragen'|t }}</span>
+        <span class="service-detail__cta-arrow" aria-hidden="true">→</span>
+      </a>
+    </div>
+  </section>
+
+</article>

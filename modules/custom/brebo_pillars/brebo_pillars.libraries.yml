@@ -1,0 +1,5 @@
+pillars:
+  version: 2.2.0
+  css:
+    theme:
+      css/brebo-pillars.css: {}

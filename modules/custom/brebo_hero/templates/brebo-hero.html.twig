@@ -1,0 +1,46 @@
+{#
+/**
+ * @file
+ * Vaste homepagehero voor BREBO.
+ */
+#}
+<section class="brebo-hero" aria-labelledby="brebo-hero-title">
+  <picture class="brebo-hero__media" aria-hidden="true">
+    <source media="(max-width: 47.99rem)" srcset="{{ mobile_image_url }}">
+    <img
+      src="{{ desktop_image_url }}"
+      alt=""
+      width="1664"
+      height="936"
+      decoding="async"
+      fetchpriority="high">
+  </picture>
+
+  <div class="brebo-hero__fade" aria-hidden="true"></div>
+
+  <div class="brebo-hero__inner">
+    <div class="brebo-hero__content">
+      <p class="brebo-hero__eyebrow">BREBO Groep</p>
+
+      <h1 id="brebo-hero-title" class="brebo-hero__title">
+        Het gebouw staat centraal.
+      </h1>
+
+      <p class="brebo-hero__lead">
+        Bij grootschalige renovatieprojecten draait alles om een goede voorbereiding en een zorgvuldige uitvoering. BREBO is gespecialiseerd in de renovatie van de buitenzijde van bestaande gebouwen, met <b>kozijnen</b> en <b>glas</b> als basis. Inzicht, regie en realisatie vormen de basis voor een goed georganiseerde grootschalige renovatie.
+      </p>
+
+      <div class="brebo-hero__actions">
+        <a class="brebo-hero__button brebo-hero__button--primary" href="/waarom-brebo">
+          Maak kennis met de BREBO Lens
+          <span aria-hidden="true">→</span>
+        </a>
+
+        <a class="brebo-hero__button brebo-hero__button--secondary" href="/projecten">
+          Bekijk projecten
+          <span aria-hidden="true">→</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>

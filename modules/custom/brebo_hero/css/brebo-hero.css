@@ -1,0 +1,218 @@
+.brebo-hero {
+  --brebo-hero-ink: #0b1830;
+  --brebo-hero-accent: #7650b5;
+  --brebo-hero-max-width: 90rem;
+
+  position: relative;
+  min-height: clamp(38rem, 72vh, 52rem);
+  overflow: hidden;
+  background: #fff;
+  color: var(--brebo-hero-ink);
+  isolation: isolate;
+}
+
+.brebo-hero__media,
+.brebo-hero__media img,
+.brebo-hero__fade {
+  position: absolute;
+  inset: 0;
+}
+
+.brebo-hero__media {
+  z-index: -2;
+}
+
+.brebo-hero__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 68% center;
+}
+
+.brebo-hero__fade {
+  z-index: -1;
+  background: linear-gradient(
+    90deg,
+    #fff 0%,
+    rgba(255, 255, 255, 0.98) 25%,
+    rgba(255, 255, 255, 0.82) 39%,
+    rgba(255, 255, 255, 0.28) 55%,
+    rgba(255, 255, 255, 0) 68%
+  );
+}
+
+.brebo-hero__inner {
+  display: flex;
+  align-items: center;
+  width: min(calc(100% - 3rem), var(--brebo-hero-max-width));
+  min-height: inherit;
+  margin-inline: auto;
+  padding-block: clamp(5rem, 9vw, 8rem);
+}
+
+.brebo-hero__content {
+  width: min(38rem, 47%);
+}
+
+.brebo-hero__eyebrow {
+  margin: 0 0 1rem;
+  color: var(--brebo-hero-accent);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.brebo-hero__title {
+  max-width: 11ch;
+  margin: 0;
+  font-size: clamp(3rem, 5vw, 5.25rem);
+  font-weight: 700;
+  letter-spacing: -0.045em;
+  line-height: 0.98;
+  text-wrap: balance;
+}
+
+.brebo-hero__lead {
+  max-width: 38rem;
+  margin: 1.75rem 0 0;
+  font-size: clamp(1.05rem, 1.25vw, 1.25rem);
+  line-height: 1.65;
+}
+
+.brebo-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-top: 2rem;
+}
+
+.brebo-hero__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  min-height: 3.5rem;
+  padding: 0.9rem 1.35rem;
+  border: 1px solid transparent;
+  border-radius: 0.16rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.035em;
+  line-height: 1.2;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: transform 160ms ease, background-color 160ms ease, color 160ms ease, border-color 160ms ease;
+}
+
+.brebo-hero__button:hover {
+  transform: translateY(-2px);
+}
+
+.brebo-hero__button:focus-visible {
+  outline: 3px solid rgba(118, 80, 181, 0.45);
+  outline-offset: 3px;
+}
+
+.brebo-hero__button--primary {
+  background: var(--brebo-hero-ink);
+  color: #fff;
+}
+
+.brebo-hero__button--primary:hover {
+  background: #172846;
+  color: #fff;
+}
+
+.brebo-hero__button--secondary {
+  border-color: rgba(11, 24, 48, 0.22);
+  background: rgba(255, 255, 255, 0.78);
+  color: var(--brebo-hero-ink);
+  backdrop-filter: blur(0.3rem);
+}
+
+.brebo-hero__button--secondary:hover {
+  border-color: var(--brebo-hero-ink);
+  background: #fff;
+  color: var(--brebo-hero-ink);
+}
+
+@media (max-width: 64rem) {
+  .brebo-hero__fade {
+    background: linear-gradient(
+      90deg,
+      #fff 0%,
+      rgba(255, 255, 255, 0.96) 34%,
+      rgba(255, 255, 255, 0.48) 65%,
+      rgba(255, 255, 255, 0.08) 100%
+    );
+  }
+
+  .brebo-hero__content {
+    width: min(36rem, 58%);
+  }
+}
+
+@media (max-width: 47.99rem) {
+  .brebo-hero {
+    display: grid;
+    min-height: auto;
+  }
+
+  .brebo-hero__media,
+  .brebo-hero__media img,
+  .brebo-hero__fade {
+    position: static;
+  }
+
+  .brebo-hero__media {
+    order: 1;
+    height: clamp(18rem, 65vw, 28rem);
+  }
+
+  .brebo-hero__media img {
+    display: block;
+    object-position: 72% center;
+  }
+
+  .brebo-hero__fade {
+    display: none;
+  }
+
+  .brebo-hero__inner {
+    order: 2;
+    display: block;
+    width: min(calc(100% - 2rem), var(--brebo-hero-max-width));
+    min-height: 0;
+    padding-block: 2.5rem 3rem;
+  }
+
+  .brebo-hero__content {
+    width: 100%;
+  }
+
+  .brebo-hero__title {
+    max-width: 12ch;
+    font-size: clamp(2.65rem, 13vw, 4rem);
+  }
+
+  .brebo-hero__lead {
+    margin-top: 1.25rem;
+    font-size: 1rem;
+  }
+
+  .brebo-hero__actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .brebo-hero__button {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brebo-hero__button {
+    transition: none;
+  }
+}

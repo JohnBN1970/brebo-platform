@@ -1,0 +1,6 @@
+name: BREBO Benefits
+type: module
+description: 'Visueel verfijnd voordelenblok voor de BREBO-homepage.'
+package: BREBO
+core_version_requirement: ^11
+version: 2.0.0

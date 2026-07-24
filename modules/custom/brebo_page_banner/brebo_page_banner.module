@@ -1,0 +1,27 @@
+<?php
+
+/**
+ * @file
+ * Theme hooks voor de BREBO paginabanner.
+ */
+
+/**
+ * Implements hook_theme().
+ */
+function brebo_page_banner_theme($existing, $type, $theme, $path): array {
+  return [
+    'brebo_page_banner' => [
+      'variables' => [
+        'eyebrow' => NULL,
+        'title' => NULL,
+        'intro' => NULL,
+        'image_url' => NULL,
+        'image_alt' => NULL,
+        'cta_text' => NULL,
+        'cta_url' => NULL,
+        'image_position' => 'center center',
+      ],
+      'template' => 'brebo-page-banner',
+    ],
+  ];
+}

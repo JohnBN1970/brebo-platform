@@ -1,0 +1,18 @@
+<?php
+
+/**
+ * @file
+ * Theme hooks for the BREBO Benefits module.
+ */
+
+/**
+ * Implements hook_theme().
+ */
+function brebo_benefits_theme($existing, $type, $theme, $path): array {
+  return [
+    'brebo_benefits' => [
+      'variables' => [],
+      'template' => 'brebo-benefits',
+    ],
+  ];
+}

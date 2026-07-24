@@ -1,0 +1,6 @@
+/* Hide Drupal's empty front-page fallback when the homepage is built with blocks. */
+.path-frontpage .region--content > .site-container > .block-system-main-block > div:not([class]),
+.path-frontpage .region--content > .site-container > .block-system-main-block > p,
+.path-frontpage .region--content > .site-container > .block-system-main-block > ul {
+  display: none;
+}

@@ -1,0 +1,18 @@
+langcode: nl
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_project_results
+    - node.type.project
+id: node.project.field_project_results
+field_name: field_project_results
+entity_type: node
+bundle: project
+label: 'Resultaten'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string_long

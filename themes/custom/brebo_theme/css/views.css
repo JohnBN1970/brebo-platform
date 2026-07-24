@@ -1,0 +1,132 @@
+/* =========================================================
+   BREBO — Drupal Views
+   Bestand: css/views.css
+   Algemene structuur voor Views-overzichten
+   ========================================================= */
+
+
+/* ---------------------------------------------------------
+   Algemene View
+   --------------------------------------------------------- */
+
+.view {
+  width: 100%;
+}
+
+.view-content {
+  width: 100%;
+}
+
+.views-row {
+  min-width: 0;
+}
+
+
+/* ---------------------------------------------------------
+   Standaard grid voor Views met kaarten
+   Voeg in Drupal bij de View als CSS-klasse toe:
+   brebo-card-grid
+   --------------------------------------------------------- */
+
+.brebo-card-grid .view-content {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(24px, 2.5vw, 40px);
+  align-items: stretch;
+}
+
+.brebo-card-grid .views-row {
+  display: block;
+  min-width: 0;
+  width: auto;
+  height: 100%;
+  margin: 0;
+}
+
+
+/* ---------------------------------------------------------
+   Indien Drupal geen .view-content-wrapper toont
+   en de rows rechtstreeks in de View staan
+   --------------------------------------------------------- */
+
+.brebo-card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(24px, 2.5vw, 40px);
+  align-items: stretch;
+}
+
+/*
+ * Wanneer .view-content aanwezig is, moet alleen die wrapper
+ * het grid vormen. De buitenste View blijft dan normaal.
+ */
+.brebo-card-grid:has(.view-content) {
+  display: block;
+}
+
+
+/* ---------------------------------------------------------
+   Lege resultaten
+   --------------------------------------------------------- */
+
+.view-empty {
+  padding-block: 32px;
+}
+
+
+/* ---------------------------------------------------------
+   Pager
+   --------------------------------------------------------- */
+
+.pager {
+  margin-top: clamp(32px, 5vw, 64px);
+}
+
+.pager__items {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pager__item a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 42px;
+  min-height: 42px;
+  padding: 8px 12px;
+  text-decoration: none;
+}
+
+.pager__item.is-active a {
+  font-weight: 700;
+}
+
+
+/* ---------------------------------------------------------
+   Tablet
+   --------------------------------------------------------- */
+
+@media (max-width: 1024px) {
+  .brebo-card-grid .view-content,
+  .brebo-card-grid:not(:has(.view-content)) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+
+/* ---------------------------------------------------------
+   Mobiel
+   --------------------------------------------------------- */
+
+@media (max-width: 680px) {
+  .brebo-card-grid .view-content,
+  .brebo-card-grid:not(:has(.view-content)) {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}

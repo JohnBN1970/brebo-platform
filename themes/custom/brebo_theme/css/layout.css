@@ -1,0 +1,32 @@
+/* =========================================================
+   BREBO LAYOUT
+   Eén vaste paginavolgorde en één containersysteem.
+   ========================================================= */
+
+.site-page {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  overflow: clip;
+}
+
+/* De volgorde blijft correct, ook wanneer component-CSS order gebruikt. */
+.site-page__header { order: 0; position: relative; z-index: 2000; }
+.site-page__hero { order: 10; position: relative; z-index: 1; }
+.site-page__content-top { order: 20; }
+.site-page__main { order: 30; min-height: 20vh; }
+.site-page__content-bottom { order: 40; }
+.site-page__cta { order: 50; }
+.site-page > .brebo-footer { order: 60; }
+
+.site-container,
+.brebo-container {
+  box-sizing: border-box;
+  width: min(100% - (2 * var(--brebo-gutter)), var(--brebo-container));
+  margin-inline: auto;
+}
+
+.brebo-container--reading {
+  width: min(100% - (2 * var(--brebo-gutter)), var(--brebo-reading-width));
+  margin-inline: auto;
+}

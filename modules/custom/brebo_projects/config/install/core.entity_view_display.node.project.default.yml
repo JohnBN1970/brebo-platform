@@ -1,0 +1,60 @@
+langcode: nl
+status: true
+dependencies:
+  config:
+    - field.field.node.project.field_brebo_approach
+    - field.field.node.project.field_client_question
+    - field.field.node.project.field_featured
+    - field.field.node.project.field_pillar_insight
+    - field.field.node.project.field_pillar_realisation
+    - field.field.node.project.field_pillar_regie
+    - field.field.node.project.field_project_image
+    - field.field.node.project.field_project_results
+    - field.field.node.project.field_sort_order
+    - node.type.project
+  module:
+    - image
+    - text
+    - user
+id: node.project.default
+targetEntityType: node
+bundle: project
+mode: default
+content:
+  field_project_image:
+    type: image
+    label: hidden
+    settings:
+      image_link: ''
+      image_style: ''
+    third_party_settings: {  }
+    weight: 0
+    region: content
+  field_client_question:
+    type: basic_string
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 1
+    region: content
+  field_brebo_approach:
+    type: text_default
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 2
+    region: content
+  field_project_results:
+    type: basic_string
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 3
+    region: content
+hidden:
+  field_featured: true
+  field_pillar_insight: true
+  field_pillar_realisation: true
+  field_pillar_regie: true
+  field_sort_order: true
+  links: true

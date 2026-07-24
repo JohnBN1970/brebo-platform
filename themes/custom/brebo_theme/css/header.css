@@ -1,0 +1,215 @@
+.site-header {
+  position: relative;
+  top: auto;
+  z-index: 1000;
+  width: 100%;
+  background: var(--brebo-surface);
+  border-bottom: 1px solid var(--brebo-border);
+  box-shadow: 0 2px 12px rgba(17, 24, 39, 0.05);
+  transition:
+    box-shadow var(--brebo-transition),
+    background-color var(--brebo-transition);
+}
+
+.site-header.is-scrolled {
+  box-shadow: 0 8px 24px rgba(17, 24, 39, 0.10);
+}
+
+.site-header__inner {
+  min-height: 96px;
+  display: flex;
+  align-items: center;
+  transition: min-height var(--brebo-transition);
+}
+
+.site-header.is-scrolled .site-header__inner {
+  min-height: 82px;
+}
+
+.region-header {
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: clamp(1.25rem, 2.6vw, 2.5rem);
+}
+
+/* Drupal Site Branding block */
+.region-header [id*="site-branding"],
+.region-header .block-system-branding-block {
+  flex: 0 0 auto;
+  margin: 0 auto 0 0;
+  line-height: 1;
+}
+
+.region-header [id*="site-branding"] > div,
+.region-header .block-system-branding-block > div {
+  display: flex;
+  align-items: center;
+}
+
+.region-header [id*="site-branding"] a[rel="home"],
+.region-header .block-system-branding-block a[rel="home"] {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.region-header [id*="site-branding"] img,
+.region-header .block-system-branding-block img {
+  display: block;
+  width: 220px !important;
+  height: auto !important;
+  max-width: 220px !important;
+  max-height: 72px !important;
+  object-fit: contain;
+  transition:
+    width var(--brebo-transition),
+    max-width var(--brebo-transition);
+}
+
+.site-header.is-scrolled .region-header [id*="site-branding"] img,
+.site-header.is-scrolled .region-header .block-system-branding-block img {
+  width: 196px !important;
+  max-width: 196px !important;
+}
+
+.region-header .site-name,
+.region-header .site-slogan,
+.region-header .site-branding__name,
+.region-header .site-branding__slogan {
+  display: none !important;
+}
+
+.site-header__cta {
+  flex: 0 0 auto;
+  min-height: 44px;
+  padding-inline: 1.15rem;
+  white-space: nowrap;
+}
+
+.site-header__toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  margin-left: auto;
+  padding: 0;
+  border: 0;
+  border-radius: var(--brebo-radius-sm);
+  background: transparent;
+  color: var(--brebo-text);
+  cursor: pointer;
+}
+
+.site-header__toggle:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--brebo-focus) 30%, transparent);
+  outline-offset: 3px;
+}
+
+.site-header__toggle-icon,
+.site-header__toggle-icon::before,
+.site-header__toggle-icon::after {
+  display: block;
+  width: 26px;
+  height: 2px;
+  background: currentColor;
+  transition: transform var(--brebo-transition), opacity var(--brebo-transition);
+}
+
+.site-header__toggle-icon {
+  position: relative;
+}
+
+.site-header__toggle-icon::before,
+.site-header__toggle-icon::after {
+  position: absolute;
+  left: 0;
+  content: "";
+}
+
+.site-header__toggle-icon::before {
+  top: -8px;
+}
+
+.site-header__toggle-icon::after {
+  top: 8px;
+}
+
+.site-header.is-menu-open .site-header__toggle-icon {
+  background: transparent;
+}
+
+.site-header.is-menu-open .site-header__toggle-icon::before {
+  top: 0;
+  transform: rotate(45deg);
+}
+
+.site-header.is-menu-open .site-header__toggle-icon::after {
+  top: 0;
+  transform: rotate(-45deg);
+}
+
+.site-header__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1001;
+  background: rgba(17, 24, 39, 0.38);
+}
+
+@media (max-width: 1023px) {
+  .site-header__inner,
+  .site-header.is-scrolled .site-header__inner {
+    min-height: 72px;
+  }
+
+  .region-header {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0;
+  }
+
+  .region-header [id*="site-branding"] img,
+  .region-header .block-system-branding-block img,
+  .site-header.is-scrolled .region-header [id*="site-branding"] img,
+  .site-header.is-scrolled .region-header .block-system-branding-block img {
+    width: 160px !important;
+    max-width: 160px !important;
+    max-height: 50px !important;
+  }
+
+  .site-header__cta {
+    display: none;
+  }
+
+  .site-header__toggle {
+    display: inline-flex;
+  }
+}
+
+/* Release 5.1: sterkere BREBO-signatuur zonder de navigatie te verschuiven. */
+.region-header [id*="site-branding"],
+.region-header .block-system-branding-block {
+  width: 220px;
+  overflow: visible;
+}
+
+.region-header [id*="site-branding"] img,
+.region-header .block-system-branding-block img {
+  transform: scale(1.18);
+  transform-origin: left center;
+}
+
+@media (max-width: 1023px) {
+  .region-header [id*="site-branding"],
+  .region-header .block-system-branding-block {
+    width: 160px;
+  }
+
+  .region-header [id*="site-branding"] img,
+  .region-header .block-system-branding-block img {
+    transform: scale(1.12);
+  }
+}

@@ -1,0 +1,8 @@
+name: 'BREBO Pagina Banner'
+type: module
+description: 'Beheerbare smalle paginabanner met tekst links en een afbeelding rechts die naar wit uitfadet.'
+package: BREBO
+core_version_requirement: ^11
+dependencies:
+  - drupal:block
+  - drupal:file

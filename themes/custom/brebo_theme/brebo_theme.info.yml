@@ -1,0 +1,18 @@
+name: BREBO Theme
+type: theme
+description: 'Custom Drupal 11 theme for the BREBO platform.'
+package: BREBO
+core_version_requirement: ^11
+base theme: false
+version: 5.1.0
+
+libraries:
+  - brebo_theme/global
+
+regions:
+  header: Header
+  hero: Hero
+  content_top: Content Top
+  content: Content
+  content_bottom: Content Bottom
+  cta: CTA

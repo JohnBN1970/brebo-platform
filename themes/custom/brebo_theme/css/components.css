@@ -1,0 +1,48 @@
+.button,
+button,
+input[type="submit"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  padding: 0.75rem 1.25rem;
+  border: 1px solid transparent;
+  border-radius: var(--brebo-radius-sm);
+  background: var(--brebo-purple);
+  color: #ffffff;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color var(--brebo-transition),
+    border-color var(--brebo-transition),
+    transform var(--brebo-transition);
+}
+
+.button:hover,
+button:hover,
+input[type="submit"]:hover {
+  background: #69329f;
+  transform: translateY(-1px);
+}
+
+.button--header {
+  box-shadow: 0 6px 16px rgba(122, 63, 177, 0.20);
+}
+
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="password"],
+input[type="search"],
+input[type="url"],
+input[type="number"],
+select,
+textarea {
+  width: 100%;
+  min-height: 46px;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--brebo-border);
+  border-radius: var(--brebo-radius-sm);
+  background: #ffffff;
+}

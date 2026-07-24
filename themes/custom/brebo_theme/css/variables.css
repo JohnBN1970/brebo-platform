@@ -1,0 +1,26 @@
+:root {
+  --brebo-purple: #7a3fb1;
+  --brebo-blue: #168bff;
+  --brebo-text: #111827;
+  --brebo-muted: #6b7280;
+  --brebo-border: #e5e7eb;
+  --brebo-surface: #ffffff;
+  --brebo-soft: #f7f7f8;
+  --brebo-dark: #182522;
+  --brebo-focus: #1a73e8;
+
+  --brebo-font: Arial, Helvetica, sans-serif;
+  --brebo-container: 1240px;
+  --brebo-reading-width: 960px;
+  --brebo-gutter: clamp(1.25rem, 3vw, 2rem);
+  --brebo-reading: 840px;
+  --brebo-section-space: clamp(3.5rem, 7vw, 6rem);
+
+  --brebo-radius-sm: 4px;
+  --brebo-radius-md: 10px;
+  --brebo-radius-lg: 18px;
+
+  --brebo-shadow-sm: 0 4px 18px rgba(17, 24, 39, 0.06);
+  --brebo-shadow-md: 0 12px 32px rgba(17, 24, 39, 0.12);
+  --brebo-transition: 180ms ease;
+}

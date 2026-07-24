@@ -1,0 +1,38 @@
+<section class="brebo-pillars" aria-labelledby="brebo-pillars-title">
+  <div class="brebo-pillars__inner">
+    <header class="brebo-pillars__header">
+      <p class="brebo-pillars__eyebrow">Onze aanpak</p>
+      <h2 id="brebo-pillars-title" class="brebo-pillars__title">Goed gebouwbeheer begint met begrijpen.</h2>
+      <p class="brebo-pillars__intro">Eerst inzicht. Daarna regie. Pas daarna realisatie.</p>
+    </header>
+
+    <div class="brebo-pillars__process">
+      <div class="brebo-pillars__rail" aria-hidden="true"></div>
+
+      <div class="brebo-pillars__flow">
+        {% for item in items %}
+          <article class="brebo-pillar brebo-pillar--{{ item.machine_name }}">
+            <span class="brebo-pillar__number" aria-hidden="true">{{ item.number }}</span>
+
+            <div class="brebo-pillar__content">
+              <h3 class="brebo-pillar__title">{{ item.title }}</h3>
+              <p class="brebo-pillar__heading">{{ item.heading }}</p>
+              <p class="brebo-pillar__text">{{ item.text }}</p>
+            </div>
+
+            <a class="brebo-pillar__link" href="{{ item.url }}">
+              <span>{{ item.link_text }}</span>
+              <span class="brebo-pillar__link-arrow" aria-hidden="true">→</span>
+            </a>
+          </article>
+
+          {% if not loop.last %}
+            <span class="brebo-pillars__connector" aria-hidden="true">
+              <span class="brebo-pillars__connector-line"></span>
+            </span>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>

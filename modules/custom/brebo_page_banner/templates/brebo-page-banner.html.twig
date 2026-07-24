@@ -1,0 +1,44 @@
+{#
+/**
+ * @file
+ * BREBO — smalle banner voor binnenpagina's.
+ * De bestaande homepagehero wordt niet gewijzigd.
+ */
+#}
+
+<section class="brebo-page-banner">
+  <div class="brebo-page-banner__inner">
+    <div class="brebo-page-banner__content">
+      {% if eyebrow %}
+        <p class="brebo-page-banner__eyebrow">{{ eyebrow }}</p>
+      {% endif %}
+
+      <h1 class="brebo-page-banner__title">{{ title }}</h1>
+
+      {% if intro %}
+        <p class="brebo-page-banner__intro">{{ intro|nl2br }}</p>
+      {% endif %}
+
+      {% if cta_text and cta_url %}
+        <a class="brebo-page-banner__cta" href="{{ cta_url }}">
+          <span>{{ cta_text }}</span>
+          <span aria-hidden="true">→</span>
+        </a>
+      {% endif %}
+    </div>
+
+    {% if image_url %}
+      <div class="brebo-page-banner__media">
+        <img
+          class="brebo-page-banner__image"
+          src="{{ image_url }}"
+          alt="{{ image_alt }}"
+          style="object-position: {{ image_position }}"
+          loading="eager"
+          fetchpriority="high"
+        >
+        <div class="brebo-page-banner__fade" aria-hidden="true"></div>
+      </div>
+    {% endif %}
+  </div>
+</section>

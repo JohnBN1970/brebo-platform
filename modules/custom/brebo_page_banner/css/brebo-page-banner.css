@@ -1,0 +1,264 @@
+/* =========================================================
+   BREBO PAGINABANNER — vervangende CSS
+   Alleen voor de smalle banner op binnenpagina's.
+   De homepagehero wordt niet geraakt.
+   ========================================================= */
+
+.brebo-page-banner {
+  position: relative;
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  background: #fff;
+}
+
+.brebo-page-banner__inner {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 46%) minmax(0, 54%);
+  width: 100%;
+  min-height: 360px;
+  height: 360px;
+  overflow: hidden;
+}
+
+.brebo-page-banner__content {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  min-width: 0;
+  height: 100%;
+  margin-left: max(32px, calc((100vw - 1240px) / 2));
+  padding: 42px 52px 42px 0;
+  text-align: left;
+}
+
+.brebo-page-banner__eyebrow {
+  margin: 0 0 14px;
+  color: #7542a8;
+  font-size: .75rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.brebo-page-banner__title {
+  margin: 0;
+  color: #102239;
+  font-size: clamp(2.75rem, 4.2vw, 4.35rem);
+  font-weight: 700;
+  line-height: .98;
+  letter-spacing: -.045em;
+  text-align: left;
+}
+
+.brebo-page-banner__intro {
+  max-width: 580px;
+  margin-top: 22px;
+  color: #56616d;
+  font-size: clamp(1rem, 1.05vw, 1.12rem);
+  line-height: 1.68;
+  text-align: left;
+}
+
+.brebo-page-banner__intro p {
+  margin: 0;
+}
+
+.brebo-page-banner__intro p + p {
+  margin-top: 12px;
+}
+
+.brebo-page-banner__cta {
+  margin-top: 26px;
+}
+
+.brebo-page-banner__cta a {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  border-radius: 4px;
+  background: #7440a6;
+  color: #fff;
+  font-size: .95rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-decoration: none;
+}
+
+.brebo-page-banner__cta a::after {
+  content: "→";
+}
+
+.brebo-page-banner__media {
+  position: relative;
+  min-width: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+.brebo-page-banner__image,
+.brebo-page-banner__image > div,
+.brebo-page-banner__image .field,
+.brebo-page-banner__image .field__item,
+.brebo-page-banner__image picture {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.brebo-page-banner__image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+}
+
+.brebo-page-banner__media {
+  position: relative;
+  overflow: hidden;
+}
+
+.brebo-page-banner__fade {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  bottom: 0;
+  left: -6%;
+  width: 83%;
+  pointer-events: none;
+
+  background: linear-gradient(
+    90deg,
+    #ffffff 0%,
+    rgba(255, 255, 255, .99) 28%,
+    rgba(255, 255, 255, .94) 46%,
+    rgba(255, 255, 255, .68) 62%,
+    rgba(255, 255, 255, .48) 76%,
+    rgba(255, 255, 255, .20) 89%,
+    rgba(255, 255, 255, 0) 100%
+  );
+
+  transform: skewX(-8deg);
+  transform-origin: left top;
+}
+
+@media (max-width: 720px) {
+  .brebo-page-banner__fade {
+    left: 0;
+    width: 100%;
+    transform: none;
+
+    background: linear-gradient(
+      180deg,
+      #ffffff 0%,
+      rgba(255, 255, 255, .84) 20%,
+      rgba(255, 255, 255, .30) 45%,
+      rgba(255, 255, 255, 0) 65%
+    );
+  }
+}
+
+
+.brebo-page-banner .field,
+.brebo-page-banner .field__item {
+  margin: 0;
+}
+
+.region-hero > .block:has(.brebo-page-banner),
+.region--hero > .block:has(.brebo-page-banner) {
+  display: block;
+  flex: 0 0 auto;
+  align-self: auto;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+}
+
+@media (max-width: 980px) {
+  .brebo-page-banner__inner {
+    grid-template-columns: minmax(0, 52%) minmax(0, 48%);
+    height: 350px;
+    min-height: 350px;
+  }
+
+  .brebo-page-banner__content {
+    margin-left: 28px;
+    padding-right: 30px;
+  }
+
+  .brebo-page-banner__fade {
+    background: linear-gradient(
+      145deg,
+      #fff 0%,
+      #fff 24%,
+      rgba(255,255,255,.94) 48%,
+      rgba(255,255,255,.45) 76%,
+      transparent 100%
+    );
+  }
+}
+
+@media (max-width: 720px) {
+  .brebo-page-banner__inner {
+    display: flex;
+    height: auto;
+    min-height: 0;
+    flex-direction: column;
+  }
+
+  .brebo-page-banner__content {
+    width: min(100% - 36px, 620px);
+    height: auto;
+    margin: 0 auto;
+    padding: 42px 0 36px;
+  }
+
+  .brebo-page-banner__title {
+    font-size: clamp(2.5rem, 12vw, 3.5rem);
+  }
+
+  .brebo-page-banner__intro {
+    max-width: 100%;
+    margin-top: 18px;
+    font-size: 1rem;
+  }
+
+  .brebo-page-banner__media {
+    height: 230px;
+    min-height: 230px;
+  }
+
+  .brebo-page-banner__image img {
+    object-position: 60% center;
+  }
+
+  .brebo-page-banner__fade {
+    background: linear-gradient(
+      180deg,
+      #fff 0%,
+      rgba(255, 255, 255, .70) 15%,
+      rgba(255, 255, 255, .16) 36%,
+      rgba(255, 255, 255, 0) 55%
+    );
+  }
+}
+
+@media (max-width: 480px) {
+  .brebo-page-banner__content {
+    width: min(100% - 30px, 620px);
+    padding-top: 36px;
+    padding-bottom: 32px;
+  }
+
+  .brebo-page-banner__media {
+    height: 205px;
+    min-height: 205px;
+  }
+}

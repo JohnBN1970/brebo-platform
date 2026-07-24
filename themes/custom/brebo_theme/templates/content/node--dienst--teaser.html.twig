@@ -1,0 +1,46 @@
+{#
+/**
+ * @file
+ * Definitieve dienstkaart voor de teaser-weergave.
+ */
+#}
+
+{% set service_url = url %}
+{% set service_title = node.label %}
+
+<article{{ attributes.addClass('service-card') }}>
+
+  <a
+    class="service-card__media"
+    href="{{ service_url }}"
+    aria-label="{{ 'Bekijk dienst'|t }} {{ service_title }}"
+  >
+    {% if content.field_hero_afbeelding %}
+      <div class="service-card__image">
+        {{ content.field_hero_afbeelding }}
+      </div>
+    {% endif %}
+
+    <div class="service-card__overlay" aria-hidden="true"></div>
+
+    <div class="service-card__heading">
+      <h2 class="service-card__title">{{ service_title }}</h2>
+    </div>
+  </a>
+
+  <div class="service-card__content">
+
+    {% if content.field_intro %}
+      <div class="service-card__intro">
+        {{ content.field_intro }}
+      </div>
+    {% endif %}
+
+    <a class="service-card__link" href="{{ service_url }}">
+      <span>{{ 'Meer informatie'|t }}</span>
+      <span class="service-card__arrow" aria-hidden="true">→</span>
+    </a>
+
+  </div>
+
+</article>

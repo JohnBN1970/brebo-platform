@@ -1,0 +1,6 @@
+name: 'BREBO Lens'
+type: module
+description: 'Interactieve BREBO Lens met zes procesfasen, wisselende fotografie en premium animaties.'
+package: 'BREBO'
+core_version_requirement: ^11
+version: 3.0.0
