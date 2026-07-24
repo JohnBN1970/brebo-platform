@@ -1,23 +1,27 @@
 {#
 /**
  * @file
- * BREBO — definitieve volledige weergave van contenttype Dienst.
+ * Vraagstukgerichte volledige weergave van contenttype Dienst.
  *
- * Plaats als:
- * templates/content/node--dienst--full.html.twig
+ * Het technische contenttype blijft `dienst`, maar de bezoeker wordt geleid
+ * vanuit het gebouwvraagstuk, herkenbare signalen en oplossingsrichtingen.
  */
 #}
 
 {% set intro = content.field_intro|render %}
 {% set body = content.field_body|render %}
-{% set key_points = content.field_key_points|render %}
+{% set building_issue = content.field_building_issue|render %}
+{% set signals = content.field_signals|render %}
+{% set causes = content.field_causes|render %}
+{% set consequences = content.field_consequences|render %}
+{% set solution_directions = content.field_solution_directions|render %}
+{% set results = content.field_results|render %}
 {% set related_projects = content.field_related_projects|render %}
+{% set faq = content.field_faq|render %}
 
-<article{{ attributes.addClass('service-detail') }}>
+<article{{ attributes.addClass('service-detail', 'question-detail') }}>
 
   <header class="service-detail__hero">
-
-    {# Afbeeldingsvelden niet met striptags testen: een afbeelding bevat geen tekst. #}
     {% if node.field_hero_afbeelding is not empty %}
       <div class="service-detail__hero-image">
         {{ content.field_hero_afbeelding }}
@@ -27,8 +31,7 @@
     <div class="service-detail__hero-overlay" aria-hidden="true"></div>
 
     <div class="service-detail__hero-inner">
-      <p class="service-detail__eyebrow">{{ 'Dienst'|t }}</p>
-
+      <p class="service-detail__eyebrow">{{ 'Vraagstuk voor uw gebouw'|t }}</p>
       <h1 class="service-detail__title">{{ node.label }}</h1>
 
       {% if intro|striptags|trim %}
@@ -37,65 +40,97 @@
         </div>
       {% endif %}
     </div>
-
   </header>
 
   <main class="service-detail__main">
 
-    {% if body|striptags|trim %}
-      <section class="service-detail__body">
+    {% if building_issue|striptags|trim %}
+      <section class="service-detail__body question-detail__issue" aria-labelledby="vraagstuk-gebouw">
+        <div class="service-detail__section-heading">
+          <p class="service-detail__section-eyebrow">{{ 'De situatie'|t }}</p>
+          <h2 id="vraagstuk-gebouw">{{ 'Waar loopt het gebouw tegenaan?'|t }}</h2>
+        </div>
+        {{ building_issue }}
+      </section>
+    {% elseif body|striptags|trim %}
+      <section class="service-detail__body question-detail__issue" aria-labelledby="vraagstuk-gebouw">
+        <div class="service-detail__section-heading">
+          <p class="service-detail__section-eyebrow">{{ 'De situatie'|t }}</p>
+          <h2 id="vraagstuk-gebouw">{{ 'Waar loopt het gebouw tegenaan?'|t }}</h2>
+        </div>
         {{ body }}
       </section>
     {% endif %}
 
-    {% if key_points|striptags|trim %}
-      <section class="service-detail__key-points" aria-labelledby="dienst-kernpunten">
+    {% if signals|striptags|trim %}
+      <section class="service-detail__key-points question-detail__signals" aria-labelledby="vraagstuk-signalen">
         <div class="service-detail__section-heading">
-          <p class="service-detail__section-eyebrow">
-            {{ 'Wat u van BREBO mag verwachten'|t }}
-          </p>
-
-          <h2 id="dienst-kernpunten">
-            {{ 'Onze aanpak in het kort'|t }}
-          </h2>
+          <p class="service-detail__section-eyebrow">{{ 'Herkenning'|t }}</p>
+          <h2 id="vraagstuk-signalen">{{ 'Waaraan is het vraagstuk herkenbaar?'|t }}</h2>
         </div>
-
         <div class="service-detail__key-points-list">
-          {{ key_points }}
+          {{ signals }}
         </div>
+      </section>
+    {% endif %}
+
+    {% if causes|striptags|trim %}
+      <section class="service-detail__key-points question-detail__causes" aria-labelledby="vraagstuk-oorzaken">
+        <div class="service-detail__section-heading">
+          <p class="service-detail__section-eyebrow">{{ 'Analyse'|t }}</p>
+          <h2 id="vraagstuk-oorzaken">{{ 'Mogelijke oorzaken'|t }}</h2>
+        </div>
+        <div class="service-detail__key-points-list">
+          {{ causes }}
+        </div>
+      </section>
+    {% endif %}
+
+    {% if consequences|striptags|trim %}
+      <section class="service-detail__key-points question-detail__consequences" aria-labelledby="vraagstuk-gevolgen">
+        <div class="service-detail__section-heading">
+          <p class="service-detail__section-eyebrow">{{ 'Risico en impact'|t }}</p>
+          <h2 id="vraagstuk-gevolgen">{{ 'Gevolgen voor gebouw, gebruik en onderhoud'|t }}</h2>
+        </div>
+        <div class="service-detail__key-points-list">
+          {{ consequences }}
+        </div>
+      </section>
+    {% endif %}
+
+    {% if solution_directions|striptags|trim %}
+      <section class="service-detail__body question-detail__solutions" aria-labelledby="vraagstuk-oplossingen">
+        <div class="service-detail__section-heading">
+          <p class="service-detail__section-eyebrow">{{ 'Keuzerichting'|t }}</p>
+          <h2 id="vraagstuk-oplossingen">{{ 'Welke oplossingsrichtingen zijn mogelijk?'|t }}</h2>
+        </div>
+        {{ solution_directions }}
       </section>
     {% endif %}
 
     <section class="service-detail__lens" aria-labelledby="dienst-lens">
       <div class="service-detail__lens-intro">
-        <p class="service-detail__section-eyebrow">
-          {{ 'De BREBO Lens'|t }}
-        </p>
-
-        <h2 id="dienst-lens">
-          {{ 'Van inzicht naar een beheersbaar resultaat'|t }}
-        </h2>
-
+        <p class="service-detail__section-eyebrow">{{ 'De BREBO Lens'|t }}</p>
+        <h2 id="dienst-lens">{{ 'Van inzicht naar een beheersbaar resultaat'|t }}</h2>
         <p>
-          {{ 'Wij bekijken niet alleen de afzonderlijke werkzaamheden, maar de complete buitenzijde van het gebouw. Zo ontstaat één samenhangend plan met één aanspreekpunt en één planning.'|t }}
+          {{ 'De complete buitenzijde van het gebouw vormt het vertrekpunt. Zo ontstaat één samenhangend plan met één aanspreekpunt en één planning.'|t }}
         </p>
       </div>
 
       <div class="service-detail__lens-steps">
-
         <div class="service-detail__lens-step">
           <span class="service-detail__lens-number">01</span>
           <div>
             <h3>{{ 'Inzicht'|t }}</h3>
-            <p>{{ 'We brengen de technische staat, aandachtspunten en samenhang van het gebouw in beeld.'|t }}</p>
+            <p>{{ 'De technische staat, aandachtspunten en onderlinge samenhang worden helder in beeld gebracht.'|t }}</p>
           </div>
         </div>
 
         <div class="service-detail__lens-step">
           <span class="service-detail__lens-number">02</span>
           <div>
-            <h3>{{ 'Regie'|t }}</h3>
-            <p>{{ 'We vertalen het inzicht naar een duidelijke aanpak, planning en afstemming tussen disciplines.'|t }}</p>
+            <h3>{{ 'Controle'|t }}</h3>
+            <p>{{ 'Het inzicht wordt vertaald naar duidelijke keuzes, een beheersbare planning en afgestemde disciplines.'|t }}</p>
           </div>
         </div>
 
@@ -103,28 +138,43 @@
           <span class="service-detail__lens-number">03</span>
           <div>
             <h3>{{ 'Realisatie'|t }}</h3>
-            <p>{{ 'We bewaken uitvoering, kwaliteit en voortgang tot en met de oplevering.'|t }}</p>
+            <p>{{ 'Uitvoering, kwaliteit en voortgang worden bewaakt tot en met de oplevering.'|t }}</p>
           </div>
         </div>
-
       </div>
     </section>
+
+    {% if results|striptags|trim %}
+      <section class="service-detail__key-points question-detail__results" aria-labelledby="vraagstuk-resultaten">
+        <div class="service-detail__section-heading">
+          <p class="service-detail__section-eyebrow">{{ 'Beoogd resultaat'|t }}</p>
+          <h2 id="vraagstuk-resultaten">{{ 'Wat levert de gekozen aanpak het gebouw op?'|t }}</h2>
+        </div>
+        <div class="service-detail__key-points-list">
+          {{ results }}
+        </div>
+      </section>
+    {% endif %}
 
     {% if related_projects|striptags|trim %}
       <section class="service-detail__projects" aria-labelledby="dienst-projecten">
         <div class="service-detail__section-heading">
-          <p class="service-detail__section-eyebrow">
-            {{ 'In de praktijk'|t }}
-          </p>
-
-          <h2 id="dienst-projecten">
-            {{ 'Gerelateerde projecten'|t }}
-          </h2>
+          <p class="service-detail__section-eyebrow">{{ 'In de praktijk'|t }}</p>
+          <h2 id="dienst-projecten">{{ 'Gerelateerde projecten'|t }}</h2>
         </div>
-
         <div class="service-detail__projects-grid">
           {{ related_projects }}
         </div>
+      </section>
+    {% endif %}
+
+    {% if faq|striptags|trim %}
+      <section class="service-detail__body question-detail__faq" aria-labelledby="vraagstuk-faq">
+        <div class="service-detail__section-heading">
+          <p class="service-detail__section-eyebrow">{{ 'Kennis'|t }}</p>
+          <h2 id="vraagstuk-faq">{{ 'Veelgestelde vragen'|t }}</h2>
+        </div>
+        {{ faq }}
       </section>
     {% endif %}
 
@@ -133,17 +183,12 @@
   <section class="service-detail__cta">
     <div class="service-detail__cta-inner">
       <div class="service-detail__cta-copy">
-        <p class="service-detail__cta-eyebrow">
-          {{ 'Uw gebouw centraal'|t }}
-        </p>
-
-        <h2>
-          {{ 'Wilt u weten wat BREBO voor uw gebouw kan betekenen?'|t }}
-        </h2>
+        <p class="service-detail__cta-eyebrow">{{ 'Uw gebouw centraal'|t }}</p>
+        <h2>{{ 'Bespreek de situatie van uw gebouw'|t }}</h2>
       </div>
 
-      <a class="service-detail__cta-button" href="/offerte-aanvragen">
-        <span>{{ 'Offerte aanvragen'|t }}</span>
+      <a class="service-detail__cta-button" href="/contact">
+        <span>{{ 'Plan een adviesgesprek'|t }}</span>
         <span class="service-detail__cta-arrow" aria-hidden="true">→</span>
       </a>
     </div>
