@@ -3,21 +3,17 @@
 ###############################################################################
 
 #
-# Drupal runtime
+# Drupal runtime and uploads
 #
 sites/*/files/
 sites/*/private/
 sites/simpletest/
 
 #
-# Local configuration
+# Local configuration and secrets
 #
 sites/*/settings.local.php
 sites/*/services.local.yml
-
-#
-# Environment
-#
 .env
 .env.*
 
@@ -28,26 +24,24 @@ sites/*/services.local.yml
 .idea/
 
 #
-# OS
+# Operating system
 #
 .DS_Store
 Thumbs.db
+*~
 
 #
 # Logs
 #
 *.log
+error_log
 
 #
-# Cache
+# Temporary files and caches
 #
 tmp/
 cache/
-
-#
-# Composer
-#
-vendor/bin/
+.phpunit.result.cache
 
 #
 # Node
@@ -55,12 +49,12 @@ vendor/bin/
 node_modules/
 
 #
-# PHPUnit
+# PHPUnit local configuration
 #
 phpunit.xml
 
 #
-# Backups
+# Backups and database exports
 #
 *.sql
 *.sql.gz
@@ -68,27 +62,19 @@ backup/
 backups/
 
 #
-# Hostinger
+# Local Composer executable
 #
-error_log
-
-#
-# Drupal generated files
-#
-sites/*/files/styles/
-sites/*/files/css/
-sites/*/files/js/
-sites/*/files/php/
-
-#
-# Composer
-#
-vendor/bin/
 composer.phar
 
 #
-# Git
+# Git credentials
 #
 .git-credentials
 
-echo "sites/*/settings.php" >> .gitignore
+###############################################################################
+# Important BREBO project decisions
+#
+# - sites/*/settings.php stays in Git.
+# - Sensitive settings belong in settings.local.php.
+# - vendor/ currently stays in Git for the Hostinger deployment workflow.
+###############################################################################
