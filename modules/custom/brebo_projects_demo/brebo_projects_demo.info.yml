@@ -1,9 +1,0 @@
-name: 'BREBO Projecten Demo'
-type: module
-description: 'Voegt drie voorbeeldprojecten toe aan de bestaande BREBO Projecten-module.'
-package: BREBO
-core_version_requirement: ^10.3 || ^11
-dependencies:
-  - brebo_projects:brebo_projects
-  - drupal:file
-  - drupal:node
