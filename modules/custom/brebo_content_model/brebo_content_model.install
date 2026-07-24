@@ -1,0 +1,167 @@
+<?php
+
+/**
+ * @file
+ * Installatie en updates voor het BREBO-contentmodel.
+ */
+
+use Drupal\Core\Entity\Display\EntityFormDisplayInterface;
+use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
+use Drupal\Core\Entity\Entity\EntityFormDisplay;
+use Drupal\Core\Entity\Entity\EntityViewDisplay;
+use Drupal\field\Entity\FieldConfig;
+use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\node\Entity\NodeType;
+
+/**
+ * Implements hook_install().
+ */
+function brebo_content_model_install(): void {
+  if (!NodeType::load('dienst')) {
+    throw new RuntimeException('Contenttype "dienst" bestaat niet. De module is niet geïnstalleerd.');
+  }
+
+  $fields = [
+    'field_building_issue' => [
+      'label' => 'Gebouwvraagstuk',
+      'description' => 'Beschrijf de situatie vanuit het gebouw en de onderhoudsopgave.',
+      'type' => 'text_long',
+      'cardinality' => 1,
+      'form' => ['type' => 'text_textarea', 'weight' => 10],
+      'view' => ['type' => 'text_default', 'weight' => 10],
+    ],
+    'field_signals' => [
+      'label' => 'Herkenbare signalen',
+      'description' => 'Voeg per regel één zichtbaar of merkbaar signaal toe.',
+      'type' => 'string',
+      'cardinality' => -1,
+      'settings' => ['max_length' => 255],
+      'form' => ['type' => 'string_textfield', 'weight' => 20],
+      'view' => ['type' => 'string', 'weight' => 20],
+    ],
+    'field_causes' => [
+      'label' => 'Mogelijke oorzaken',
+      'description' => 'Voeg per regel één mogelijke oorzaak toe.',
+      'type' => 'string',
+      'cardinality' => -1,
+      'settings' => ['max_length' => 255],
+      'form' => ['type' => 'string_textfield', 'weight' => 30],
+      'view' => ['type' => 'string', 'weight' => 30],
+    ],
+    'field_consequences' => [
+      'label' => 'Mogelijke gevolgen',
+      'description' => 'Voeg per regel één gevolg voor gebouw, gebruik of onderhoud toe.',
+      'type' => 'string',
+      'cardinality' => -1,
+      'settings' => ['max_length' => 255],
+      'form' => ['type' => 'string_textfield', 'weight' => 40],
+      'view' => ['type' => 'string', 'weight' => 40],
+    ],
+    'field_solution_directions' => [
+      'label' => 'Oplossingsrichtingen',
+      'description' => 'Beschrijf de mogelijke keuzes voordat de BREBO-aanpak wordt geïntroduceerd.',
+      'type' => 'text_long',
+      'cardinality' => 1,
+      'form' => ['type' => 'text_textarea', 'weight' => 50],
+      'view' => ['type' => 'text_default', 'weight' => 50],
+    ],
+    'field_results' => [
+      'label' => 'Resultaten',
+      'description' => 'Voeg per regel één resultaat of voordeel voor het gebouw toe.',
+      'type' => 'string',
+      'cardinality' => -1,
+      'settings' => ['max_length' => 255],
+      'form' => ['type' => 'string_textfield', 'weight' => 60],
+      'view' => ['type' => 'string', 'weight' => 60],
+    ],
+    'field_urgency' => [
+      'label' => 'Urgentie',
+      'description' => 'Interne duiding voor planning, context en toekomstige zoeklogica.',
+      'type' => 'list_string',
+      'cardinality' => 1,
+      'settings' => [
+        'allowed_values' => [
+          'direct' => 'Direct beoordelen',
+          'within_year' => 'Binnen één jaar',
+          'within_two_years' => 'Binnen twee jaar',
+          'mjop' => 'Opnemen in MJOP',
+        ],
+      ],
+      'form' => ['type' => 'options_select', 'weight' => 70],
+      'view' => ['type' => 'list_default', 'weight' => 70],
+    ],
+    'field_faq' => [
+      'label' => 'Veelgestelde vragen',
+      'description' => 'Voeg per item een compacte vraag en antwoord toe. Gebruik de titelregel voor de vraag.',
+      'type' => 'text_long',
+      'cardinality' => -1,
+      'form' => ['type' => 'text_textarea', 'weight' => 80],
+      'view' => ['type' => 'text_default', 'weight' => 80],
+    ],
+  ];
+
+  foreach ($fields as $field_name => $definition) {
+    _brebo_content_model_ensure_field($field_name, $definition);
+  }
+
+  _brebo_content_model_update_displays($fields);
+}
+
+/**
+ * Creates field storage and field instance when absent.
+ */
+function _brebo_content_model_ensure_field(string $field_name, array $definition): void {
+  $storage = FieldStorageConfig::loadByName('node', $field_name);
+
+  if (!$storage) {
+    $storage = FieldStorageConfig::create([
+      'field_name' => $field_name,
+      'entity_type' => 'node',
+      'type' => $definition['type'],
+      'cardinality' => $definition['cardinality'],
+      'settings' => $definition['settings'] ?? [],
+      'translatable' => TRUE,
+    ]);
+    $storage->save();
+  }
+
+  if (!FieldConfig::loadByName('node', 'dienst', $field_name)) {
+    FieldConfig::create([
+      'field_storage' => $storage,
+      'bundle' => 'dienst',
+      'label' => $definition['label'],
+      'description' => $definition['description'],
+      'required' => FALSE,
+      'translatable' => TRUE,
+    ])->save();
+  }
+}
+
+/**
+ * Adds the fields to the default edit and full view displays.
+ */
+function _brebo_content_model_update_displays(array $fields): void {
+  $form_display = EntityFormDisplay::load('node.dienst.default')
+    ?: EntityFormDisplay::create([
+      'targetEntityType' => 'node',
+      'bundle' => 'dienst',
+      'mode' => 'default',
+      'status' => TRUE,
+    ]);
+
+  $view_display = EntityViewDisplay::load('node.dienst.full')
+    ?: EntityViewDisplay::create([
+      'targetEntityType' => 'node',
+      'bundle' => 'dienst',
+      'mode' => 'full',
+      'status' => TRUE,
+    ]);
+
+  foreach ($fields as $field_name => $definition) {
+    $form_display->setComponent($field_name, $definition['form']);
+    $view_display->setComponent($field_name, $definition['view']);
+  }
+
+  $form_display->save();
+  $view_display->save();
+}
