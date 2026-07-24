@@ -1,0 +1,10 @@
+name: 'BREBO Contentmodel'
+type: module
+description: 'Breidt contenttype Dienst uit tot een gebouw- en vraagstukgericht contentmodel.'
+package: BREBO
+core_version_requirement: ^11
+dependencies:
+  - drupal:field
+  - drupal:node
+  - drupal:options
+  - drupal:text
