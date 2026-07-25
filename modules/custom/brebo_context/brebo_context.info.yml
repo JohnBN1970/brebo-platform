@@ -1,0 +1,7 @@
+name: 'BREBO Context'
+type: module
+description: 'Bepaalt contextueel gerelateerde gebouwvraagstukken voor het BREBO-platform.'
+package: BREBO
+core_version_requirement: ^11
+dependencies:
+  - drupal:node
