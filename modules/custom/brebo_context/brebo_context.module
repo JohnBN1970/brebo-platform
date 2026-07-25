@@ -1,0 +1,43 @@
+<?php
+
+/**
+ * @file
+ * Theme integration for contextual BREBO recommendations.
+ */
+
+use Drupal\node\NodeInterface;
+
+/**
+ * Implements hook_preprocess_node().
+ */
+function brebo_context_preprocess_node(array &$variables): void {
+  $node = $variables['node'] ?? NULL;
+  $view_mode = $variables['view_mode'] ?? '';
+
+  if (!$node instanceof NodeInterface || $node->bundle() !== 'dienst' || $view_mode !== 'full') {
+    return;
+  }
+
+  /** @var \Drupal\brebo_context\Service\ContextResolver $resolver */
+  $resolver = \Drupal::service('brebo_context.resolver');
+  $related_nodes = $resolver->resolveRelated($node, 3);
+
+  $variables['brebo_related_questions'] = [];
+  foreach ($related_nodes as $related_node) {
+    $variables['brebo_related_questions'][] = [
+      'id' => $related_node->id(),
+      'title' => $related_node->label(),
+      'url' => $related_node->toUrl()->toString(),
+    ];
+
+    $variables['elements']['#cache']['tags'] = array_values(array_unique(array_merge(
+      $variables['elements']['#cache']['tags'] ?? [],
+      $related_node->getCacheTags(),
+    )));
+  }
+
+  $variables['elements']['#cache']['contexts'] = array_values(array_unique(array_merge(
+    $variables['elements']['#cache']['contexts'] ?? [],
+    ['user.node_grants:view'],
+  )));
+}
