@@ -1,0 +1,10 @@
+name: 'BREBO Core'
+type: module
+description: 'Centrale platformdiagnostiek, integriteitscontrole en kennisstatistieken voor BREBO.'
+package: 'BREBO'
+core_version_requirement: ^11
+version: 1.0.0
+dependencies:
+  - drupal:node
+  - drupal:taxonomy
+  - drupal:field
