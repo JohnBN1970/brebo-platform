@@ -8,6 +8,7 @@ use Drupal\brebo_core\Service\PlatformInspector;
 use Drush\Attributes as CLI;
 use Drush\Commands\AutowireTrait;
 use Drush\Commands\DrushCommands;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
  * Drush-commando's voor veilige BREBO-platformdiagnostiek.
@@ -17,6 +18,7 @@ final class BreboPlatformCommands extends DrushCommands {
   use AutowireTrait;
 
   public function __construct(
+    #[Autowire(service: 'brebo_core.platform_inspector')]
     private readonly PlatformInspector $inspector,
   ) {
     parent::__construct();
