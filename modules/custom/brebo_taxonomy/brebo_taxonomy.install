@@ -1,0 +1,293 @@
+<?php
+
+/**
+ * @file
+ * Installatie en updates voor BREBO Taxonomy.
+ */
+
+use Drupal\Core\Entity\Entity\EntityFormDisplay;
+use Drupal\Core\Entity\Entity\EntityViewDisplay;
+use Drupal\field\Entity\FieldConfig;
+use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\node\Entity\NodeType;
+use Drupal\taxonomy\Entity\Term;
+use Drupal\taxonomy\Entity\Vocabulary;
+
+/**
+ * Implements hook_install().
+ */
+function brebo_taxonomy_install(): void {
+  if (!NodeType::load('dienst')) {
+    throw new RuntimeException('Contenttype "dienst" bestaat niet. BREBO Taxonomy is niet geïnstalleerd.');
+  }
+
+  $vocabularies = _brebo_taxonomy_definitions();
+
+  foreach ($vocabularies as $vid => $definition) {
+    _brebo_taxonomy_ensure_vocabulary($vid, $definition['label']);
+    _brebo_taxonomy_ensure_terms($vid, $definition['terms']);
+    _brebo_taxonomy_ensure_reference_field(
+      $definition['field_name'],
+      $definition['field_label'],
+      $definition['field_description'],
+      $vid,
+      $definition['weight'],
+    );
+  }
+}
+
+/**
+ * Returns the managed vocabularies and initial terms.
+ */
+function _brebo_taxonomy_definitions(): array {
+  return [
+    'gebouwtypen' => [
+      'label' => 'Gebouwtypen',
+      'field_name' => 'field_building_types',
+      'field_label' => 'Gebouwtypen',
+      'field_description' => 'Koppel de gebouwtypen waarvoor dit vraagstuk relevant is.',
+      'weight' => 90,
+      'terms' => [
+        'Appartementencomplex',
+        'Woongebouw',
+        'Kantoorgebouw',
+        'Schoolgebouw',
+        'Zorggebouw',
+        'Bedrijfsgebouw',
+      ],
+    ],
+    'gebouwdelen' => [
+      'label' => 'Gebouwdelen',
+      'field_name' => 'field_building_parts',
+      'field_label' => 'Gebouwdelen',
+      'field_description' => 'Koppel de gebouwdelen waarop het vraagstuk betrekking heeft.',
+      'weight' => 91,
+      'terms' => [
+        'Gevel',
+        'Kozijnen',
+        'Beglazing',
+        'Balkon',
+        'Galerij',
+        'Dakrand en boeideel',
+        'Metselwerk',
+        'Voegwerk',
+      ],
+    ],
+    'vraagstukken' => [
+      'label' => 'Vraagstukken',
+      'field_name' => 'field_issue_types',
+      'field_label' => 'Vraagstukken',
+      'field_description' => 'Koppel de overkoepelende gebouwvraagstukken.',
+      'weight' => 92,
+      'terms' => [
+        'Vochtdoorslag',
+        'Houtrot',
+        'Tocht en warmteverlies',
+        'Achterstallig onderhoud',
+        'Scheurvorming',
+        'Betonschade',
+        'Onvoldoende onderhoudsinzicht',
+      ],
+    ],
+    'werkzaamheden' => [
+      'label' => 'Werkzaamheden',
+      'field_name' => 'field_activities',
+      'field_label' => 'Werkzaamheden',
+      'field_description' => 'Koppel werkzaamheden die onderdeel kunnen zijn van de oplossing.',
+      'weight' => 93,
+      'terms' => [
+        'Kozijnen vervangen',
+        'Beglazing vervangen',
+        'Buitenschilderwerk',
+        'Gevelreiniging',
+        'Voegwerk herstellen',
+        'Metselwerk herstellen',
+        'Gevelbekleding',
+        'Betoncoating',
+        'Inspectie en advies',
+        'MJOP',
+        'Projectmanagement',
+      ],
+    ],
+    'materialen' => [
+      'label' => 'Materialen',
+      'field_name' => 'field_materials',
+      'field_label' => 'Materialen',
+      'field_description' => 'Koppel materialen die in het vraagstuk of de oplossing een rol spelen.',
+      'weight' => 94,
+      'terms' => [
+        'Kunststof',
+        'Aluminium',
+        'Hout',
+        'Glas',
+        'Baksteen',
+        'Beton',
+        'Gevelbekleding',
+      ],
+    ],
+    'doelgroepen' => [
+      'label' => 'Doelgroepen',
+      'field_name' => 'field_audiences',
+      'field_label' => 'Doelgroepen',
+      'field_description' => 'Koppel de professionele doelgroepen waarvoor deze inhoud bedoeld is.',
+      'weight' => 95,
+      'terms' => [
+        'Woningcorporatie',
+        'VvE',
+        'Professionele vastgoedeigenaar',
+        'Vastgoedbeheerder',
+      ],
+    ],
+    'resultaattypen' => [
+      'label' => 'Resultaattypen',
+      'field_name' => 'field_result_types',
+      'field_label' => 'Resultaattypen',
+      'field_description' => 'Koppel de resultaten die met de aanpak worden nagestreefd.',
+      'weight' => 96,
+      'terms' => [
+        'Technisch herstel',
+        'Langere levensduur',
+        'Lagere onderhoudslast',
+        'Meer wooncomfort',
+        'Betere energieprestatie',
+        'Beheersbare planning',
+        'Eén aanspreekpunt',
+      ],
+    ],
+  ];
+}
+
+/**
+ * Creates a vocabulary only when it does not exist.
+ */
+function _brebo_taxonomy_ensure_vocabulary(string $vid, string $label): void {
+  if (Vocabulary::load($vid)) {
+    return;
+  }
+
+  Vocabulary::create([
+    'vid' => $vid,
+    'name' => $label,
+  ])->save();
+}
+
+/**
+ * Adds only missing terms and leaves existing terms untouched.
+ */
+function _brebo_taxonomy_ensure_terms(string $vid, array $term_names): void {
+  $storage = \Drupal::entityTypeManager()->getStorage('taxonomy_term');
+
+  foreach ($term_names as $term_name) {
+    $existing = $storage->getQuery()
+      ->accessCheck(FALSE)
+      ->condition('vid', $vid)
+      ->condition('name', $term_name)
+      ->range(0, 1)
+      ->execute();
+
+    if ($existing) {
+      continue;
+    }
+
+    Term::create([
+      'vid' => $vid,
+      'name' => $term_name,
+    ])->save();
+  }
+}
+
+/**
+ * Adds an entity-reference field without replacing existing configuration.
+ */
+function _brebo_taxonomy_ensure_reference_field(
+  string $field_name,
+  string $label,
+  string $description,
+  string $vid,
+  int $weight,
+): void {
+  $storage = FieldStorageConfig::loadByName('node', $field_name);
+
+  if (!$storage) {
+    $storage = FieldStorageConfig::create([
+      'field_name' => $field_name,
+      'entity_type' => 'node',
+      'type' => 'entity_reference',
+      'cardinality' => -1,
+      'settings' => [
+        'target_type' => 'taxonomy_term',
+      ],
+      'translatable' => TRUE,
+    ]);
+    $storage->save();
+  }
+  elseif ($storage->getType() !== 'entity_reference' || $storage->getSetting('target_type') !== 'taxonomy_term') {
+    \Drupal::logger('brebo_taxonomy')->warning(
+      'Veldopslag @field bestaat al met een afwijkend type en is daarom niet gewijzigd.',
+      ['@field' => $field_name],
+    );
+    return;
+  }
+
+  $field = FieldConfig::loadByName('node', 'dienst', $field_name);
+  if (!$field) {
+    FieldConfig::create([
+      'field_storage' => $storage,
+      'bundle' => 'dienst',
+      'label' => $label,
+      'description' => $description,
+      'required' => FALSE,
+      'translatable' => TRUE,
+      'settings' => [
+        'handler' => 'default:taxonomy_term',
+        'handler_settings' => [
+          'target_bundles' => [$vid => $vid],
+          'sort' => ['field' => 'name', 'direction' => 'asc'],
+          'auto_create' => FALSE,
+          'auto_create_bundle' => '',
+        ],
+      ],
+    ])->save();
+  }
+
+  _brebo_taxonomy_add_to_displays($field_name, $weight);
+}
+
+/**
+ * Adds a field to displays only when no component exists yet.
+ */
+function _brebo_taxonomy_add_to_displays(string $field_name, int $weight): void {
+  $form_display = EntityFormDisplay::load('node.dienst.default')
+    ?: EntityFormDisplay::create([
+      'targetEntityType' => 'node',
+      'bundle' => 'dienst',
+      'mode' => 'default',
+      'status' => TRUE,
+    ]);
+
+  if (!$form_display->getComponent($field_name)) {
+    $form_display->setComponent($field_name, [
+      'type' => 'options_select',
+      'weight' => $weight,
+    ]);
+    $form_display->save();
+  }
+
+  $view_display = EntityViewDisplay::load('node.dienst.full')
+    ?: EntityViewDisplay::create([
+      'targetEntityType' => 'node',
+      'bundle' => 'dienst',
+      'mode' => 'full',
+      'status' => TRUE,
+    ]);
+
+  if (!$view_display->getComponent($field_name)) {
+    $view_display->setComponent($field_name, [
+      'type' => 'entity_reference_label',
+      'label' => 'above',
+      'weight' => $weight,
+      'settings' => ['link' => FALSE],
+    ]);
+    $view_display->save();
+  }
+}
