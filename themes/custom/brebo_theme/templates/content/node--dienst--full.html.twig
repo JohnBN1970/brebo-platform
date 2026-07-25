@@ -168,6 +168,25 @@
       </section>
     {% endif %}
 
+    {% if brebo_related_questions %}
+      <section class="service-detail__projects question-detail__related" aria-labelledby="gerelateerde-vraagstukken">
+        <div class="service-detail__section-heading">
+          <p class="service-detail__section-eyebrow">{{ 'Verder onderzoeken'|t }}</p>
+          <h2 id="gerelateerde-vraagstukken">{{ 'Gerelateerde vraagstukken voor het gebouw'|t }}</h2>
+        </div>
+        <div class="service-detail__projects-grid question-detail__related-grid">
+          {% for item in brebo_related_questions %}
+            <article class="question-detail__related-card">
+              <h3><a href="{{ item.url }}">{{ item.title }}</a></h3>
+              <a class="question-detail__related-link" href="{{ item.url }}">
+                {{ 'Bekijk dit vraagstuk'|t }} <span aria-hidden="true">→</span>
+              </a>
+            </article>
+          {% endfor %}
+        </div>
+      </section>
+    {% endif %}
+
     {% if faq|striptags|trim %}
       <section class="service-detail__body question-detail__faq" aria-labelledby="vraagstuk-faq">
         <div class="service-detail__section-heading">
