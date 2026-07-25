@@ -1,0 +1,9 @@
+name: 'BREBO Taxonomy'
+type: module
+description: 'Voegt de contexttaxonomieën en metadata-velden voor gebouwvraagstukken veilig en aanvullend toe.'
+package: BREBO
+core_version_requirement: ^11
+dependencies:
+  - drupal:field
+  - drupal:node
+  - drupal:taxonomy
