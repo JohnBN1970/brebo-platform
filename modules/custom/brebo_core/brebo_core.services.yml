@@ -1,0 +1,8 @@
+services:
+  brebo_core.platform_inspector:
+    class: Drupal\brebo_core\Service\PlatformInspector
+    arguments:
+      - '@entity_type.manager'
+      - '@module_handler'
+      - '@database'
+      - '@extension.list.module'
