@@ -1,0 +1,5 @@
+services:
+  brebo_context.resolver:
+    class: Drupal\brebo_context\Service\ContextResolver
+    arguments:
+      - '@entity_type.manager'
