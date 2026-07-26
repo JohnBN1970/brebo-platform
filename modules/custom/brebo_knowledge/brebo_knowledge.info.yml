@@ -1,0 +1,5 @@
+name: BREBO Knowledge
+type: module
+description: 'Provides the metadata-only basis for the BREBO knowledge domain.'
+package: BREBO
+core_version_requirement: ^11
