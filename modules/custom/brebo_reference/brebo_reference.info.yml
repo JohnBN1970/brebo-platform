@@ -4,8 +4,10 @@ description: 'Implementeert het canonieke Reference-object voor de BREBO bron- e
 package: BREBO
 core_version_requirement: ^11
 dependencies:
+  - drupal:datetime
   - drupal:field
   - drupal:file
+  - drupal:link
   - drupal:node
   - drupal:options
   - drupal:text
