@@ -33,6 +33,7 @@ final class KnowledgeItemRuntimeTest extends KernelTestBase {
     $this->installEntitySchema('node');
     $this->installSchema('node', ['node_access']);
     $this->installConfig(['field', 'node']);
+    $this->container->get('module_handler')->loadInclude('brebo_knowledge', 'install');
     brebo_knowledge_install();
     $this->setCurrentAccount(1, []);
   }
