@@ -1,0 +1,5 @@
+name: BREBO Runtime
+type: module
+description: 'Biedt gedeelde runtimecontracten en helpers voor BREBO-domeinmodules.'
+package: BREBO
+core_version_requirement: ^11
