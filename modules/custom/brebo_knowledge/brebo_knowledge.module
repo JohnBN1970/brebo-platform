@@ -63,7 +63,7 @@ function brebo_knowledge_entity_presave(EntityInterface $entity): void {
     throw new InvalidArgumentException('Ongeldige KnowledgeItem lifecycle-status.');
   }
 
-  brebo_knowledge_assert_lifecycle_permission($entity, $lifecycle, \Drupal::currentUser());
+  brebo_knowledge_assert_lifecycle_permission($lifecycle, \Drupal::currentUser());
 
   $entity->setPublished($lifecycle === 'published');
   $entity->setNewRevision(TRUE);
@@ -73,29 +73,24 @@ function brebo_knowledge_entity_presave(EntityInterface $entity): void {
 }
 
 /**
- * Dwingt publicatie- en archiveringsrechten af voor iedere opslagroute.
+ * Dwingt lifecycle-rechten af voor iedere opslagroute.
+ *
+ * Een save die gepubliceerd of gearchiveerd eindigt vereist altijd het
+ * bijbehorende recht. Daardoor kan een redacteur geen publieke revisie wijzigen
+ * zonder publicatierecht, ook niet wanneer de statuswaarde gelijk blijft.
  */
-function brebo_knowledge_assert_lifecycle_permission(NodeInterface $node, string $new_status, AccountInterface $account): void {
+function brebo_knowledge_assert_lifecycle_permission(string $new_status, AccountInterface $account): void {
   // Drupal user 1 is de platformbeheerder en behoudt de standaard bypass.
   if ((int) $account->id() === 1) {
     return;
   }
 
-  $old_status = NULL;
-  if (!$node->isNew() && isset($node->original) && $node->original->hasField('field_brebo_lifecycle_status')) {
-    $old_status = (string) $node->original->get('field_brebo_lifecycle_status')->value;
-  }
-
-  if ($new_status === $old_status) {
-    return;
-  }
-
   if ($new_status === 'published' && !$account->hasPermission('publish brebo knowledge items')) {
-    throw new AccessDeniedHttpException('Geen toestemming om KnowledgeItems te publiceren.');
+    throw new AccessDeniedHttpException('Geen toestemming om gepubliceerde KnowledgeItems op te slaan.');
   }
 
   if ($new_status === 'archived' && !$account->hasPermission('archive brebo knowledge items')) {
-    throw new AccessDeniedHttpException('Geen toestemming om KnowledgeItems te archiveren.');
+    throw new AccessDeniedHttpException('Geen toestemming om gearchiveerde KnowledgeItems op te slaan.');
   }
 }
 
@@ -124,17 +119,17 @@ function brebo_knowledge_validate_lifecycle_permission(array &$form, FormStateIn
   $account = \Drupal::currentUser();
 
   if ($value === 'published' && !$account->hasPermission('publish brebo knowledge items')) {
-    $form_state->setErrorByName('field_brebo_lifecycle_status', t('U heeft geen toestemming om kennisbijdragen te publiceren.'));
+    $form_state->setErrorByName('field_brebo_lifecycle_status', t('U heeft geen toestemming om gepubliceerde kennisbijdragen op te slaan.'));
   }
   if ($value === 'archived' && !$account->hasPermission('archive brebo knowledge items')) {
-    $form_state->setErrorByName('field_brebo_lifecycle_status', t('U heeft geen toestemming om kennisbijdragen te archiveren.'));
+    $form_state->setErrorByName('field_brebo_lifecycle_status', t('U heeft geen toestemming om gearchiveerde kennisbijdragen op te slaan.'));
   }
 }
 
 /**
  * Implements hook_entity_create_access().
  */
-function brebo_knowledge_entity_create_access(AccountInterface $account, array $context, string $entity_bundle): AccessResult {
+function brebo_knowledge_entity_create_access(AccountInterface $account, array $context, $entity_bundle): AccessResult {
   if (($context['entity_type_id'] ?? NULL) !== 'node' || $entity_bundle !== 'brebo_knowledge_item') {
     return AccessResult::neutral();
   }
@@ -149,6 +144,14 @@ function brebo_knowledge_entity_access(EntityInterface $entity, string $operatio
     return AccessResult::neutral();
   }
 
+  // Revision routes perform a regular view check on the loaded non-default
+  // revision. Distinguish die hier van de actieve standaardrevisie.
+  if ($operation === 'view' && !$entity->isDefaultRevision()) {
+    return AccessResult::allowedIfHasPermission($account, 'view brebo knowledge revisions')
+      ->cachePerPermissions()
+      ->addCacheableDependency($entity);
+  }
+
   if ($operation === 'update') {
     if ($account->hasPermission('edit any brebo knowledge items')) {
       return AccessResult::allowed()->cachePerPermissions();
@@ -156,10 +159,6 @@ function brebo_knowledge_entity_access(EntityInterface $entity, string $operatio
     return AccessResult::allowedIf(
       $account->hasPermission('edit own brebo knowledge items') && (int) $entity->getOwnerId() === (int) $account->id(),
     )->cachePerPermissions()->cachePerUser()->addCacheableDependency($entity);
-  }
-
-  if ($operation === 'view revision') {
-    return AccessResult::allowedIfHasPermission($account, 'view brebo knowledge revisions');
   }
 
   return AccessResult::neutral();
