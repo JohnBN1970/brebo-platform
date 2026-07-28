@@ -17,17 +17,17 @@ Deze map is de centrale, versiebeheerbare documentatiebron van het BREBO Platfor
 
 ## Enterprise-onderdelen
 
-- `01-enterprise/domain-model/`: bedrijfsobjecten, domeingrenzen en eigenaarschap;
-- `01-enterprise/canonical-information-model/`: canonieke informatiebetekenis en gegevenscontracten;
-- `01-enterprise/object-registry/`: objectdefinities, identiteit, levenscyclus en bron van waarheid.
+- [`01-enterprise/domain-model/`](01-enterprise/domain-model/) — bedrijfsobjecten, domeingrenzen en eigenaarschap;
+- [`01-enterprise/canonical-information-model/`](01-enterprise/canonical-information-model/) — canonieke begrippen, waarden en uitwisselingsbetekenis;
+- [`01-enterprise/object-registry/`](01-enterprise/object-registry/) — gecontroleerd register van canonieke objecten.
 
-## Platform-onderdelen
+## Platformonderdelen
 
-- `03-platform/drupal/`: Drupal-architectuur en implementatiemappings;
-- `03-platform/python/`: toekomstige zelfstandige Python-services;
-- `03-platform/api/`: versieerbare API-contracten;
-- `03-platform/integrations/`: externe systeemintegraties;
-- `03-platform/security/`: technische beveiligingsarchitectuur.
+- [`03-platform/drupal/`](03-platform/drupal/) — Drupal-architectuur en implementatiemappings;
+- [`03-platform/api/`](03-platform/api/) — versieerbare API-contracten;
+- [`03-platform/integrations/`](03-platform/integrations/) — externe systeemintegraties;
+- [`03-platform/security/`](03-platform/security/) — technische beveiligingsarchitectuur;
+- [`03-platform/python/`](03-platform/python/) — toekomstige zelfstandige Python-services.
 
 ## Plaatsingsregel
 
@@ -35,9 +35,9 @@ Een document krijgt één primaire locatie op basis van zijn verantwoordelijkhei
 
 ## Migratie
 
-De overgang wordt per logisch samenhangende set uitgevoerd. Reeds gecontroleerd verplaatst zijn de ontwikkelworkflow, Git-scope, het voorlopige Hostinger-deploymentmodel en de ADR- en RFC-sjablonen.
+De overgang wordt per logisch samenhangende set uitgevoerd. De ontwikkelworkflow, Git-scope, het voorlopige Hostinger-deploymentmodel, de ADR- en RFC-sjablonen en het BREBO Domain Model zijn verliesvrij naar hun nieuwe locaties verplaatst.
 
-Bestanden worden pas verplaatst nadat hun status, bestemming, inhoudsintegriteit en verwijzingen zijn gecontroleerd. Zie [`migration-register.md`](migration-register.md).
+Bestanden worden pas verplaatst nadat hun status, bestemming en verwijzingen zijn gecontroleerd. Zie [`migration-register.md`](migration-register.md).
 
 ## Statussen
 
