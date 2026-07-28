@@ -20,12 +20,24 @@ Dit register bestuurt de overgang van de bestaande documentatiemappen naar de ni
 
 | Huidige locatie | Nieuwe hoofdlocatie | Status | Opmerking |
 |---|---|---|---|
-| `docs/adr/` | `docs/00-governance/adr/` | te migreren | ADR-nummers en inhoud behouden |
-| `docs/rfc/` | `docs/00-governance/rfc/` | te migreren | templates meeverplaatsen |
+| `docs/adr/` | `docs/00-governance/adr/` | gestart | ADR-template verplaatst; inhoudelijke ADR's volgen per set |
+| `docs/rfc/` | `docs/00-governance/rfc/` | gestart | RFC-template verplaatst; inhoudelijke RFC's volgen per set |
 | `docs/decisions/` | `docs/00-governance/decisions/` | te inventariseren | centrale registers eerst reconciliëren |
 | `docs/architecture/` | `docs/01-enterprise/` of `docs/03-platform/` | te classificeren | splits op techniekonafhankelijk model versus implementatiemapping |
-| `docs/development/` | `docs/04-development/` | te migreren | workflow en Git-scope controleren |
-| `docs/deployment/` | `docs/06-operations/deployment/` | te migreren | voorlopige status behouden |
+| `docs/development/` | `docs/04-development/` | afgerond voor bekende bestanden | workflow en Git-scope verplaatst |
+| `docs/deployment/` | `docs/06-operations/deployment/` | afgerond voor bekende bestanden | voorlopig Hostinger-model verplaatst met statusbehoud |
+
+## Uitgevoerde migratieslice 1
+
+| Oud pad | Nieuw pad |
+|---|---|
+| `docs/development/workflow.md` | `docs/04-development/workflow.md` |
+| `docs/development/git-scope.md` | `docs/04-development/git-scope.md` |
+| `docs/deployment/current-hostinger-model.md` | `docs/06-operations/deployment/current-hostinger-model.md` |
+| `docs/adr/ADR-TEMPLATE.md` | `docs/00-governance/adr/ADR-TEMPLATE.md` |
+| `docs/rfc/RFC-TEMPLATE.md` | `docs/00-governance/rfc/RFC-TEMPLATE.md` |
+
+De inhoud van deze vijf bestanden is niet gewijzigd; alleen de locatie is aangepast.
 
 ## Eerste classificatie van bekende architectuurdocumenten
 
@@ -38,10 +50,10 @@ Dit register bestuurt de overgang van de bestaande documentatiemappen naar de ni
 | KnowledgeItem Drupal Entity Mapping 1.0 | `03-platform/drupal/entity-mappings/` |
 | Platform 1.0 Modulekaart | `03-platform/drupal/architecture/` |
 
-## Niet onderdeel van deze eerste slice
+## Nog niet migreren
 
-- bestaande bestanden verplaatsen;
-- documentstatussen inhoudelijk wijzigen;
-- ADR's of besluiten hernummeren;
-- runtimecode, Composerstructuur of deployment wijzigen;
-- de open projectimplementatie-PR aanpassen.
+- inhoudelijke ADR's en RFC's zonder classificatiecontrole;
+- besluitregisters voordat de centrale registers zijn gereconcilieerd;
+- architectuurdocumenten voordat techniekonafhankelijke modellen en Drupal-mappings definitief zijn gescheiden;
+- runtimecode, Composerstructuur of deploymentmechanismen;
+- bestanden uit de open projectimplementatie-PR.
