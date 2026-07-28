@@ -1,0 +1,76 @@
+langcode: nl
+status: true
+dependencies:
+  config:
+    - field.field.node.brebo_knowledge_item.field_knowledge_first_step
+    - field.field.node.brebo_knowledge_item.field_knowledge_meaning
+    - field.field.node.brebo_knowledge_item.field_knowledge_observation
+    - field.field.node.brebo_knowledge_item.field_knowledge_realization
+    - field.field.node.brebo_knowledge_item.field_knowledge_regie
+    - field.field.node.brebo_knowledge_item.field_knowledge_risks
+    - field.field.node.brebo_knowledge_item.field_knowledge_urgency
+    - node.type.brebo_knowledge_item
+  module:
+    - text
+id: node.brebo_knowledge_item.default
+targetEntityType: node
+bundle: brebo_knowledge_item
+mode: default
+content:
+  field_knowledge_observation:
+    type: text_textarea
+    weight: 0
+    region: content
+    settings:
+      rows: 6
+      placeholder: ''
+    third_party_settings: {  }
+  field_knowledge_meaning:
+    type: text_textarea
+    weight: 1
+    region: content
+    settings:
+      rows: 6
+      placeholder: ''
+    third_party_settings: {  }
+  field_knowledge_urgency:
+    type: text_textarea
+    weight: 2
+    region: content
+    settings:
+      rows: 6
+      placeholder: ''
+    third_party_settings: {  }
+  field_knowledge_first_step:
+    type: text_textarea
+    weight: 3
+    region: content
+    settings:
+      rows: 6
+      placeholder: ''
+    third_party_settings: {  }
+  field_knowledge_risks:
+    type: text_textarea
+    weight: 4
+    region: content
+    settings:
+      rows: 6
+      placeholder: ''
+    third_party_settings: {  }
+  field_knowledge_regie:
+    type: text_textarea
+    weight: 5
+    region: content
+    settings:
+      rows: 6
+      placeholder: ''
+    third_party_settings: {  }
+  field_knowledge_realization:
+    type: text_textarea
+    weight: 6
+    region: content
+    settings:
+      rows: 6
+      placeholder: ''
+    third_party_settings: {  }
+hidden: {  }
