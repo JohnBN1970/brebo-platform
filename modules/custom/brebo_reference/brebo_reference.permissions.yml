@@ -1,0 +1,26 @@
+create brebo references:
+  title: 'Referenties aanmaken'
+  description: 'Nieuwe BREBO-referenties aanmaken.'
+
+edit own brebo references:
+  title: 'Eigen referenties bewerken'
+
+edit any brebo references:
+  title: 'Alle referenties bewerken'
+  restrict access: true
+
+verify brebo references:
+  title: 'Referenties controleren'
+  restrict access: true
+
+approve brebo references:
+  title: 'Referenties goedkeuren'
+  restrict access: true
+
+archive brebo references:
+  title: 'Referenties archiveren'
+  restrict access: true
+
+view brebo reference revisions:
+  title: 'Revisies van referenties bekijken'
+  restrict access: true
