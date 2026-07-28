@@ -1,0 +1,216 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * @file
+ * Installatie en updates voor BREBO Reference.
+ */
+
+use Drupal\Core\Entity\Entity\EntityFormDisplay;
+use Drupal\Core\Entity\Entity\EntityViewDisplay;
+use Drupal\field\Entity\FieldConfig;
+use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\node\Entity\NodeType;
+
+/**
+ * Implements hook_install().
+ */
+function brebo_reference_install(): void {
+  $type = NodeType::load('brebo_reference');
+  if (!$type) {
+    $type = NodeType::create([
+      'type' => 'brebo_reference',
+      'name' => 'Referentie',
+      'description' => 'Revisioneerbare bron of onderbouwing binnen het BREBO-platform.',
+      'new_revision' => TRUE,
+      'preview_mode' => 1,
+      'display_submitted' => FALSE,
+    ]);
+    $type->save();
+  }
+  elseif (!$type->shouldCreateNewRevision()) {
+    throw new RuntimeException('Contenttype brebo_reference bestaat zonder verplichte revisie-instelling. Installatie is gestopt.');
+  }
+
+  $fields = _brebo_reference_field_definitions();
+  foreach ($fields as $field_name => $definition) {
+    _brebo_reference_ensure_field($field_name, $definition);
+  }
+
+  _brebo_reference_configure_displays($fields);
+}
+
+/**
+ * Definieert de module-eigen Reference-velden.
+ */
+function _brebo_reference_field_definitions(): array {
+  return [
+    'field_brebo_reference_id' => [
+      'label' => 'Reference ID',
+      'description' => 'Systeembeheerde, onveranderlijke functionele identifier.',
+      'type' => 'string',
+      'required' => TRUE,
+      'settings' => ['max_length' => 10],
+      'form' => ['type' => 'string_textfield', 'weight' => -10, 'settings' => ['size' => 20]],
+      'view' => ['type' => 'string', 'label' => 'above', 'weight' => -10],
+    ],
+    'field_brebo_reference_type' => [
+      'label' => 'Referentietype',
+      'description' => 'Gesloten classificatie van de bron.',
+      'type' => 'list_string',
+      'required' => TRUE,
+      'settings' => ['allowed_values' => [
+        'standard' => 'Norm',
+        'legislation' => 'Wet- en regelgeving',
+        'supplier_documentation' => 'Leveranciersdocumentatie',
+        'product_sheet' => 'Productblad',
+        'maintenance_instruction' => 'Onderhoudsvoorschrift',
+        'research_report' => 'Onderzoeksrapport',
+        'brebo_experience' => 'Praktijkervaring BREBO',
+        'inspection_report' => 'Inspectierapport',
+        'media' => 'Foto of video',
+        'website' => 'Website',
+        'internal_instruction' => 'Interne werkinstructie',
+        'other' => 'Overige bron',
+      ]],
+      'form' => ['type' => 'options_select', 'weight' => 10],
+      'view' => ['type' => 'list_default', 'label' => 'above', 'weight' => 10],
+    ],
+    'field_brebo_reference_summary' => [
+      'label' => 'Beschrijving',
+      'description' => 'Korte inhoudelijke beschrijving en relevantie van de bron.',
+      'type' => 'text_long',
+      'required' => TRUE,
+      'form' => ['type' => 'text_textarea', 'weight' => 20, 'settings' => ['rows' => 6]],
+      'view' => ['type' => 'text_default', 'label' => 'above', 'weight' => 20],
+    ],
+    'field_brebo_reference_author' => [
+      'label' => 'Auteur',
+      'description' => 'Auteur of verantwoordelijke opsteller.',
+      'type' => 'string',
+      'required' => FALSE,
+      'settings' => ['max_length' => 255],
+      'form' => ['type' => 'string_textfield', 'weight' => 30],
+      'view' => ['type' => 'string', 'label' => 'above', 'weight' => 30],
+    ],
+    'field_brebo_reference_org' => [
+      'label' => 'Organisatie',
+      'description' => 'Uitgevende of verantwoordelijke organisatie.',
+      'type' => 'string',
+      'required' => FALSE,
+      'settings' => ['max_length' => 255],
+      'form' => ['type' => 'string_textfield', 'weight' => 40],
+      'view' => ['type' => 'string', 'label' => 'above', 'weight' => 40],
+    ],
+    'field_brebo_reference_version' => [
+      'label' => 'Versie',
+      'description' => 'Versie- of revisienummer van de bron.',
+      'type' => 'string',
+      'required' => FALSE,
+      'settings' => ['max_length' => 100],
+      'form' => ['type' => 'string_textfield', 'weight' => 50],
+      'view' => ['type' => 'string', 'label' => 'above', 'weight' => 50],
+    ],
+    'field_brebo_reference_date' => [
+      'label' => 'Publicatiedatum',
+      'description' => 'Datum waarop de bron is gepubliceerd.',
+      'type' => 'datetime',
+      'required' => FALSE,
+      'settings' => ['datetime_type' => 'date'],
+      'form' => ['type' => 'datetime_default', 'weight' => 60],
+      'view' => ['type' => 'datetime_default', 'label' => 'above', 'weight' => 60],
+    ],
+    'field_brebo_reference_url' => [
+      'label' => 'Bron-URL',
+      'description' => 'Externe locatie van de bron.',
+      'type' => 'link',
+      'required' => FALSE,
+      'settings' => [],
+      'form' => ['type' => 'link_default', 'weight' => 70],
+      'view' => ['type' => 'link', 'label' => 'above', 'weight' => 70],
+    ],
+    'field_brebo_reference_status' => [
+      'label' => 'Lifecycle-status',
+      'description' => 'Functionele status van de referentie.',
+      'type' => 'list_string',
+      'required' => TRUE,
+      'settings' => ['allowed_values' => [
+        'concept' => 'Concept',
+        'verified' => 'Gecontroleerd',
+        'approved' => 'Goedgekeurd',
+        'expired' => 'Vervallen',
+        'archived' => 'Gearchiveerd',
+      ]],
+      'default_value' => [['value' => 'concept']],
+      'form' => ['type' => 'options_select', 'weight' => 80],
+      'view' => ['type' => 'list_default', 'label' => 'above', 'weight' => 80],
+    ],
+  ];
+}
+
+/**
+ * Maakt veldopslag en veldinstantie conflictveilig aan.
+ */
+function _brebo_reference_ensure_field(string $field_name, array $definition): void {
+  $storage = FieldStorageConfig::loadByName('node', $field_name);
+  $cardinality = $definition['cardinality'] ?? 1;
+
+  if (!$storage) {
+    $storage = FieldStorageConfig::create([
+      'field_name' => $field_name,
+      'entity_type' => 'node',
+      'type' => $definition['type'],
+      'cardinality' => $cardinality,
+      'settings' => $definition['settings'] ?? [],
+      'translatable' => TRUE,
+    ]);
+    $storage->save();
+  }
+  elseif ($storage->getType() !== $definition['type'] || $storage->getCardinality() !== $cardinality) {
+    throw new RuntimeException(sprintf('Conflicterende veldopslag voor %s. Installatie is gestopt.', $field_name));
+  }
+
+  $field = FieldConfig::loadByName('node', 'brebo_reference', $field_name);
+  if (!$field) {
+    $field = FieldConfig::create([
+      'field_storage' => $storage,
+      'bundle' => 'brebo_reference',
+      'label' => $definition['label'],
+      'description' => $definition['description'],
+      'required' => $definition['required'],
+      'translatable' => TRUE,
+      'default_value' => $definition['default_value'] ?? [],
+    ]);
+    $field->save();
+  }
+}
+
+/**
+ * Richt redactionele en volledige weergave in.
+ */
+function _brebo_reference_configure_displays(array $fields): void {
+  $form_display = EntityFormDisplay::load('node.brebo_reference.default')
+    ?: EntityFormDisplay::create([
+      'targetEntityType' => 'node',
+      'bundle' => 'brebo_reference',
+      'mode' => 'default',
+      'status' => TRUE,
+    ]);
+
+  $view_display = EntityViewDisplay::load('node.brebo_reference.default')
+    ?: EntityViewDisplay::create([
+      'targetEntityType' => 'node',
+      'bundle' => 'brebo_reference',
+      'mode' => 'default',
+      'status' => TRUE,
+    ]);
+
+  foreach ($fields as $field_name => $definition) {
+    $form_display->setComponent($field_name, $definition['form']);
+    $view_display->setComponent($field_name, $definition['view']);
+  }
+
+  $form_display->save();
+  $view_display->save();
+}

@@ -1,0 +1,13 @@
+name: BREBO Reference
+type: module
+description: 'Implementeert het canonieke Reference-object voor de BREBO bron- en referentielaag.'
+package: BREBO
+core_version_requirement: ^11
+dependencies:
+  - drupal:datetime
+  - drupal:field
+  - drupal:file
+  - drupal:link
+  - drupal:node
+  - drupal:options
+  - drupal:text
