@@ -59,10 +59,11 @@ jobs:
           set +e
           vendor/bin/phpunit -c core --colors=never modules/custom/brebo_knowledge/tests/src/Kernel/KnowledgeItemRuntimeTest.php > phpunit.log 2>&1
           status=$?
-          cat phpunit.log
-          if [ "$status" -ne 0 ]; then
+          if [ "$status" -eq 0 ]; then
+            cat phpunit.log
+          else
             echo "::group::PHPUnit failure tail"
-            tail -n 120 phpunit.log
+            tail -n 160 phpunit.log
             echo "::endgroup::"
           fi
           exit "$status"
