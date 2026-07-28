@@ -52,13 +52,13 @@ final class ReferenceRuntimeTest extends KernelTestBase {
     self::assertFalse($node->isPublished());
     self::assertTrue($node->hasField('field_brebo_reference_type'));
     self::assertTrue($node->hasField('field_brebo_reference_url'));
-    self::assertTrue($node->hasField('field_brebo_reference_file'));
+    self::assertTrue($node->hasField('field_brebo_reference_status'));
 
     $storage = $this->container->get('entity_type.manager')->getStorage('node');
     self::assertCount(1, $storage->revisionIds($node));
 
     foreach (['verified', 'approved', 'expired', 'archived'] as $expected_revision => $lifecycle) {
-      $node->set('field_brebo_reference_lifecycle', $lifecycle);
+      $node->set('field_brebo_reference_status', $lifecycle);
       $node->save();
       self::assertSame($lifecycle === 'approved', $node->isPublished());
       self::assertSame('REF-000001', $node->get('field_brebo_reference_id')->value);
@@ -93,7 +93,7 @@ final class ReferenceRuntimeTest extends KernelTestBase {
       'field_brebo_reference_id' => 'REF-000001',
       'field_brebo_reference_type' => 'standard',
       'field_brebo_reference_summary' => 'Samenvatting.',
-      'field_brebo_reference_lifecycle' => 'concept',
+      'field_brebo_reference_status' => 'concept',
     ]);
 
     $this->expectException(EntityStorageException::class);
@@ -105,7 +105,7 @@ final class ReferenceRuntimeTest extends KernelTestBase {
     $node = $this->createReference('concept');
     $this->setCurrentAccount(2, []);
 
-    $node->set('field_brebo_reference_lifecycle', 'approved');
+    $node->set('field_brebo_reference_status', 'approved');
     $this->expectException(EntityStorageException::class);
     $this->expectExceptionMessage('Geen toestemming');
     $node->save();
@@ -141,12 +141,12 @@ final class ReferenceRuntimeTest extends KernelTestBase {
       'title' => $title,
       'field_brebo_reference_type' => 'standard',
       'field_brebo_reference_summary' => 'Een gecontroleerde technische bron.',
-      'field_brebo_reference_organisation' => 'BREBO',
+      'field_brebo_reference_org' => 'BREBO',
       'field_brebo_reference_author' => 'Testauteur',
       'field_brebo_reference_version' => '1.0',
       'field_brebo_reference_date' => '2026-07-28',
       'field_brebo_reference_url' => ['uri' => 'https://example.com/reference'],
-      'field_brebo_reference_lifecycle' => $lifecycle,
+      'field_brebo_reference_status' => $lifecycle,
     ]);
     $node->save();
     return $node;
