@@ -15,15 +15,29 @@ Deze map is de centrale, versiebeheerbare documentatiebron van het BREBO Platfor
 | `06-operations/` | deployment, beheer, monitoring, back-up, incidenten en runbooks |
 | `99-archive/` | vervangen of historisch materiaal dat niet meer normatief is |
 
+## Enterprise-onderdelen
+
+- `01-enterprise/domain-model/`: bedrijfsobjecten, domeingrenzen en eigenaarschap;
+- `01-enterprise/canonical-information-model/`: canonieke informatiebetekenis en gegevenscontracten;
+- `01-enterprise/object-registry/`: objectdefinities, identiteit, levenscyclus en bron van waarheid.
+
+## Platform-onderdelen
+
+- `03-platform/drupal/`: Drupal-architectuur en implementatiemappings;
+- `03-platform/python/`: toekomstige zelfstandige Python-services;
+- `03-platform/api/`: versieerbare API-contracten;
+- `03-platform/integrations/`: externe systeemintegraties;
+- `03-platform/security/`: technische beveiligingsarchitectuur.
+
 ## Plaatsingsregel
 
 Een document krijgt één primaire locatie op basis van zijn verantwoordelijkheid. Andere documenten verwijzen ernaar in plaats van dezelfde inhoud te kopiëren.
 
 ## Migratie
 
-De overgang wordt per logisch samenhangende set uitgevoerd. De eerste migratieslice heeft de ontwikkelworkflow, Git-scope, het voorlopige Hostinger-deploymentmodel en de ADR- en RFC-sjablonen naar hun nieuwe locaties verplaatst.
+De overgang wordt per logisch samenhangende set uitgevoerd. Reeds gecontroleerd verplaatst zijn de ontwikkelworkflow, Git-scope, het voorlopige Hostinger-deploymentmodel en de ADR- en RFC-sjablonen.
 
-Bestanden worden pas verplaatst nadat hun status, bestemming en verwijzingen zijn gecontroleerd. Zie [`migration-register.md`](migration-register.md).
+Bestanden worden pas verplaatst nadat hun status, bestemming, inhoudsintegriteit en verwijzingen zijn gecontroleerd. Zie [`migration-register.md`](migration-register.md).
 
 ## Statussen
 
