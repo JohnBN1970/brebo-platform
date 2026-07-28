@@ -1,0 +1,76 @@
+name: BREBO taak
+about: Plan een afgebakende wijziging, correctie of onderzoeksopdracht
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Gebruik dit formulier voor uitvoerbare BREBO-taken. Ideeën zonder besluitrijpe scope horen eerst in de Ideeënbus.
+  - type: dropdown
+    id: type
+    attributes:
+      label: Type
+      options:
+        - Feature
+        - Bug
+        - Technische verbetering
+        - Architectuuronderzoek
+        - Documentatie
+        - Deployment
+        - Security
+    validations:
+      required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Prioriteit
+      options:
+        - P1 – zeer hoog
+        - P2 – hoog
+        - P3 – normaal
+        - P4 – laag
+    validations:
+      required: true
+  - type: textarea
+    id: aanleiding
+    attributes:
+      label: Aanleiding
+      description: Wat is vastgesteld en waarom is actie nodig?
+    validations:
+      required: true
+  - type: textarea
+    id: doel
+    attributes:
+      label: Doel
+      description: Welk concreet resultaat moet worden bereikt?
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: Wat valt wel en niet onder deze taak?
+    validations:
+      required: true
+  - type: textarea
+    id: besluiten
+    attributes:
+      label: Afhankelijkheden en besluiten
+      description: Noem gekoppelde Issues, PR's, RFC's, ADR's en besluiten.
+  - type: textarea
+    id: acceptatie
+    attributes:
+      label: Acceptatiecriteria
+      description: Geef controleerbare criteria, bij voorkeur als checklist.
+    validations:
+      required: true
+  - type: textarea
+    id: testen
+    attributes:
+      label: Test en verificatie
+      description: Welke technische en functionele controles zijn nodig?
+  - type: textarea
+    id: risico
+    attributes:
+      label: Risico en rollback
+      description: Wat kan misgaan en hoe wordt teruggedraaid?
