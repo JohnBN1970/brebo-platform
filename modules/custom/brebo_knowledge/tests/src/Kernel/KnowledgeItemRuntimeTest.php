@@ -29,6 +29,7 @@ final class KnowledgeItemRuntimeTest extends KernelTestBase {
 
   protected function setUp(): void {
     parent::setUp();
+    $this->installSchema('system', ['sequences', 'key_value', 'key_value_expire']);
     $this->installEntitySchema('user');
     $this->installEntitySchema('node');
     $this->installSchema('node', ['node_access']);
