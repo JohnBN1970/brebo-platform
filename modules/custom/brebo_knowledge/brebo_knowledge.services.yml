@@ -1,0 +1,7 @@
+services:
+  brebo_knowledge.stable_id_generator:
+    class: Drupal\brebo_knowledge\Service\StableIdGenerator
+    arguments:
+      - '@entity_type.manager'
+      - '@state'
+      - '@lock'
