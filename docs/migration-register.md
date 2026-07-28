@@ -24,7 +24,7 @@ Dit register bestuurt de overgang van de bestaande documentatiemappen naar de ni
 | `docs/adr/` | `docs/00-governance/adr/` | gestart | ADR-template verplaatst; inhoudelijke ADR's volgen per gecontroleerde set |
 | `docs/rfc/` | `docs/00-governance/rfc/` | gestart | RFC-template verplaatst; inhoudelijke RFC's volgen per gecontroleerde set |
 | `docs/decisions/` | `docs/00-governance/decisions/` | doelmap gereed | centrale registers eerst reconciliëren |
-| `docs/architecture/` | `docs/01-enterprise/` of `docs/03-platform/` | in uitvoering | splits op techniekonafhankelijk model versus implementatiemapping |
+| `docs/architecture/` | `docs/01-enterprise/` of `docs/03-platform/` | in uitvoering | enterprise-kernmodellen verplaatst; Drupal-implementatiedocumenten nog classificeren |
 | `docs/development/` | `docs/04-development/` | afgerond voor bekende bestanden | workflow en Git-scope verplaatst |
 | `docs/deployment/` | `docs/06-operations/deployment/` | afgerond voor bekende bestanden | voorlopig Hostinger-model verplaatst met statusbehoud |
 
@@ -71,13 +71,22 @@ Iedere doelmap bevat een afbakening die voorkomt dat bedrijfsregels, governance,
 
 Deze verplaatsing is uitgevoerd door dezelfde bestaande blob op het nieuwe pad te plaatsen en het oude pad in dezelfde commit te verwijderen. Daardoor is bytegelijkheid aantoonbaar en blijft de geschiedenis als rename herkenbaar.
 
+## Uitgevoerde migratieslice 5
+
+| Oud pad | Nieuw pad | Controle |
+|---|---|---|
+| `docs/architecture/brebo-canonical-information-model-1.0.md` | `docs/01-enterprise/canonical-information-model/brebo-canonical-information-model-1.0.md` | pure Git-rename; 0 toevoegingen en 0 verwijderingen |
+| `docs/architecture/brebo-object-registry-1.0.md` | `docs/01-enterprise/object-registry/brebo-object-registry-1.0.md` | pure Git-rename; 0 toevoegingen en 0 verwijderingen |
+
+De documenten zijn inhoudelijk ongewijzigd verplaatst. Hun status blijft `gereed voor architectuurreview`; deze migratie verleent geen nieuwe inhoudelijke goedkeuring.
+
 ## Eerste classificatie van bekende architectuurdocumenten
 
 | Document | Voorgestelde bestemming | Status |
 |---|---|---|
 | BREBO Domain Model 1.0 | `01-enterprise/domain-model/` | verplaatst |
-| BREBO Canonical Information Model 1.0 | `01-enterprise/canonical-information-model/` | bronpad vaststellen |
-| BREBO Object Registry 1.0 | `01-enterprise/object-registry/` | bronpad vaststellen |
+| BREBO Canonical Information Model 1.0 | `01-enterprise/canonical-information-model/` | verplaatst |
+| BREBO Object Registry 1.0 | `01-enterprise/object-registry/` | verplaatst |
 | BREBO Module Architecture 1.0 | `03-platform/drupal/architecture/` | bronpad vaststellen |
 | KnowledgeItem Drupal Entity Mapping 1.0 | `03-platform/drupal/entity-mappings/` | bronpad vaststellen |
 | Platform 1.0 Modulekaart | `03-platform/drupal/architecture/` | bronpad vaststellen |
