@@ -104,6 +104,29 @@ final class KnowledgeItemRuntimeTest extends KernelTestBase {
     $node->save();
   }
 
+  public function testPublishedContentCannotBeChangedWithoutPublishPermission(): void {
+    $node = $this->createKnowledgeItem('published');
+    $this->setCurrentAccount(2, ['edit any brebo knowledge items']);
+
+    $node->setTitle('Onbevoegd gewijzigde publieke titel');
+    $this->expectException(AccessDeniedHttpException::class);
+    $node->save();
+  }
+
+  public function testAuthorizedPublisherCanChangePublishedContent(): void {
+    $node = $this->createKnowledgeItem('published');
+    $this->setCurrentAccount(3, [
+      'edit any brebo knowledge items',
+      'publish brebo knowledge items',
+    ]);
+
+    $node->setTitle('Geautoriseerd gewijzigde publieke titel');
+    $node->save();
+
+    self::assertSame('Geautoriseerd gewijzigde publieke titel', $node->label());
+    self::assertTrue($node->isPublished());
+  }
+
   private function createKnowledgeItem(string $lifecycle, string $title = 'Testkennisbijdrage'): Node {
     $node = Node::create([
       'type' => 'brebo_knowledge_item',
