@@ -1,12 +1,12 @@
 # BREBO Object Registry 1.0
 
-Status: concept voor architectuurreview  
+Status: gereed voor architectuurreview  
 Gerelateerd issue: #14  
-Afhankelijk van: BREBO Domain Model 1.0 en BREBO Canonical Information Model 1.0
+Besluitbasis: BREBO Domain Model 1.0 en BREBO Canonical Information Model 1.0
 
 ## 1. Doel
 
-Dit register kent ieder BREBO-bedrijfsobject een vaste Object-ID, canonieke naam, primaire eigenaar, status en implementatiemapping toe.
+Dit register kent ieder zelfstandig BREBO-bedrijfsobject een vaste Object-ID, canonieke naam, primaire eigenaar, status en implementatiemapping toe.
 
 Object-ID's zijn onveranderlijk. Een object wordt niet hernummerd wanneer naam, status of implementatie verandert.
 
@@ -23,14 +23,9 @@ Object-ID's zijn onveranderlijk. Een object wordt niet hernummerd wanneer naam, 
 |---|---|---|---|---|---|---|---|---|
 | `OBJ-001` | `KnowledgeItem` | probleemgerichte kennisbijdrage | `brebo_knowledge` | concept | 1.0 | Drupal node bundle `brebo_knowledge_item` | `/knowledge-items` | naam, betekenis, identiteit of eigenaar vereist ADR |
 | `OBJ-002` | `Service` | dienst | `brebo_service` | concept | 1.0 | nog vast te stellen | `/services` | naam, betekenis, identiteit of eigenaar vereist ADR |
-| `OBJ-003` | `WorkActivity` | werkzaamheid | `brebo_service` | concept | 1.0 minimaal | nog vast te stellen | `/work-activities` | zelfstandigheid en eigenaar vereist architectuurbesluit |
-| `OBJ-004` | `Project` | project | `brebo_project` | concept | 1.0 | nog vast te stellen | `/projects` | naam, betekenis, identiteit of eigenaar vereist ADR |
+| `OBJ-003` | `WorkActivity` | werkzaamheid | `brebo_service` | concept | 1.0 minimaal | nog vast te stellen | `/work-activities` | zelfstandigheid, betekenis of eigenaar vereist ADR |
+| `OBJ-004` | `Project` | projectcase | `brebo_project` | concept | 1.0 | nog vast te stellen | `/projects` | mag geen interne projectadministratie omvatten; wijziging vereist ADR |
 | `OBJ-005` | `Reference` | referentie | `brebo_reference` | concept | 1.0 | nog vast te stellen | `/references` | naam, betekenis, identiteit of eigenaar vereist ADR |
-| `OBJ-006` | `LensStage` | Lens-fase | `brebo_lens` | concept | 1.0 | gesloten waardenlijst; mapping nog vast te stellen | geen zelfstandige publieke resource vereist | waarden of betekenis wijzigen vereist ADR |
-| `OBJ-007` | `BuildingType` | gebouwtype | nog definitief vast te stellen | concept | 1.0 beperkt | gecontroleerde classificatie; mapping nog vast te stellen | geen zelfstandige resource in 1.0 | eigenaar en gedeeld gebruik vereisen besluit |
-| `OBJ-008` | `BuildingPart` | gebouwdeel | nog definitief vast te stellen | concept | 1.0 beperkt | gecontroleerde classificatie; mapping nog vast te stellen | geen zelfstandige resource in 1.0 | eigenaar en gedeeld gebruik vereisen besluit |
-| `OBJ-009` | `MaterialClassification` | materiaalclassificatie | nog definitief vast te stellen | concept | 1.0 indien nodig | gecontroleerde classificatie; mapping nog vast te stellen | geen zelfstandige resource in 1.0 | invoering vereist concrete usecase en eigenaar |
-| `OBJ-010` | `MediaAsset` | media-object | Drupal Media/File; ondersteuning `brebo_media` | concept | 1.0 ondersteunend | Drupal media entity | alleen via goedgekeurd mediacontract | domeinbetekenis mag niet naar `brebo_media` verschuiven |
 
 ## 4. Bindende definities
 
@@ -38,79 +33,85 @@ Object-ID's zijn onveranderlijk. Een object wordt niet hernummerd wanneer naam, 
 
 Een zelfstandig, revisioneerbaar kennisobject dat een waarneming duidt en richting geeft aan betekenis, urgentie, risico en eerste onderzoek.
 
-Synoniemen: kennisbijdrage.  
+Synoniem: kennisbijdrage.  
 Verboden canonieke alternatieven: article, page, content, document.
 
 ### OBJ-002 — Service
 
 Een door BREBO aangeboden samenhangende oplossing voor een onderhoudsvraag.
 
-Synoniemen: dienst.  
+Synoniem: dienst.  
 Verboden canonieke alternatieven: product, service page.
 
 ### OBJ-003 — WorkActivity
 
-Een afgebakende uitvoeringsactiviteit die binnen één of meer diensten kan worden toegepast.
+Een zelfstandig, minimaal uitvoeringsobject voor een afgebakende activiteit die binnen één of meer diensten kan worden toegepast.
 
-Synoniemen: werkzaamheid.  
+Synoniem: werkzaamheid.  
 Verboden canonieke alternatieven: klus, job, task.
 
 ### OBJ-004 — Project
 
-Een gerealiseerde of publiceerbare opdracht met context, scope, uitvoering en aantoonbaar resultaat.
+Een publiceerbare weergave van een gerealiseerde opdracht met context, scope, uitvoering en aantoonbaar resultaat.
 
-Synoniemen: project.  
-Verboden canonieke alternatieven: case, portfolio item.
+Synoniem: projectcase.  
+Verboden canonieke alternatieven: interne projectregistratie, planningrecord, werkvoorbereidingsrecord, portfolio item.
 
 ### OBJ-005 — Reference
 
-Een gecontroleerde, publiceerbare ervaring of aanbeveling waarvoor toestemming en redactionele controle zijn vastgelegd.
+Een gecontroleerde, publiceerbare ervaring of aanbeveling waarvoor herkomst, toestemming en redactionele controle zijn vastgelegd. Een referentie mag zonder projectcase bestaan.
 
-Synoniemen: referentie.  
+Synoniem: referentie.  
 Verboden canonieke alternatieven: testimonial, review.
 
-### OBJ-006 — LensStage
+## 5. Gecontroleerde waarden zonder Object-ID
 
-Een gesloten methodische waarde binnen de BREBO Lens: Inzicht, Regie of Realisatie.
+De volgende begrippen zijn wel canoniek gedefinieerd, maar zijn geen zelfstandige bedrijfsobjecten en krijgen daarom geen Object-ID:
 
-Synoniemen: Lens-fase.  
-Verboden canonieke alternatieven: taxonomy term.
+### LensStage
 
-### OBJ-007 — BuildingType
+Een gesloten waardencontract binnen de BREBO Lens met uitsluitend:
 
-Een gecontroleerde contextclassificatie voor een type gebouw.
+- `insight` — Inzicht
+- `direction` — Regie
+- `realisation` — Realisatie
 
-Synoniemen: gebouwtype.  
-Statusbeperking: geen zelfstandig gebouwobject.
+Eigenaar: `brebo_lens`.  
+Wijziging van waarden of betekenis vereist een ADR.
 
-### OBJ-008 — BuildingPart
+## 6. Lokale classificaties zonder Object-ID
 
-Een gecontroleerde contextclassificatie voor een fysiek deel van een gebouw.
+De volgende classificaties blijven lokaal bij het gebruikende domein en krijgen in Platform 1.0 geen Object-ID:
 
-Synoniemen: gebouwdeel.
+- `BuildingType`
+- `BuildingPart`
+- `MaterialClassification`
 
-### OBJ-009 — MaterialClassification
+Een platformbrede gedeelde variant vereist vooraf:
 
-Een gecontroleerde classificatie van een relevant bouwmateriaal.
+1. een aantoonbare goedgekeurde usecase;
+2. één expliciete levenscycluseigenaar;
+3. een afzonderlijk architectuurbesluit;
+4. een nieuwe beoordeling of zelfstandige identiteit werkelijk nodig is.
 
-Synoniemen: materiaalclassificatie, materiaaltype.
+Er komt geen generieke eigenaarloze taxonomie- of contextmodule.
 
-### OBJ-010 — MediaAsset
+## 7. Technische representaties zonder Object-ID
 
-Een technisch herbruikbaar bestand met rechten- en toegankelijkheidsmetadata. Domeinbetekenis blijft bij het verwijzende bronobject.
+Drupal Media/File, zoekdocumenten, API-responses, presentatieobjecten en MCP-representaties zijn technische of afgeleide representaties en krijgen geen Object-ID.
 
-Synoniemen: media-object.  
-Verboden canonieke alternatieven: file node, image node.
+De inhoudelijke betekenis en relaties blijven eigendom van het betreffende bronobject. Een technische mapping mag nooit stil een nieuw bedrijfsobject introduceren.
 
-## 5. Identificatieregels
+## 8. Identificatieregels
 
 1. Object-ID's worden nooit hergebruikt.
 2. Verwijderde objecten blijven als `deprecated` in het register staan.
-3. Nieuwe objecten krijgen het eerstvolgende vrije nummer.
-4. Subtypen krijgen niet automatisch een eigen Object-ID; daarvoor is zelfstandige identiteit en levenscyclus vereist.
-5. Drupal bundle IDs, database-ID's, UUID's en URL-aliases zijn geen Object-ID.
+3. Nieuwe zelfstandige objecten krijgen het eerstvolgende vrije nummer.
+4. Subtypen en gecontroleerde waarden krijgen niet automatisch een Object-ID.
+5. Drupal bundle-ID's, database-ID's, UUID's en URL-aliases zijn geen Object-ID.
+6. Een Object-ID vertegenwoordigt een bedrijfsconcept, niet een technische implementatie.
 
-## 6. Implementatiemappings
+## 9. Implementatiemappings
 
 Een implementatiemapping mag worden gewijzigd zonder het object te hernoemen wanneer:
 
@@ -128,7 +129,7 @@ Voor iedere runtime-implementatie moet later minimaal worden geregistreerd:
 - externe resource- of contractnaam;
 - migratie- en compatibiliteitsregel.
 
-## 7. Wijzigingsbeheer
+## 10. Wijzigingsbeheer
 
 Een ADR is verplicht bij wijziging van:
 
@@ -138,7 +139,8 @@ Een ADR is verplicht bij wijziging van:
 - identiteit;
 - zelfstandigheid van het object;
 - Object-ID;
-- betekenis van een bestaande relatie.
+- betekenis van een bestaande relatie;
+- overgang van gecontroleerde waarde of classificatie naar zelfstandig object.
 
 Een normale documentatie- of implementatie-PR volstaat voor:
 
@@ -147,7 +149,7 @@ Een normale documentatie- of implementatie-PR volstaat voor:
 - corrigeren van een taal- of typefout zonder betekeniswijziging;
 - registreren van een nieuwe compatibele representatie.
 
-## 8. Toekomstige objecten — gereserveerd maar niet genummerd
+## 11. Toekomstige objecten — erkend maar niet genummerd
 
 De volgende begrippen zijn erkend, maar krijgen pas een Object-ID na afzonderlijke goedkeuring:
 
@@ -164,18 +166,30 @@ De volgende begrippen zijn erkend, maar krijgen pas een Object-ID na afzonderlij
 - Quote
 - Order
 - Invoice
+- InternalProjectRecord
 - AIExecution
 - AgentRun
 
-Het ontbreken van een Object-ID betekent dat deze begrippen niet als actief BREBO Platform 1.0-object mogen worden geïmplementeerd.
+Het ontbreken van een Object-ID betekent dat deze begrippen niet als actief zelfstandig BREBO Platform 1.0-object mogen worden geïmplementeerd.
 
-## 9. Goedkeuringsvoorwaarde
+## 12. Goedkeuringsvoorwaarde
 
-Alle objecten blijven `concept` totdat:
+De vijf geregistreerde objecten blijven `concept` totdat:
 
-1. het BREBO Domain Model 1.0 is goedgekeurd;
-2. het CIM inhoudelijk is getoetst;
-3. open eigenaarschapsvragen zijn opgelost;
-4. de Object-ID's formeel zijn bevestigd.
+1. het CIM inhoudelijk is goedgekeurd;
+2. de Object-ID's formeel zijn bevestigd;
+3. de documenten als samenhangend geheel zijn samengevoegd naar `develop`.
 
-Na goedkeuring worden de toepasselijke regels op `definitief` gezet zonder hernummering.
+Na goedkeuring worden `OBJ-001` tot en met `OBJ-005` op `definitief` gezet zonder hernummering.
+
+## 13. Architectuurtoets
+
+Dit register voldoet wanneer:
+
+- uitsluitend zelfstandige bedrijfsobjecten zijn genummerd;
+- de reeks zonder gaten eindigt bij `OBJ-005`;
+- `LensStage` als gesloten waardencontract is geregistreerd zonder Object-ID;
+- gebouw- en materiaalclassificaties lokaal blijven zonder Object-ID;
+- technische media- en platformrepresentaties geen Object-ID krijgen;
+- `Project` uitsluitend de publiceerbare projectcase betekent;
+- iedere betekenis- of eigenaarswijziging via ADR wordt beheerst.
