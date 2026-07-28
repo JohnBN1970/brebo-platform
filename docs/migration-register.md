@@ -15,15 +15,16 @@ Dit register bestuurt de overgang van de bestaande documentatiemappen naar de ni
 4. Controleer of een document normatief, implementerend, operationeel of historisch is.
 5. Archiveer alleen wanneer een opvolgend document expliciet is aangewezen.
 6. Verwijder oude mappen pas wanneer zij leeg zijn.
+7. Wijzig geen runtimecode, configuratie, dependencies of deploymentgedrag als onderdeel van een documentatiemigratie.
 
 ## Voorlopige mapping
 
 | Huidige locatie | Nieuwe hoofdlocatie | Status | Opmerking |
 |---|---|---|---|
-| `docs/adr/` | `docs/00-governance/adr/` | gestart | ADR-template verplaatst; inhoudelijke ADR's volgen per set |
-| `docs/rfc/` | `docs/00-governance/rfc/` | gestart | RFC-template verplaatst; inhoudelijke RFC's volgen per set |
-| `docs/decisions/` | `docs/00-governance/decisions/` | te inventariseren | centrale registers eerst reconciliëren |
-| `docs/architecture/` | `docs/01-enterprise/` of `docs/03-platform/` | te classificeren | splits op techniekonafhankelijk model versus implementatiemapping |
+| `docs/adr/` | `docs/00-governance/adr/` | gestart | ADR-template verplaatst; inhoudelijke ADR's volgen per gecontroleerde set |
+| `docs/rfc/` | `docs/00-governance/rfc/` | gestart | RFC-template verplaatst; inhoudelijke RFC's volgen per gecontroleerde set |
+| `docs/decisions/` | `docs/00-governance/decisions/` | doelmap gereed | centrale registers eerst reconciliëren |
+| `docs/architecture/` | `docs/01-enterprise/` of `docs/03-platform/` | doelmappen gereed | splits op techniekonafhankelijk model versus implementatiemapping |
 | `docs/development/` | `docs/04-development/` | afgerond voor bekende bestanden | workflow en Git-scope verplaatst |
 | `docs/deployment/` | `docs/06-operations/deployment/` | afgerond voor bekende bestanden | voorlopig Hostinger-model verplaatst met statusbehoud |
 
@@ -39,6 +40,17 @@ Dit register bestuurt de overgang van de bestaande documentatiemappen naar de ni
 
 De inhoud van deze vijf bestanden is niet gewijzigd; alleen de locatie is aangepast.
 
+## Uitgevoerde migratieslice 2
+
+De definitieve plaatsingsgrenzen zijn vastgelegd voor:
+
+- formele besluiten in `00-governance/decisions/`;
+- het techniekonafhankelijke domeinmodel in `01-enterprise/domain-model/`;
+- het Canonical Information Model in `01-enterprise/canonical-information-model/`;
+- Drupal-architectuur en implementatiemappings in `03-platform/drupal/`.
+
+Deze slice voegt uitsluitend mapdocumentatie toe en wijzigt geen bestaande normatieve inhoud.
+
 ## Eerste classificatie van bekende architectuurdocumenten
 
 | Document | Voorgestelde bestemming |
@@ -50,10 +62,14 @@ De inhoud van deze vijf bestanden is niet gewijzigd; alleen de locatie is aangep
 | KnowledgeItem Drupal Entity Mapping 1.0 | `03-platform/drupal/entity-mappings/` |
 | Platform 1.0 Modulekaart | `03-platform/drupal/architecture/` |
 
-## Nog niet migreren
+## Veiligheidsgrenzen voor volgende slices
 
-- inhoudelijke ADR's en RFC's zonder classificatiecontrole;
+Nog niet automatisch migreren:
+
+- inhoudelijke ADR's en RFC's waarvan status, nummering of onderlinge verwijzingen niet zijn vastgesteld;
 - besluitregisters voordat de centrale registers zijn gereconcilieerd;
-- architectuurdocumenten voordat techniekonafhankelijke modellen en Drupal-mappings definitief zijn gescheiden;
-- runtimecode, Composerstructuur of deploymentmechanismen;
-- bestanden uit de open projectimplementatie-PR.
+- architectuurdocumenten waarvan het bronpad of de canonieke status niet eenduidig is vastgesteld;
+- runtimecode, Composerstructuur, Drupalconfiguratie of deploymentmechanismen;
+- bestanden die inhoudelijk worden gewijzigd in een andere open Pull Request.
+
+Een bestand buiten deze grenzen mag worden verplaatst zodra bronpad, bestemming en verwijzingen controleerbaar zijn.
