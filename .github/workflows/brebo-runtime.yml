@@ -1,0 +1,51 @@
+name: BREBO Runtime
+
+on:
+  pull_request:
+    branches:
+      - develop
+    paths:
+      - 'modules/custom/brebo_runtime/**'
+      - '.github/workflows/brebo-runtime.yml'
+      - 'composer.json'
+      - 'composer.lock'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: PHP syntax and unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          show-progress: false
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, xml, dom
+          coverage: none
+          tools: composer:v2
+
+      - name: Validate Composer metadata
+        run: composer validate --no-check-publish --quiet
+
+      - name: Install project dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress --quiet
+
+      - name: Install Drupal test dependencies
+        run: composer require --dev drupal/core-dev:^11.4 --with-all-dependencies --no-interaction --prefer-dist --no-progress --quiet
+
+      - name: Check PHP syntax
+        run: |
+          find modules/custom/brebo_runtime -name '*.php' -print0 | xargs -0 -n1 php -l
+
+      - name: Run runtime unit tests
+        run: vendor/bin/phpunit -c core --colors=never modules/custom/brebo_runtime/tests/src/Unit/RuntimeServicesTest.php
