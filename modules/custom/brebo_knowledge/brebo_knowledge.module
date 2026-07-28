@@ -40,10 +40,13 @@ function brebo_knowledge_entity_presave(EntityInterface $entity): void {
     throw new InvalidArgumentException('KnowledgeItem stable ID moet voldoen aan formaat KI-000001.');
   }
 
-  if (!$entity->isNew() && isset($entity->original)) {
-    $original_id = (string) $entity->original->get('field_brebo_stable_id')->value;
-    if ($stable_id !== $original_id) {
-      throw new InvalidArgumentException('De stabiele KnowledgeItem-ID is onveranderlijk.');
+  if (!$entity->isNew()) {
+    $original = $entity->getOriginal();
+    if ($original instanceof NodeInterface) {
+      $original_id = (string) $original->get('field_brebo_stable_id')->value;
+      if ($stable_id !== $original_id) {
+        throw new InvalidArgumentException('De stabiele KnowledgeItem-ID is onveranderlijk.');
+      }
     }
   }
 
