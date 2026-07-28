@@ -1,0 +1,158 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * @file
+ * Runtimegedrag voor BREBO Reference.
+ */
+
+use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Session\AccountInterface;
+use Drupal\node\NodeInterface;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+
+/**
+ * Implements hook_ENTITY_TYPE_create() for node.
+ */
+function brebo_reference_node_create(NodeInterface $node): void {
+  if ($node->bundle() !== 'brebo_reference' || !$node->hasField('field_brebo_reference_id')) {
+    return;
+  }
+
+  if ($node->get('field_brebo_reference_id')->isEmpty()) {
+    $node->set('field_brebo_reference_id', \Drupal::service('brebo_reference.stable_id_generator')->generate());
+  }
+}
+
+/**
+ * Implements hook_entity_presave().
+ */
+function brebo_reference_entity_presave(EntityInterface $entity): void {
+  if (!$entity instanceof NodeInterface || $entity->bundle() !== 'brebo_reference') {
+    return;
+  }
+
+  $stable_id = (string) $entity->get('field_brebo_reference_id')->value;
+  if (!preg_match('/^REF-\d{6}$/', $stable_id)) {
+    throw new InvalidArgumentException('Reference stable ID moet voldoen aan formaat REF-000001.');
+  }
+
+  if (!$entity->isNew()) {
+    $original = $entity->getOriginal();
+    if ($original instanceof NodeInterface) {
+      $original_id = (string) $original->get('field_brebo_reference_id')->value;
+      if ($stable_id !== $original_id) {
+        throw new InvalidArgumentException('De stabiele Reference-ID is onveranderlijk.');
+      }
+    }
+  }
+
+  $query = \Drupal::entityTypeManager()->getStorage('node')->getQuery()
+    ->accessCheck(FALSE)
+    ->condition('type', 'brebo_reference')
+    ->condition('field_brebo_reference_id', $stable_id);
+  if (!$entity->isNew()) {
+    $query->condition('nid', $entity->id(), '<>');
+  }
+  if ($query->range(0, 1)->execute()) {
+    throw new InvalidArgumentException(sprintf('Reference ID %s bestaat al.', $stable_id));
+  }
+
+  $lifecycle = (string) $entity->get('field_brebo_reference_status')->value;
+  if (!in_array($lifecycle, ['concept', 'verified', 'approved', 'expired', 'archived'], TRUE)) {
+    throw new InvalidArgumentException('Ongeldige Reference lifecycle-status.');
+  }
+
+  brebo_reference_assert_lifecycle_permission($lifecycle, \Drupal::currentUser());
+  $entity->set('status', $lifecycle === 'approved' ? 1 : 0);
+  $entity->setNewRevision(TRUE);
+  if (trim((string) $entity->getRevisionLogMessage()) === '') {
+    $entity->setRevisionLogMessage(sprintf('Reference opgeslagen met status %s.', $lifecycle));
+  }
+}
+
+/**
+ * Dwingt lifecycle-rechten af voor iedere opslagroute.
+ */
+function brebo_reference_assert_lifecycle_permission(string $new_status, AccountInterface $account): void {
+  if ((int) $account->id() === 1) {
+    return;
+  }
+
+  if (in_array($new_status, ['verified', 'approved'], TRUE) && !$account->hasPermission('approve brebo references')) {
+    throw new AccessDeniedHttpException('Geen toestemming om gecontroleerde of goedgekeurde referenties op te slaan.');
+  }
+
+  if (in_array($new_status, ['expired', 'archived'], TRUE) && !$account->hasPermission('archive brebo references')) {
+    throw new AccessDeniedHttpException('Geen toestemming om vervallen of gearchiveerde referenties op te slaan.');
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function brebo_reference_form_node_brebo_reference_form_alter(array &$form, FormStateInterface $form_state): void {
+  if (isset($form['field_brebo_reference_id']['widget'][0]['value'])) {
+    $form['field_brebo_reference_id']['widget'][0]['value']['#disabled'] = TRUE;
+    $form['field_brebo_reference_id']['#access'] = !$form_state->getFormObject()->getEntity()->isNew();
+  }
+  $form['#validate'][] = 'brebo_reference_validate_lifecycle_permission';
+}
+
+/**
+ * Valideert lifecycle-rechten in het formulier.
+ */
+function brebo_reference_validate_lifecycle_permission(array &$form, FormStateInterface $form_state): void {
+  $node = $form_state->getFormObject()->getEntity();
+  if (!$node instanceof NodeInterface || $node->bundle() !== 'brebo_reference') {
+    return;
+  }
+
+  $value = $form_state->getValue(['field_brebo_reference_status', 0, 'value']);
+  $account = \Drupal::currentUser();
+  if (in_array($value, ['verified', 'approved'], TRUE) && !$account->hasPermission('approve brebo references')) {
+    $form_state->setErrorByName('field_brebo_reference_status', t('U heeft geen toestemming om referenties te controleren of goed te keuren.'));
+  }
+  if (in_array($value, ['expired', 'archived'], TRUE) && !$account->hasPermission('archive brebo references')) {
+    $form_state->setErrorByName('field_brebo_reference_status', t('U heeft geen toestemming om referenties te laten vervallen of te archiveren.'));
+  }
+}
+
+/**
+ * Implements hook_entity_create_access().
+ */
+function brebo_reference_entity_create_access(AccountInterface $account, array $context, $entity_bundle): AccessResult {
+  if (($context['entity_type_id'] ?? NULL) !== 'node' || $entity_bundle !== 'brebo_reference') {
+    return AccessResult::neutral();
+  }
+  return AccessResult::allowedIfHasPermission($account, 'create brebo references');
+}
+
+/**
+ * Implements hook_entity_access().
+ */
+function brebo_reference_entity_access(EntityInterface $entity, string $operation, AccountInterface $account): AccessResult {
+  if (!$entity instanceof NodeInterface || $entity->bundle() !== 'brebo_reference') {
+    return AccessResult::neutral();
+  }
+
+  if ($operation === 'view' && !$entity->isDefaultRevision()) {
+    return AccessResult::allowedIfHasPermission($account, 'view brebo reference revisions')
+      ->cachePerPermissions()
+      ->addCacheableDependency($entity);
+  }
+
+  if ($operation === 'update') {
+    if ($account->hasPermission('edit any brebo references')) {
+      return AccessResult::allowed()->cachePerPermissions();
+    }
+    return AccessResult::allowedIf(
+      $account->hasPermission('edit own brebo references') && (int) $entity->getOwnerId() === (int) $account->id(),
+    )->cachePerPermissions()->cachePerUser()->addCacheableDependency($entity);
+  }
+
+  return AccessResult::neutral();
+}
