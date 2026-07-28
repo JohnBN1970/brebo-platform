@@ -1,0 +1,10 @@
+langcode: nl
+status: true
+dependencies: {  }
+name: 'Probleemgerichte kennisbijdrage'
+type: brebo_knowledge_item
+description: 'Probleemgerichte, revisioneerbare BREBO-kennisbijdrage.'
+help: null
+new_revision: true
+preview_mode: 1
+display_submitted: false

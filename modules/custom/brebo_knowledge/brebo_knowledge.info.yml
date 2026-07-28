@@ -1,10 +1,8 @@
 name: BREBO Knowledge
 type: module
-description: 'Implementeert het canonieke KnowledgeItem-object voor het BREBO-kennisdomein.'
+description: 'Implementeert probleemgerichte, revisioneerbare BREBO-kennisbijdragen.'
 package: BREBO
 core_version_requirement: ^11
 dependencies:
-  - drupal:field
   - drupal:node
-  - drupal:options
   - drupal:text

@@ -8,179 +8,182 @@ declare(strict_types=1);
  */
 
 use Drupal\Core\Entity\Entity\EntityFormDisplay;
-use Drupal\Core\Entity\Entity\EntityViewDisplay;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\node\Entity\NodeType;
 
 /**
- * Implements hook_install().
+ * Implementeert de eerste functionele uitbreiding van brebo_knowledge.
  */
-function brebo_knowledge_install(): void {
-  $type = NodeType::load('brebo_knowledge_item');
-  if (!$type) {
-    $type = NodeType::create([
-      'type' => 'brebo_knowledge_item',
-      'name' => 'Kennisbijdrage',
-      'description' => 'Probleemgerichte, revisioneerbare BREBO-kennisbijdrage.',
-      'new_revision' => TRUE,
-      'preview_mode' => 1,
-      'display_submitted' => FALSE,
-    ]);
-    $type->save();
-  }
-  elseif (!$type->shouldCreateNewRevision()) {
-    throw new RuntimeException('Contenttype brebo_knowledge_item bestaat zonder verplichte revisie-instelling. Installatie is gestopt.');
-  }
+function brebo_knowledge_update_11001(): void {
+  $bundle = 'brebo_knowledge_item';
+  $definitions = _brebo_knowledge_11001_field_definitions();
 
-  $fields = _brebo_knowledge_field_definitions();
-  foreach ($fields as $field_name => $definition) {
-    _brebo_knowledge_ensure_field($field_name, $definition);
-  }
+  _brebo_knowledge_11001_preflight($bundle, $definitions);
 
-  _brebo_knowledge_configure_displays($fields);
+  $created = [];
+  try {
+    if (!NodeType::load($bundle)) {
+      NodeType::create([
+        'type' => $bundle,
+        'name' => 'Probleemgerichte kennisbijdrage',
+        'description' => 'Probleemgerichte, revisioneerbare BREBO-kennisbijdrage.',
+        'new_revision' => TRUE,
+        'preview_mode' => 1,
+        'display_submitted' => FALSE,
+      ])->save();
+      $created[] = ['node_type', $bundle];
+    }
+
+    foreach ($definitions as $field_name => $definition) {
+      if (!FieldStorageConfig::loadByName('node', $field_name)) {
+        FieldStorageConfig::create([
+          'field_name' => $field_name,
+          'entity_type' => 'node',
+          'type' => 'text_long',
+          'cardinality' => 1,
+          'translatable' => TRUE,
+        ])->save();
+        $created[] = ['field_storage', $field_name];
+      }
+
+      if (!FieldConfig::loadByName('node', $bundle, $field_name)) {
+        FieldConfig::create([
+          'field_name' => $field_name,
+          'entity_type' => 'node',
+          'bundle' => $bundle,
+          'label' => $definition['label'],
+          'description' => $definition['description'],
+          'required' => $definition['required'],
+          'translatable' => TRUE,
+        ])->save();
+        $created[] = ['field_config', $field_name];
+      }
+    }
+
+    if (!EntityFormDisplay::load("node.$bundle.default")) {
+      $display = EntityFormDisplay::create([
+        'targetEntityType' => 'node',
+        'bundle' => $bundle,
+        'mode' => 'default',
+        'status' => TRUE,
+      ]);
+      foreach (array_keys($definitions) as $weight => $field_name) {
+        $display->setComponent($field_name, [
+          'type' => 'text_textarea',
+          'weight' => $weight,
+          'region' => 'content',
+          'settings' => ['rows' => 6, 'placeholder' => ''],
+          'third_party_settings' => [],
+        ]);
+      }
+      $display->save();
+      $created[] = ['form_display', "node.$bundle.default"];
+    }
+  }
+  catch (\Throwable $exception) {
+    _brebo_knowledge_11001_rollback($bundle, $created);
+    throw new RuntimeException(
+      'BREBO-2026-004 kon niet volledig worden geïnstalleerd; nieuw aangemaakte configuratie is teruggedraaid. Oorzaak: ' . $exception->getMessage(),
+      0,
+      $exception,
+    );
+  }
 }
 
 /**
- * Definieert de module-eigen KnowledgeItem-velden.
+ * Geeft de exact goedgekeurde velddefinities terug.
  */
-function _brebo_knowledge_field_definitions(): array {
+function _brebo_knowledge_11001_field_definitions(): array {
   return [
-    'field_brebo_stable_id' => [
-      'label' => 'Stabiele ID',
-      'description' => 'Systeembeheerde, onveranderlijke functionele identifier.',
-      'type' => 'string',
-      'required' => TRUE,
-      'settings' => ['max_length' => 9],
-      'form' => ['type' => 'string_textfield', 'weight' => -10, 'settings' => ['size' => 20, 'placeholder' => 'Wordt automatisch toegekend']],
-      'view' => ['type' => 'string', 'label' => 'above', 'weight' => -10],
-    ],
-    'field_brebo_observation' => [
+    'field_knowledge_observation' => [
       'label' => 'Waarneming',
       'description' => 'Feitelijke waarneming of onderhoudsvraag.',
-      'type' => 'text_long',
       'required' => TRUE,
-      'form' => ['type' => 'text_textarea', 'weight' => 10, 'settings' => ['rows' => 6]],
-      'view' => ['type' => 'text_default', 'label' => 'above', 'weight' => 10],
     ],
-    'field_brebo_meaning' => [
+    'field_knowledge_meaning' => [
       'label' => 'Betekenis',
       'description' => 'Betekenis en duiding van de waarneming.',
-      'type' => 'text_long',
       'required' => TRUE,
-      'form' => ['type' => 'text_textarea', 'weight' => 20, 'settings' => ['rows' => 6]],
-      'view' => ['type' => 'text_default', 'label' => 'above', 'weight' => 20],
     ],
-    'field_brebo_urgency' => [
+    'field_knowledge_urgency' => [
       'label' => 'Urgentie',
-      'description' => 'Gesloten urgentieduiding.',
-      'type' => 'list_string',
+      'description' => 'Urgentie en noodzaak tot handelen.',
       'required' => TRUE,
-      'settings' => ['allowed_values' => ['low' => 'Laag', 'normal' => 'Normaal', 'high' => 'Hoog', 'critical' => 'Kritiek']],
-      'form' => ['type' => 'options_select', 'weight' => 30],
-      'view' => ['type' => 'list_default', 'label' => 'above', 'weight' => 30],
     ],
-    'field_brebo_first_step' => [
+    'field_knowledge_first_step' => [
       'label' => 'Eerste stap',
-      'description' => 'Aanbevolen eerste onderzoek of handeling.',
-      'type' => 'text_long',
+      'description' => 'Aanbevolen eerste onderzoek of eerste handeling.',
       'required' => TRUE,
-      'form' => ['type' => 'text_textarea', 'weight' => 40, 'settings' => ['rows' => 5]],
-      'view' => ['type' => 'text_default', 'label' => 'above', 'weight' => 40],
     ],
-    'field_brebo_risks' => [
+    'field_knowledge_risks' => [
       'label' => 'Risico’s',
       'description' => 'Relevante risico’s en mogelijke gevolgen.',
-      'type' => 'text_long',
-      'required' => FALSE,
-      'form' => ['type' => 'text_textarea', 'weight' => 50, 'settings' => ['rows' => 5]],
-      'view' => ['type' => 'text_default', 'label' => 'above', 'weight' => 50],
-    ],
-    'field_brebo_lens_stages' => [
-      'label' => 'BREBO Lens-fasen',
-      'description' => 'Gesloten waarden: Inzicht, Regie en Realisatie.',
-      'type' => 'list_string',
-      'required' => FALSE,
-      'cardinality' => -1,
-      'settings' => ['allowed_values' => ['insight' => 'Inzicht', 'direction' => 'Regie', 'realisation' => 'Realisatie']],
-      'form' => ['type' => 'options_buttons', 'weight' => 60],
-      'view' => ['type' => 'list_default', 'label' => 'above', 'weight' => 60],
-    ],
-    'field_brebo_lifecycle_status' => [
-      'label' => 'Lifecycle-status',
-      'description' => 'Functionele status van de kennisbijdrage.',
-      'type' => 'list_string',
       'required' => TRUE,
-      'settings' => ['allowed_values' => ['concept' => 'Concept', 'published' => 'Gepubliceerd', 'archived' => 'Gearchiveerd']],
-      'default_value' => [['value' => 'concept']],
-      'form' => ['type' => 'options_select', 'weight' => 70],
-      'view' => ['type' => 'list_default', 'label' => 'above', 'weight' => 70],
+    ],
+    'field_knowledge_regie' => [
+      'label' => 'Advies en doorverwijzing',
+      'description' => 'Advies over regie, vervolgstappen of doorverwijzing.',
+      'required' => FALSE,
+    ],
+    'field_knowledge_realization' => [
+      'label' => 'Voorwaarden en context',
+      'description' => 'Voorwaarden, context en aandachtspunten voor realisatie.',
+      'required' => FALSE,
     ],
   ];
 }
 
 /**
- * Maakt veldopslag en veldinstantie conflictveilig aan.
+ * Controleert alle bestaande configuratie voordat iets wordt aangemaakt.
  */
-function _brebo_knowledge_ensure_field(string $field_name, array $definition): void {
-  $storage = FieldStorageConfig::loadByName('node', $field_name);
-  $cardinality = $definition['cardinality'] ?? 1;
-
-  if (!$storage) {
-    $storage = FieldStorageConfig::create([
-      'field_name' => $field_name,
-      'entity_type' => 'node',
-      'type' => $definition['type'],
-      'cardinality' => $cardinality,
-      'settings' => $definition['settings'] ?? [],
-      'translatable' => TRUE,
-    ]);
-    $storage->save();
-  }
-  elseif ($storage->getType() !== $definition['type'] || $storage->getCardinality() !== $cardinality) {
-    throw new RuntimeException(sprintf('Conflicterende veldopslag voor %s. Installatie is gestopt.', $field_name));
+function _brebo_knowledge_11001_preflight(string $bundle, array $definitions): void {
+  if ($type = NodeType::load($bundle)) {
+    if ($type->label() !== 'Probleemgerichte kennisbijdrage' || !$type->shouldCreateNewRevision()) {
+      throw new RuntimeException('Afwijkende configuratie voor node.type.brebo_knowledge_item; update is gestopt zonder wijzigingen.');
+    }
   }
 
-  $field = FieldConfig::loadByName('node', 'brebo_knowledge_item', $field_name);
-  if (!$field) {
-    $field = FieldConfig::create([
-      'field_storage' => $storage,
-      'bundle' => 'brebo_knowledge_item',
-      'label' => $definition['label'],
-      'description' => $definition['description'],
-      'required' => $definition['required'],
-      'translatable' => TRUE,
-      'default_value' => $definition['default_value'] ?? [],
-    ]);
-    $field->save();
+  foreach ($definitions as $field_name => $definition) {
+    if ($storage = FieldStorageConfig::loadByName('node', $field_name)) {
+      if ($storage->getType() !== 'text_long' || $storage->getCardinality() !== 1) {
+        throw new RuntimeException(sprintf('Afwijkende veldopslag voor %s; update is gestopt zonder wijzigingen.', $field_name));
+      }
+    }
+
+    if ($field = FieldConfig::loadByName('node', $bundle, $field_name)) {
+      if ($field->label() !== $definition['label'] || $field->isRequired() !== $definition['required']) {
+        throw new RuntimeException(sprintf('Afwijkende veldconfiguratie voor %s; update is gestopt zonder wijzigingen.', $field_name));
+      }
+    }
+  }
+
+  if ($display = EntityFormDisplay::load("node.$bundle.default")) {
+    foreach (array_keys($definitions) as $field_name) {
+      $component = $display->getComponent($field_name);
+      if (!$component || ($component['type'] ?? NULL) !== 'text_textarea') {
+        throw new RuntimeException(sprintf('Afwijkende formulierconfiguratie voor %s; update is gestopt zonder wijzigingen.', $field_name));
+      }
+    }
   }
 }
 
 /**
- * Richt redactionele en volledige weergave in.
+ * Verwijdert uitsluitend configuratie die in de mislukte run is aangemaakt.
  */
-function _brebo_knowledge_configure_displays(array $fields): void {
-  $form_display = EntityFormDisplay::load('node.brebo_knowledge_item.default')
-    ?: EntityFormDisplay::create([
-      'targetEntityType' => 'node',
-      'bundle' => 'brebo_knowledge_item',
-      'mode' => 'default',
-      'status' => TRUE,
-    ]);
-
-  $view_display = EntityViewDisplay::load('node.brebo_knowledge_item.default')
-    ?: EntityViewDisplay::create([
-      'targetEntityType' => 'node',
-      'bundle' => 'brebo_knowledge_item',
-      'mode' => 'default',
-      'status' => TRUE,
-    ]);
-
-  foreach ($fields as $field_name => $definition) {
-    $form_display->setComponent($field_name, $definition['form']);
-    $view_display->setComponent($field_name, $definition['view']);
+function _brebo_knowledge_11001_rollback(string $bundle, array $created): void {
+  foreach (array_reverse($created) as [$type, $id]) {
+    if ($type === 'form_display' && ($entity = EntityFormDisplay::load($id))) {
+      $entity->delete();
+    }
+    elseif ($type === 'field_config' && ($entity = FieldConfig::loadByName('node', $bundle, $id))) {
+      $entity->delete();
+    }
+    elseif ($type === 'field_storage' && ($entity = FieldStorageConfig::loadByName('node', $id))) {
+      $entity->delete();
+    }
+    elseif ($type === 'node_type' && ($entity = NodeType::load($id))) {
+      $entity->delete();
+    }
   }
-
-  $form_display->save();
-  $view_display->save();
 }
