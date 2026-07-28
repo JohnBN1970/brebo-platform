@@ -8,6 +8,7 @@ use Drupal\KernelTests\KernelTestBase;
 use Drupal\node\Entity\Node;
 use Drupal\user\UserSession;
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
@@ -15,6 +16,7 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
  *
  * @group brebo_knowledge
  */
+#[RunTestsInSeparateProcesses]
 final class KnowledgeItemRuntimeTest extends KernelTestBase {
 
   protected static $modules = [
@@ -29,7 +31,6 @@ final class KnowledgeItemRuntimeTest extends KernelTestBase {
 
   protected function setUp(): void {
     parent::setUp();
-    $this->installSchema('system', ['sequences', 'key_value', 'key_value_expire']);
     $this->installEntitySchema('user');
     $this->installEntitySchema('node');
     $this->installSchema('node', ['node_access']);
