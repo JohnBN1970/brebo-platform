@@ -1,0 +1,20 @@
+langcode: nl
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_knowledge_meaning
+    - node.type.brebo_knowledge_item
+  module:
+    - text
+id: node.brebo_knowledge_item.field_knowledge_meaning
+field_name: field_knowledge_meaning
+entity_type: node
+bundle: brebo_knowledge_item
+label: Betekenis
+description: 'Betekenis en duiding van de waarneming.'
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: text_long
