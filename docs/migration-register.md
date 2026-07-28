@@ -16,7 +16,6 @@ Dit register bestuurt de overgang van de bestaande documentatiemappen naar de ni
 5. Archiveer alleen wanneer een opvolgend document expliciet is aangewezen.
 6. Verwijder oude mappen pas wanneer zij leeg zijn.
 7. Wijzig geen runtimecode, configuratie, dependencies of deploymentgedrag als onderdeel van een documentatiemigratie.
-8. Verplaats geen bestand wanneer de connector de volledige inhoud niet verliesvrij kan lezen of schrijven.
 
 ## Voorlopige mapping
 
@@ -25,7 +24,7 @@ Dit register bestuurt de overgang van de bestaande documentatiemappen naar de ni
 | `docs/adr/` | `docs/00-governance/adr/` | gestart | ADR-template verplaatst; inhoudelijke ADR's volgen per gecontroleerde set |
 | `docs/rfc/` | `docs/00-governance/rfc/` | gestart | RFC-template verplaatst; inhoudelijke RFC's volgen per gecontroleerde set |
 | `docs/decisions/` | `docs/00-governance/decisions/` | doelmap gereed | centrale registers eerst reconciliëren |
-| `docs/architecture/` | `docs/01-enterprise/` of `docs/03-platform/` | classificatie gestart | splits op techniekonafhankelijk model versus implementatiemapping |
+| `docs/architecture/` | `docs/01-enterprise/` of `docs/03-platform/` | in uitvoering | splits op techniekonafhankelijk model versus implementatiemapping |
 | `docs/development/` | `docs/04-development/` | afgerond voor bekende bestanden | workflow en Git-scope verplaatst |
 | `docs/deployment/` | `docs/06-operations/deployment/` | afgerond voor bekende bestanden | voorlopig Hostinger-model verplaatst met statusbehoud |
 
@@ -66,21 +65,22 @@ Iedere doelmap bevat een afbakening die voorkomt dat bedrijfsregels, governance,
 
 ## Uitgevoerde migratieslice 4
 
-- doelmap `01-enterprise/object-registry/` ingericht;
-- exact bronpad van BREBO Domain Model 1.0 vastgesteld als `docs/architecture/brebo-domain-model-1.0.md`;
-- definitieve bestemming vastgesteld als `docs/01-enterprise/domain-model/brebo-domain-model-1.0.md`;
-- bestand nog niet verplaatst omdat verliesvrije volledige inhoudsoverdracht via de connector eerst aantoonbaar moet zijn.
+| Oud pad | Nieuw pad | Controle |
+|---|---|---|
+| `docs/architecture/brebo-domain-model-1.0.md` | `docs/01-enterprise/domain-model/brebo-domain-model-1.0.md` | dezelfde Git-blob `e6e2ea123ba9b21764fecc10bb9c1f133242dfee`; geen inhoudswijziging |
+
+Deze verplaatsing is uitgevoerd door dezelfde bestaande blob op het nieuwe pad te plaatsen en het oude pad in dezelfde commit te verwijderen. Daardoor is bytegelijkheid aantoonbaar en blijft de geschiedenis als rename herkenbaar.
 
 ## Eerste classificatie van bekende architectuurdocumenten
 
-| Document | Bronpad | Voorgestelde bestemming | Status |
-|---|---|---|---|
-| BREBO Domain Model 1.0 | `docs/architecture/brebo-domain-model-1.0.md` | `docs/01-enterprise/domain-model/brebo-domain-model-1.0.md` | bron en bestemming vastgesteld; technische verplaatsing nog uitstaand |
-| BREBO Canonical Information Model 1.0 | nog vast te stellen | `docs/01-enterprise/canonical-information-model/` | te inventariseren |
-| BREBO Object Registry 1.0 | nog vast te stellen | `docs/01-enterprise/object-registry/` | doelmap gereed |
-| BREBO Module Architecture 1.0 | nog vast te stellen | `docs/03-platform/drupal/architecture/` | te inventariseren |
-| KnowledgeItem Drupal Entity Mapping 1.0 | nog vast te stellen | `docs/03-platform/drupal/entity-mappings/` | te inventariseren |
-| Platform 1.0 Modulekaart | nog vast te stellen | `docs/03-platform/drupal/architecture/` | te inventariseren |
+| Document | Voorgestelde bestemming | Status |
+|---|---|---|
+| BREBO Domain Model 1.0 | `01-enterprise/domain-model/` | verplaatst |
+| BREBO Canonical Information Model 1.0 | `01-enterprise/canonical-information-model/` | bronpad vaststellen |
+| BREBO Object Registry 1.0 | `01-enterprise/object-registry/` | bronpad vaststellen |
+| BREBO Module Architecture 1.0 | `03-platform/drupal/architecture/` | bronpad vaststellen |
+| KnowledgeItem Drupal Entity Mapping 1.0 | `03-platform/drupal/entity-mappings/` | bronpad vaststellen |
+| Platform 1.0 Modulekaart | `03-platform/drupal/architecture/` | bronpad vaststellen |
 
 ## Veiligheidsgrenzen voor volgende slices
 
@@ -89,8 +89,7 @@ Nog niet automatisch migreren:
 - inhoudelijke ADR's en RFC's waarvan status, nummering of onderlinge verwijzingen niet zijn vastgesteld;
 - besluitregisters voordat de centrale registers zijn gereconcilieerd;
 - architectuurdocumenten waarvan het bronpad of de canonieke status niet eenduidig is vastgesteld;
-- bestanden waarvan de connector de volledige inhoud niet verliesvrij kan overzetten;
 - runtimecode, Composerstructuur, Drupalconfiguratie of deploymentmechanismen;
 - bestanden die inhoudelijk worden gewijzigd in een andere open Pull Request.
 
-Een bestand buiten deze grenzen mag worden verplaatst zodra bronpad, bestemming, inhoudsintegriteit en verwijzingen controleerbaar zijn.
+Een bestand buiten deze grenzen mag worden verplaatst zodra bronpad, bestemming en verwijzingen controleerbaar zijn.
