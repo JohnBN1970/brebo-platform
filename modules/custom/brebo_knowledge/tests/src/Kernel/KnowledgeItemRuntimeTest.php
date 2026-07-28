@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\brebo_knowledge\Kernel;
 
+use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Session\UserSession;
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\node\Entity\Node;
-use InvalidArgumentException;
+use Drupal\user\Entity\Role;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
  * Test de minimale KnowledgeItem-runtime.
@@ -34,7 +34,7 @@ final class KnowledgeItemRuntimeTest extends KernelTestBase {
     $this->installEntitySchema('user');
     $this->installEntitySchema('node');
     $this->installSchema('node', ['node_access']);
-    $this->installConfig(['field', 'node']);
+    $this->installConfig(['field', 'node', 'user']);
     $this->container->get('module_handler')->loadInclude('brebo_knowledge', 'install');
     brebo_knowledge_install();
     $this->setCurrentAccount(1, []);
@@ -78,13 +78,14 @@ final class KnowledgeItemRuntimeTest extends KernelTestBase {
       $first->save();
       self::fail('Wijzigen van een stable ID had moeten mislukken.');
     }
-    catch (InvalidArgumentException $exception) {
+    catch (EntityStorageException $exception) {
       self::assertStringContainsString('onveranderlijk', $exception->getMessage());
     }
 
     $duplicate = Node::create([
       'type' => 'brebo_knowledge_item',
       'title' => 'Duplicaat',
+      'status' => FALSE,
       'field_brebo_stable_id' => 'KI-000001',
       'field_brebo_observation' => 'Observatie',
       'field_brebo_meaning' => 'Betekenis',
@@ -93,7 +94,7 @@ final class KnowledgeItemRuntimeTest extends KernelTestBase {
       'field_brebo_lifecycle_status' => 'concept',
     ]);
 
-    $this->expectException(InvalidArgumentException::class);
+    $this->expectException(EntityStorageException::class);
     $this->expectExceptionMessage('bestaat al');
     $duplicate->save();
   }
@@ -103,7 +104,8 @@ final class KnowledgeItemRuntimeTest extends KernelTestBase {
     $this->setCurrentAccount(2, []);
 
     $node->set('field_brebo_lifecycle_status', 'published');
-    $this->expectException(AccessDeniedHttpException::class);
+    $this->expectException(EntityStorageException::class);
+    $this->expectExceptionMessage('Geen toestemming');
     $node->save();
   }
 
@@ -112,7 +114,8 @@ final class KnowledgeItemRuntimeTest extends KernelTestBase {
     $this->setCurrentAccount(2, ['edit any brebo knowledge items']);
 
     $node->setTitle('Onbevoegd gewijzigde publieke titel');
-    $this->expectException(AccessDeniedHttpException::class);
+    $this->expectException(EntityStorageException::class);
+    $this->expectExceptionMessage('Geen toestemming');
     $node->save();
   }
 
@@ -134,6 +137,7 @@ final class KnowledgeItemRuntimeTest extends KernelTestBase {
     $node = Node::create([
       'type' => 'brebo_knowledge_item',
       'title' => $title,
+      'status' => $lifecycle === 'published',
       'field_brebo_observation' => 'Er is vochtdoorslag zichtbaar.',
       'field_brebo_meaning' => 'De gevelschil moet nader worden onderzocht.',
       'field_brebo_urgency' => 'high',
@@ -145,10 +149,18 @@ final class KnowledgeItemRuntimeTest extends KernelTestBase {
   }
 
   private function setCurrentAccount(int $uid, array $permissions): void {
+    $role_id = 'runtime_test_' . $uid;
+    $role = Role::load($role_id) ?: Role::create([
+      'id' => $role_id,
+      'label' => 'Runtime test ' . $uid,
+    ]);
+    $role->set('permissions', $permissions);
+    $role->save();
+
     $account = new UserSession([
       'uid' => $uid,
       'name' => 'test-user-' . $uid,
-      'permissions' => $permissions,
+      'roles' => ['authenticated', $role_id],
     ]);
     $this->container->get('current_user')->setAccount($account);
   }
