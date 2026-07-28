@@ -3,3 +3,5 @@ services:
     class: Drupal\brebo_knowledge\Service\StableIdGenerator
     arguments:
       - '@entity_type.manager'
+      - '@state'
+      - '@lock'
