@@ -51,6 +51,18 @@ De definitieve plaatsingsgrenzen zijn vastgelegd voor:
 
 Deze slice voegt uitsluitend mapdocumentatie toe en wijzigt geen bestaande normatieve inhoud.
 
+## Uitgevoerde migratieslice 3
+
+De resterende structurele doelgebieden zijn expliciet ingericht voor:
+
+- API-contracten in `03-platform/api/`;
+- externe integraties in `03-platform/integrations/`;
+- technische beveiligingsarchitectuur in `03-platform/security/`;
+- zelfstandige Python-services in `03-platform/python/`;
+- aantoonbaar vervangen documentatie in `99-archive/`.
+
+Iedere doelmap bevat een afbakening die voorkomt dat bedrijfsregels, governance, implementatie en operations opnieuw door elkaar gaan lopen. Deze slice voegt geen services, integraties, beveiligingsconfiguratie of runtimecode toe.
+
 ## Eerste classificatie van bekende architectuurdocumenten
 
 | Document | Voorgestelde bestemming |
