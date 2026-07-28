@@ -38,8 +38,8 @@ jobs:
       - name: Install project dependencies
         run: composer install --no-interaction --prefer-dist --no-progress
 
-      - name: Install PHPUnit for Drupal kernel tests
-        run: composer require --dev phpunit/phpunit:^11 --no-interaction --prefer-dist --no-progress
+      - name: Install Drupal test dependencies
+        run: composer require --dev drupal/core-dev:^11.4 --with-all-dependencies --no-interaction --prefer-dist --no-progress
 
       - name: Check PHP syntax
         run: |
