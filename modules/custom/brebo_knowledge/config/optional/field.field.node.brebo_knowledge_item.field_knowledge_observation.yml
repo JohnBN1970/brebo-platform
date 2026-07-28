@@ -1,0 +1,20 @@
+langcode: nl
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_knowledge_observation
+    - node.type.brebo_knowledge_item
+  module:
+    - text
+id: node.brebo_knowledge_item.field_knowledge_observation
+field_name: field_knowledge_observation
+entity_type: node
+bundle: brebo_knowledge_item
+label: Waarneming
+description: 'Feitelijke waarneming of onderhoudsvraag.'
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: text_long
