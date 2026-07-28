@@ -93,6 +93,7 @@ final class KnowledgeItemRuntimeTest extends KernelTestBase {
       'field_brebo_first_step' => 'Eerste stap',
       'field_brebo_lifecycle_status' => 'concept',
     ]);
+    $duplicate->setUnpublished();
 
     $this->expectException(EntityStorageException::class);
     $this->expectExceptionMessage('bestaat al');
@@ -137,13 +138,20 @@ final class KnowledgeItemRuntimeTest extends KernelTestBase {
     $node = Node::create([
       'type' => 'brebo_knowledge_item',
       'title' => $title,
-      'status' => $lifecycle === 'published',
       'field_brebo_observation' => 'Er is vochtdoorslag zichtbaar.',
       'field_brebo_meaning' => 'De gevelschil moet nader worden onderzocht.',
       'field_brebo_urgency' => 'high',
       'field_brebo_first_step' => 'Voer een gerichte inspectie uit.',
       'field_brebo_lifecycle_status' => $lifecycle,
     ]);
+
+    if ($lifecycle === 'published') {
+      $node->setPublished();
+    }
+    else {
+      $node->setUnpublished();
+    }
+
     $node->save();
     return $node;
   }
