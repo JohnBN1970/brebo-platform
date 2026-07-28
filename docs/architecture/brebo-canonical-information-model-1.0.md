@@ -1,24 +1,24 @@
 # BREBO Canonical Information Model 1.0
 
-Status: concept voor architectuurreview  
+Status: gereed voor architectuurreview  
 Gerelateerd issue: #14  
-Afhankelijk van: Issue #12 en PR #13
+Besluitbasis: BREBO Domain Model 1.0, PR #13
 
 ## 1. Doel
 
-Dit document definieert de techniekonafhankelijke bedrijfsobjecten van BREBO Platform 1.0. Het vormt de stabiele semantische laag tussen het BREBO-domeinmodel en concrete implementaties zoals Drupal, API, zoekindex, MCP, GPT Actions en toekomstige applicaties.
+Dit document definieert de techniekonafhankelijke bedrijfsobjecten en gecontroleerde waarden van BREBO Platform 1.0. Het vormt de semantische laag tussen het BREBO-domeinmodel en implementaties zoals Drupal, API, zoekindex, MCP en toekomstige applicaties.
 
 Drupal implementeert BREBO-objecten, maar definieert ze niet.
 
 ## 2. Kernregels
 
 1. Eén bedrijfsconcept heeft één canonieke Engelse naam.
-2. Ieder canoniek object heeft één Nederlandse functionele benaming.
-3. Namen, betekenis, identiteit en primaire eigenaar zijn techniekonafhankelijk.
-4. Drupal-termen zijn uitsluitend implementatiemappings.
-5. Externe contracten gebruiken canonieke resource-namen.
-6. Een wijziging van canonieke naam, betekenis, identiteit of eigenaar vereist een ADR.
-7. Zoekindexen, API-responses en presentatiemodellen zijn afgeleid en nooit bron van waarheid.
+2. Ieder zelfstandig object heeft één Nederlandse functionele benaming, één primaire eigenaar en een stabiele identiteit.
+3. Drupal-termen zijn uitsluitend implementatiemappings.
+4. Externe contracten gebruiken canonieke object- en attribuutnamen.
+5. Zoekindexen, API-responses en presentatiemodellen zijn afgeleid en nooit bron van waarheid.
+6. Een wijziging van canonieke naam, betekenis, identiteit, zelfstandigheid of eigenaar vereist een ADR.
+7. Alleen concepten met een zelfstandige identiteit en levenscyclus krijgen een Object-ID.
 
 ## 3. Verboden technische naamlekkage
 
@@ -34,9 +34,9 @@ De volgende termen mogen niet als canonieke bedrijfsobjectnaam of externe resour
 - `Bundle`
 - `EntityReference`
 
-Deze termen mogen alleen voorkomen in technische implementatiedocumentatie.
+Deze termen mogen alleen voorkomen in technische implementatiedocumentatie en mappings.
 
-## 4. Canonieke objecten Platform 1.0
+## 4. Zelfstandige bedrijfsobjecten Platform 1.0
 
 ### 4.1 KnowledgeItem
 
@@ -62,13 +62,10 @@ Relaties:
 
 - 0..n naar `Service`
 - 0..n naar `WorkActivity`
-- 0..n naar `BuildingType`
-- 0..n naar `BuildingPart`
-- 0..n naar `MaterialClassification`
+- 0..n naar lokale gebouw- en materiaalclassificaties
 - 0..n naar `LensStage`
 
-Bron van waarheid: `brebo_knowledge`.
-
+Bron van waarheid: `brebo_knowledge`.  
 Externe resource: `/knowledge-items`.
 
 ### 4.2 Service
@@ -96,8 +93,7 @@ Relaties:
 - 0..n naar `Reference`
 - 0..n naar `LensStage`
 
-Bron van waarheid: `brebo_service`.
-
+Bron van waarheid: `brebo_service`.  
 Externe resource: `/services`.
 
 ### 4.3 WorkActivity
@@ -105,7 +101,7 @@ Externe resource: `/services`.
 Nederlandse naam: werkzaamheid  
 Eigenaar: `brebo_service`
 
-Een afgebakende uitvoeringsactiviteit die binnen één of meer diensten kan worden toegepast.
+Een zelfstandig, minimaal uitvoeringsobject voor een afgebakende activiteit die binnen één of meer diensten kan worden toegepast.
 
 Kernattributen:
 
@@ -122,16 +118,15 @@ Relaties:
 - 0..n naar `Project`
 - 0..n naar `KnowledgeItem`
 
-Bron van waarheid: `brebo_service`.
-
+Bron van waarheid: `brebo_service`.  
 Externe resource: `/work-activities`.
 
 ### 4.4 Project
 
-Nederlandse naam: project  
+Nederlandse naam: projectcase  
 Eigenaar: `brebo_project`
 
-Een gerealiseerde of publiceerbare opdracht met context, scope, uitvoering en aantoonbaar resultaat.
+Een publiceerbare weergave van een gerealiseerde opdracht met context, scope, uitvoering en aantoonbaar resultaat. Interne projectregistratie, planning, werkvoorbereiding en financiële administratie vallen buiten Platform 1.0.
 
 Kernattributen:
 
@@ -148,10 +143,9 @@ Relaties:
 - 0..n naar `Service`
 - 0..n naar `WorkActivity`
 - 0..n naar `Reference`
-- 0..n naar `MediaAsset`
+- 0..n naar technische mediarepresentaties
 
-Bron van waarheid: `brebo_project`.
-
+Bron van waarheid: `brebo_project`.  
 Externe resource: `/projects`.
 
 ### 4.5 Reference
@@ -159,7 +153,7 @@ Externe resource: `/projects`.
 Nederlandse naam: referentie  
 Eigenaar: `brebo_reference`
 
-Een gecontroleerde, publiceerbare ervaring of aanbeveling waarvoor toestemming en redactionele controle zijn vastgelegd.
+Een gecontroleerde, publiceerbare ervaring of aanbeveling waarvoor herkomst, toestemming en redactionele controle zijn vastgelegd. Een referentie mag zonder projectcase bestaan.
 
 Kernattributen:
 
@@ -167,6 +161,7 @@ Kernattributen:
 - statement
 - attributionName
 - attributionRole
+- sourceContext
 - consentStatus
 - publicationStatus
 
@@ -175,124 +170,76 @@ Relaties:
 - 0..1 naar `Project`
 - 0..n naar `Service`
 
-Bron van waarheid: `brebo_reference`.
-
+Bron van waarheid: `brebo_reference`.  
 Externe resource: `/references`.
 
-### 4.6 LensStage
+## 5. Gecontroleerde waarde: LensStage
 
 Nederlandse naam: Lens-fase  
 Eigenaar: `brebo_lens`
 
-Een gesloten, gecontroleerde methodische waarde binnen de BREBO Lens: Inzicht, Regie of Realisatie.
+`LensStage` is geen zelfstandig bedrijfsobject en krijgt geen Object-ID. Het is een gesloten waardencontract met uitsluitend:
 
-Kernattributen:
+- `insight` — Inzicht
+- `direction` — Regie
+- `realisation` — Realisatie
 
-- stableCode
-- name
-- definition
-- displayOrder
-- status
+De waarde mag worden ingebed in `KnowledgeItem`, `Service` en later expliciet goedgekeurde objecten. Er is geen zelfstandige publieke resource vereist.
 
-Relaties:
+Wijziging van waarden of betekenis vereist een ADR.
 
-- gerefereerd door `KnowledgeItem`
-- gerefereerd door `Service`
+## 6. Lokale classificaties
 
-Bron van waarheid: `brebo_lens`.
+`BuildingType`, `BuildingPart` en `MaterialClassification` zijn in Platform 1.0 geen platformbrede zelfstandige objecten en krijgen geen Object-ID.
 
-Externe representatie: ingebedde gecontroleerde waarde; geen zelfstandige publieke resource vereist in Platform 1.0.
+Regels:
 
-### 4.7 BuildingType
+1. Een classificatie blijft lokaal bij het domein dat haar nodig heeft.
+2. Zij wordt alleen ingevoerd voor een goedgekeurde usecase.
+3. Een gedeelde classificatie vereist vooraf één expliciete levenscycluseigenaar en een afzonderlijk architectuurbesluit.
+4. Er komt geen generieke eigenaarloze module voor taxonomie of context.
+5. Lokale classificaties mogen extern alleen via een expliciete mapping worden ontsloten.
 
-Nederlandse naam: gebouwtype  
-Eigenaar: definitief vast te stellen conform Domain Model 1.0
+## 7. Technische mediarepresentatie
 
-Een gecontroleerde contextclassificatie voor een type gebouw.
+Een mediarecord of bestand is geen zelfstandig BREBO-bedrijfsobject in Platform 1.0 en krijgt geen Object-ID.
 
-Platform 1.0-status: beperkt; uitsluitend invoeren wanneer een goedgekeurde usecase dit vereist.
+Drupal Media/File kan bestanden, alt-tekst, rechtenstatus en technische metadata beheren. De inhoudelijke betekenis en relatie blijven bij het verwijzende domeinobject. Een extern mediacontract vereist afzonderlijke goedkeuring.
 
-### 4.8 BuildingPart
-
-Nederlandse naam: gebouwdeel  
-Eigenaar: definitief vast te stellen conform Domain Model 1.0
-
-Een gecontroleerde contextclassificatie voor een fysiek deel van een gebouw.
-
-Platform 1.0-status: beperkt; uitsluitend invoeren wanneer een goedgekeurde usecase dit vereist.
-
-### 4.9 MaterialClassification
-
-Nederlandse naam: materiaalclassificatie  
-Eigenaar: definitief vast te stellen conform Domain Model 1.0
-
-Een gecontroleerde classificatie van een relevant bouwmateriaal.
-
-Platform 1.0-status: alleen indien direct nodig.
-
-### 4.10 MediaAsset
-
-Nederlandse naam: media-object  
-Eigenaar: Drupal Media/File met technische ondersteuning door `brebo_media`
-
-Een technisch herbruikbaar bestand met rechten- en toegankelijkheidsmetadata. De betekenis en domeinrelatie blijven eigendom van het verwijzende domein.
-
-Kernattributen:
-
-- stableId
-- fileReference
-- altText
-- rightsStatus
-- technicalMetadata
-
-Bron van waarheid: Drupal Media/File.
-
-Externe resource: alleen via een expliciet goedgekeurd mediacontract.
-
-## 5. Identiteitsregels
+## 8. Identiteits- en levenscyclusregels
 
 1. Zelfstandige objecten krijgen een stabiele interne identifier die niet wijzigt bij titel- of naamwijziging.
-2. Publieke URL's en slugs zijn geen primaire identiteit.
-3. Drupal numeric IDs zijn implementatiedetails en worden niet als canonieke identiteit gepubliceerd.
-4. Revisies wijzigen de identiteit van het object niet.
-5. Verwijderde of gearchiveerde identifiers worden niet hergebruikt.
+2. Publieke URL's, slugs, Drupal numeric IDs en bundle-ID's zijn geen canonieke identiteit.
+3. Revisies wijzigen de identiteit van het object niet.
+4. Verwijderde of gearchiveerde identifiers worden niet hergebruikt.
+5. Zelfstandige publiceerbare objecten ondersteunen minimaal `concept`, `published` en `archived`.
+6. Afgeleide representaties moeten opnieuw kunnen worden opgebouwd uit de bronobjecten.
 
-## 6. Levenscyclus
-
-Voor zelfstandige publiceerbare objecten gelden minimaal:
-
-- `concept`
-- `published`
-- `archived`
-
-Kennisobjecten zijn revisioneerbaar. Afgeleide representaties moeten altijd opnieuw kunnen worden opgebouwd uit de bronobjecten.
-
-## 7. Contractregels
+## 9. Contractregels
 
 1. API, MCP en toekomstige applicaties gebruiken dezelfde canonieke objectnamen.
 2. Resource-namen zijn stabiel, meervoudig en domeingericht.
 3. Interne Drupal-veldnamen worden niet rechtstreeks extern gepubliceerd.
 4. Externe contracten krijgen een expliciete mapping naar canonieke attributen.
-5. Een presentatieobject mag nooit een nieuw domeinobject introduceren.
-6. Een zoekresultaat is een projectie van een bronobject en geen zelfstandig bedrijfsobject.
+5. Een presentatieobject, zoekresultaat of mediarepresentatie introduceert geen nieuw domeinobject.
+6. Implementatiemappings zijn vervangbaar en mogen de canonieke betekenis niet wijzigen.
 
-## 8. Synoniemen en voorkeursnamen
+## 10. Synoniemen en voorkeursnamen
 
-| Canonieke naam | Toegestane Nederlandse benaming | Niet als canonieke naam gebruiken |
+| Canonieke naam | Nederlandse voorkeursnaam | Niet als canonieke naam gebruiken |
 |---|---|---|
-| `KnowledgeItem` | probleemgerichte kennisbijdrage, kennisbijdrage | article, page, content, document |
-| `Service` | dienst | product, page |
+| `KnowledgeItem` | probleemgerichte kennisbijdrage | article, page, content, document |
+| `Service` | dienst | product, service page |
 | `WorkActivity` | werkzaamheid | klus, task, job |
-| `Project` | project | case, portfolio-item |
+| `Project` | projectcase | case, portfolio item, intern projectrecord |
 | `Reference` | referentie | testimonial, review |
-| `LensStage` | Lens-fase | taxonomy term |
-| `MediaAsset` | media-object | file, image node |
+| `LensStage` | Lens-fase | taxonomy term, zelfstandig bedrijfsobject |
 
 Synoniemen mogen redactioneel worden gebruikt, maar niet in technische contracten zonder expliciete mapping.
 
-## 9. Implementatiemapping
+## 11. Implementatiemapping
 
-De implementatiemapping wordt per object in het Object Registry vastgelegd. Deze mapping is vervangbaar en mag de canonieke definitie niet wijzigen.
+De implementatiemapping wordt per zelfstandig object in het Object Registry vastgelegd.
 
 Voorbeeld:
 
@@ -304,9 +251,9 @@ KnowledgeItem
   -> MCP representation: knowledgeItem
 ```
 
-## 10. Buiten Platform 1.0
+## 12. Buiten Platform 1.0
 
-Niet opgenomen als definitief canoniek object:
+Niet opgenomen als actief zelfstandig canoniek object:
 
 - Building
 - Asset
@@ -321,11 +268,20 @@ Niet opgenomen als definitief canoniek object:
 - Quote
 - Order
 - Invoice
+- InternalProjectRecord
 - AIExecution
 - AgentRun
 
 Toevoeging vereist een afzonderlijke RFC of ADR.
 
-## 11. Goedkeuringsvoorwaarde
+## 13. Architectuurtoets
 
-Dit CIM kan alleen definitief worden vastgesteld wanneer het niet conflicteert met het goedgekeurde BREBO Domain Model 1.0. Bij afwijking is het domeinmodel leidend totdat een formeel wijzigingsbesluit is genomen.
+Dit CIM voldoet wanneer:
+
+- uitsluitend zelfstandige bedrijfsobjecten een Object-ID krijgen;
+- `Project` uitsluitend de publiceerbare projectcase betekent;
+- `Reference` zonder project kan bestaan onder expliciete herkomst- en toestemmingsvoorwaarden;
+- `LensStage` een gesloten waardencontract blijft;
+- gebouw- en materiaalclassificaties lokaal blijven totdat gedeeld eigenaarschap formeel is besloten;
+- technische mediarecords geen domeinobject worden;
+- Drupal-termen alleen als implementatiemapping voorkomen.
