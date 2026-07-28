@@ -68,7 +68,10 @@ function brebo_knowledge_entity_presave(EntityInterface $entity): void {
 
   brebo_knowledge_assert_lifecycle_permission($lifecycle, \Drupal::currentUser());
 
-  $entity->setPublished($lifecycle === 'published');
+  // Koppel lifecycle ondubbelzinnig aan het Drupal-publicatiestatusveld.
+  // Een directe veldwaarde voorkomt dat een bundle-default de status tijdens
+  // de opslag van een nieuw nodeobject opnieuw op gepubliceerd zet.
+  $entity->set('status', $lifecycle === 'published' ? 1 : 0);
   $entity->setNewRevision(TRUE);
   if (trim((string) $entity->getRevisionLogMessage()) === '') {
     $entity->setRevisionLogMessage(sprintf('KnowledgeItem opgeslagen met status %s.', $lifecycle));
