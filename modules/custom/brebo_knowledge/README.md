@@ -1,71 +1,34 @@
 # BREBO Knowledge
 
-## Doel
+`brebo_knowledge` implementeert één revisioneerbaar Drupal-nodeobject voor probleemgerichte kennisbijdragen.
 
-`brebo_knowledge` is eigenaar van `OBJ-001 KnowledgeItem` en implementeert de minimale Drupal-runtime voor probleemgerichte, revisioneerbare kennisbijdragen.
+## Bundle
 
-## Opslagmapping
-
-- entity type: `node`;
-- bundle: `brebo_knowledge_item`;
-- functionele identifier: `field_brebo_stable_id`;
-- formaat: `KI-000001`;
-- lifecycle: `concept`, `published`, `archived`.
+- machine name: `brebo_knowledge_item`
+- label: `Probleemgerichte kennisbijdrage`
+- nieuwe revisie standaard ingeschakeld
+- geen bodyveld
+- geen taxonomie, relaties, Views of presentatielaag
 
 ## Velden
 
-- `field_brebo_stable_id`;
-- `field_brebo_observation`;
-- `field_brebo_meaning`;
-- `field_brebo_urgency`;
-- `field_brebo_first_step`;
-- `field_brebo_risks`;
-- `field_brebo_lens_stages`;
-- `field_brebo_lifecycle_status` als expliciete technische lifecyclemapping.
+Verplicht:
 
-## Installatie
+- `field_knowledge_observation`
+- `field_knowledge_meaning`
+- `field_knowledge_urgency`
+- `field_knowledge_first_step`
+- `field_knowledge_risks`
 
-```bash
-vendor/bin/drush en brebo_knowledge -y
-vendor/bin/drush cr
-vendor/bin/drush config:get node.type.brebo_knowledge_item
-```
+Optioneel:
 
-De installatie maakt geen content aan en overschrijft geen conflicterende veldopslag. Bij een onverenigbaar bestaand veld stopt de installatie gecontroleerd.
+- `field_knowledge_regie`
+- `field_knowledge_realization`
 
-## Rechten
+Alle zeven velden zijn van het type `text_long`.
 
-De module levert afzonderlijke capabilities voor:
+## Installatie en update
 
-- aanmaken;
-- eigen of alle kennisbijdragen bewerken;
-- publiceren;
-- archiveren;
-- revisies bekijken.
+Nieuwe installaties gebruiken de configuratie in `config/optional`. Bestaande metadata-only installaties gebruiken `brebo_knowledge_update_11001()`.
 
-Koppel deze permissions via siteconfiguratie aan de rollen kennisredacteur en kennisbeheerder.
-
-## Stable ID
-
-Bij het aanmaken wordt automatisch de eerstvolgende vrije ID gegenereerd. De ID is redactioneel niet wijzigbaar, blijft gelijk over revisies en wordt op uniciteit gecontroleerd.
-
-## Testen
-
-```bash
-vendor/bin/phpunit modules/custom/brebo_knowledge/tests/src/Kernel/KnowledgeItemRuntimeTest.php
-```
-
-Aanvullend op dev-platform:
-
-```bash
-vendor/bin/drush cr
-vendor/bin/drush php:eval 'print_r(array_keys(\Drupal::service("entity_type.bundle.info")->getBundleInfo("node")));'
-```
-
-## Buiten scope
-
-Deze implementatieslice bevat geen relaties naar diensten, werkzaamheden of media, geen lokale gebouwclassificaties, geen API, MCP, zoekindex of themepresentatie.
-
-## Rollback en uninstall
-
-Uninstall is alleen veilig wanneer geen KnowledgeItem-content behouden hoeft te blijven. Maak bij bestaande content eerst een expliciete export of migratie. De module verwijdert geen configuratie of gegevens van andere domeinmodules.
+De update voert vooraf conflictcontroles uit, overschrijft geen bestaande afwijkende configuratie en verwijdert bij een onverwachte fout uitsluitend configuratie die tijdens die run is aangemaakt.
