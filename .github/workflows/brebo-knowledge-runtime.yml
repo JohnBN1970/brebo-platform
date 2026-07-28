@@ -33,13 +33,13 @@ jobs:
           tools: composer:v2
 
       - name: Validate Composer metadata
-        run: composer validate --no-check-publish
+        run: composer validate --no-check-publish --quiet
 
       - name: Install project dependencies
-        run: composer install --no-interaction --prefer-dist --no-progress
+        run: composer install --no-interaction --prefer-dist --no-progress --quiet
 
       - name: Install Drupal test dependencies
-        run: composer require --dev drupal/core-dev:^11.4 --with-all-dependencies --no-interaction --prefer-dist --no-progress
+        run: composer require --dev drupal/core-dev:^11.4 --with-all-dependencies --no-interaction --prefer-dist --no-progress --quiet
 
       - name: Check PHP syntax
         run: |
@@ -55,4 +55,4 @@ jobs:
         env:
           SIMPLETEST_DB: sqlite://localhost/sites/default/files/.ht.sqlite
           SIMPLETEST_BASE_URL: http://localhost
-        run: vendor/bin/phpunit -c core modules/custom/brebo_knowledge/tests/src/Kernel/KnowledgeItemRuntimeTest.php
+        run: vendor/bin/phpunit -c core --colors=never modules/custom/brebo_knowledge/tests/src/Kernel/KnowledgeItemRuntimeTest.php
