@@ -12,6 +12,7 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\node\NodeInterface;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
  * Implements hook_ENTITY_TYPE_create() for node.
@@ -62,10 +63,39 @@ function brebo_knowledge_entity_presave(EntityInterface $entity): void {
     throw new InvalidArgumentException('Ongeldige KnowledgeItem lifecycle-status.');
   }
 
+  brebo_knowledge_assert_lifecycle_permission($entity, $lifecycle, \Drupal::currentUser());
+
   $entity->setPublished($lifecycle === 'published');
   $entity->setNewRevision(TRUE);
   if (trim((string) $entity->getRevisionLogMessage()) === '') {
     $entity->setRevisionLogMessage(sprintf('KnowledgeItem opgeslagen met status %s.', $lifecycle));
+  }
+}
+
+/**
+ * Dwingt publicatie- en archiveringsrechten af voor iedere opslagroute.
+ */
+function brebo_knowledge_assert_lifecycle_permission(NodeInterface $node, string $new_status, AccountInterface $account): void {
+  // Drupal user 1 is de platformbeheerder en behoudt de standaard bypass.
+  if ((int) $account->id() === 1) {
+    return;
+  }
+
+  $old_status = NULL;
+  if (!$node->isNew() && isset($node->original) && $node->original->hasField('field_brebo_lifecycle_status')) {
+    $old_status = (string) $node->original->get('field_brebo_lifecycle_status')->value;
+  }
+
+  if ($new_status === $old_status) {
+    return;
+  }
+
+  if ($new_status === 'published' && !$account->hasPermission('publish brebo knowledge items')) {
+    throw new AccessDeniedHttpException('Geen toestemming om KnowledgeItems te publiceren.');
+  }
+
+  if ($new_status === 'archived' && !$account->hasPermission('archive brebo knowledge items')) {
+    throw new AccessDeniedHttpException('Geen toestemming om KnowledgeItems te archiveren.');
   }
 }
 
@@ -82,7 +112,7 @@ function brebo_knowledge_form_node_brebo_knowledge_item_form_alter(array &$form,
 }
 
 /**
- * Valideert lifecycletransities tegen module-eigen permissions.
+ * Geeft formuliergebruikers een directe validatiemelding bij verboden status.
  */
 function brebo_knowledge_validate_lifecycle_permission(array &$form, FormStateInterface $form_state): void {
   $node = $form_state->getFormObject()->getEntity();
