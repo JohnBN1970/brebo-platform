@@ -24,7 +24,7 @@ Dit register bestuurt de overgang van de bestaande documentatiemappen naar de ni
 | `docs/adr/` | `docs/00-governance/adr/` | gestart | ADR-template verplaatst; inhoudelijke ADR's volgen per gecontroleerde set |
 | `docs/rfc/` | `docs/00-governance/rfc/` | gestart | RFC-template verplaatst; inhoudelijke RFC's volgen per gecontroleerde set |
 | `docs/decisions/` | `docs/00-governance/decisions/` | doelmap gereed | centrale registers eerst reconciliëren |
-| `docs/architecture/` | `docs/01-enterprise/` of `docs/03-platform/` | in uitvoering | enterprise-kernmodellen verplaatst; Drupal-implementatiedocumenten nog classificeren |
+| `docs/architecture/` | `docs/01-enterprise/` of `docs/03-platform/` | in uitvoering | enterprise-kernmodellen verplaatst; Module Architecture-bronpad vastgesteld; overige Drupal-implementatiedocumenten nog classificeren |
 | `docs/development/` | `docs/04-development/` | afgerond voor bekende bestanden | workflow en Git-scope verplaatst |
 | `docs/deployment/` | `docs/06-operations/deployment/` | afgerond voor bekende bestanden | voorlopig Hostinger-model verplaatst met statusbehoud |
 
@@ -80,6 +80,14 @@ Deze verplaatsing is uitgevoerd door dezelfde bestaande blob op het nieuwe pad t
 
 De documenten zijn inhoudelijk ongewijzigd verplaatst. Hun status blijft `gereed voor architectuurreview`; deze migratie verleent geen nieuwe inhoudelijke goedkeuring.
 
+## Voorbereide migratieslice 6
+
+| Document | Vastgesteld bronpad | Beoogd doelpad | Controle |
+|---|---|---|---|
+| BREBO Module Architecture 1.0 | `docs/architecture/brebo-module-architecture-1.0.md` | `docs/03-platform/drupal/architecture/brebo-module-architecture-1.0.md` | broncommit `f298ab434734161ce840927f55a24b677adf4f1d`; Git-blob `b4fde6f3e944a32e30e027c792f93cf441ee7be8`; status `concept voor architectuurreview` |
+
+Het bronpad, de bestemming en de inhoudelijke status zijn nu controleerbaar vastgesteld. De daadwerkelijke verplaatsing moet verliesvrij gebeuren zonder inhoudelijke herschrijving en zonder de status te verhogen.
+
 ## Eerste classificatie van bekende architectuurdocumenten
 
 | Document | Voorgestelde bestemming | Status |
@@ -87,7 +95,7 @@ De documenten zijn inhoudelijk ongewijzigd verplaatst. Hun status blijft `gereed
 | BREBO Domain Model 1.0 | `01-enterprise/domain-model/` | verplaatst |
 | BREBO Canonical Information Model 1.0 | `01-enterprise/canonical-information-model/` | verplaatst |
 | BREBO Object Registry 1.0 | `01-enterprise/object-registry/` | verplaatst |
-| BREBO Module Architecture 1.0 | `03-platform/drupal/architecture/` | bronpad vaststellen |
+| BREBO Module Architecture 1.0 | `03-platform/drupal/architecture/` | bronpad en blob vastgesteld; gereed voor verliesvrije verplaatsing |
 | KnowledgeItem Drupal Entity Mapping 1.0 | `03-platform/drupal/entity-mappings/` | bronpad vaststellen |
 | Platform 1.0 Modulekaart | `03-platform/drupal/architecture/` | bronpad vaststellen |
 
