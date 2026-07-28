@@ -55,4 +55,14 @@ jobs:
         env:
           SIMPLETEST_DB: sqlite://localhost/sites/default/files/.ht.sqlite
           SIMPLETEST_BASE_URL: http://localhost
-        run: vendor/bin/phpunit -c core --colors=never modules/custom/brebo_knowledge/tests/src/Kernel/KnowledgeItemRuntimeTest.php
+        run: |
+          set +e
+          vendor/bin/phpunit -c core --colors=never modules/custom/brebo_knowledge/tests/src/Kernel/KnowledgeItemRuntimeTest.php > phpunit.log 2>&1
+          status=$?
+          cat phpunit.log
+          if [ "$status" -ne 0 ]; then
+            echo "::group::PHPUnit failure tail"
+            tail -n 120 phpunit.log
+            echo "::endgroup::"
+          fi
+          exit "$status"
