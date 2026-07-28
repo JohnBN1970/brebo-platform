@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\brebo_knowledge\Kernel;
 
+use Drupal\Core\Session\UserSession;
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\node\Entity\Node;
-use Drupal\user\UserSession;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
