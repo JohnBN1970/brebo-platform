@@ -6,6 +6,9 @@ namespace Drupal\Tests\brebo_knowledge\Kernel;
 
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\node\Entity\Node;
+use Drupal\user\UserSession;
+use InvalidArgumentException;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
  * Test de minimale KnowledgeItem-runtime.
@@ -31,42 +34,97 @@ final class KnowledgeItemRuntimeTest extends KernelTestBase {
     $this->installSchema('node', ['node_access']);
     $this->installConfig(['field', 'node']);
     brebo_knowledge_install();
+    $this->setCurrentAccount(1, []);
   }
 
-  public function testBundleFieldsIdentityAndLifecycle(): void {
-    $node = Node::create([
-      'type' => 'brebo_knowledge_item',
-      'title' => 'Testkennisbijdrage',
-      'field_brebo_observation' => 'Er is vochtdoorslag zichtbaar.',
-      'field_brebo_meaning' => 'De gevelschil moet nader worden onderzocht.',
-      'field_brebo_urgency' => 'high',
-      'field_brebo_first_step' => 'Voer een gerichte inspectie uit.',
-      'field_brebo_lifecycle_status' => 'concept',
-    ]);
-    $node->save();
+  public function testBundleFieldsIdentityLifecycleAndRevisions(): void {
+    $node = $this->createKnowledgeItem('concept');
 
     self::assertSame('KI-000001', $node->get('field_brebo_stable_id')->value);
     self::assertFalse($node->isPublished());
-    self::assertTrue($node->isNewRevision());
+
+    $storage = $this->container->get('entity_type.manager')->getStorage('node');
+    self::assertCount(1, $storage->revisionIds($node));
 
     $node->set('field_brebo_lifecycle_status', 'published');
     $node->save();
     self::assertTrue($node->isPublished());
     self::assertSame('KI-000001', $node->get('field_brebo_stable_id')->value);
+    self::assertCount(2, $storage->revisionIds($node));
 
-    $second = Node::create([
-      'type' => 'brebo_knowledge_item',
-      'title' => 'Tweede kennisbijdrage',
-      'field_brebo_observation' => 'Kozijnen vertonen slijtage.',
-      'field_brebo_meaning' => 'Onderhoud of vervanging moet worden afgewogen.',
-      'field_brebo_urgency' => 'normal',
-      'field_brebo_first_step' => 'Inspecteer aansluitingen en materiaalconditie.',
-      'field_brebo_lifecycle_status' => 'archived',
-    ]);
-    $second->save();
+    $node->set('field_brebo_lifecycle_status', 'archived');
+    $node->save();
+    self::assertFalse($node->isPublished());
+    self::assertCount(3, $storage->revisionIds($node));
+  }
 
+  public function testDeletedStableIdIsNeverReused(): void {
+    $first = $this->createKnowledgeItem('concept');
+    self::assertSame('KI-000001', $first->get('field_brebo_stable_id')->value);
+    $first->delete();
+
+    $second = $this->createKnowledgeItem('concept', 'Tweede kennisbijdrage');
     self::assertSame('KI-000002', $second->get('field_brebo_stable_id')->value);
-    self::assertFalse($second->isPublished());
+  }
+
+  public function testStableIdCannotBeChangedOrDuplicated(): void {
+    $first = $this->createKnowledgeItem('concept');
+
+    $first->set('field_brebo_stable_id', 'KI-000999');
+    try {
+      $first->save();
+      self::fail('Wijzigen van een stable ID had moeten mislukken.');
+    }
+    catch (InvalidArgumentException $exception) {
+      self::assertStringContainsString('onveranderlijk', $exception->getMessage());
+    }
+
+    $duplicate = Node::create([
+      'type' => 'brebo_knowledge_item',
+      'title' => 'Duplicaat',
+      'field_brebo_stable_id' => 'KI-000001',
+      'field_brebo_observation' => 'Observatie',
+      'field_brebo_meaning' => 'Betekenis',
+      'field_brebo_urgency' => 'normal',
+      'field_brebo_first_step' => 'Eerste stap',
+      'field_brebo_lifecycle_status' => 'concept',
+    ]);
+
+    $this->expectException(InvalidArgumentException::class);
+    $this->expectExceptionMessage('bestaat al');
+    $duplicate->save();
+  }
+
+  public function testProgrammaticPublicationRequiresPermission(): void {
+    $node = $this->createKnowledgeItem('concept');
+    $this->setCurrentAccount(2, []);
+
+    $node->set('field_brebo_lifecycle_status', 'published');
+    $this->expectException(AccessDeniedHttpException::class);
+    $node->save();
+  }
+
+  private function createKnowledgeItem(string $lifecycle, string $title = 'Testkennisbijdrage'): Node {
+    $node = Node::create([
+      'type' => 'brebo_knowledge_item',
+      'title' => $title,
+      'field_brebo_observation' => 'Er is vochtdoorslag zichtbaar.',
+      'field_brebo_meaning' => 'De gevelschil moet nader worden onderzocht.',
+      'field_brebo_urgency' => 'high',
+      'field_brebo_first_step' => 'Voer een gerichte inspectie uit.',
+      'field_brebo_lifecycle_status' => $lifecycle,
+    ]);
+    $node->save();
+    return $node;
+  }
+
+  private function setCurrentAccount(int $uid, array $permissions): void {
+    $account = new UserSession([
+      'uid' => $uid,
+      'name' => 'test-user-' . $uid,
+      'permissions' => $permissions,
+    ]);
+    $this->container->get('current_user')->setAccount($account);
   }
 
 }
