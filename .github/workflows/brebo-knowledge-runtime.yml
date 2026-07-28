@@ -1,0 +1,58 @@
+name: BREBO Knowledge runtime
+
+on:
+  pull_request:
+    branches:
+      - develop
+    paths:
+      - 'modules/custom/brebo_knowledge/**'
+      - '.github/workflows/brebo-knowledge-runtime.yml'
+      - 'composer.json'
+      - 'composer.lock'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: PHP syntax and Drupal kernel test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, xml, dom, sqlite3, pdo_sqlite
+          coverage: none
+          tools: composer:v2
+
+      - name: Validate Composer metadata
+        run: composer validate --no-check-publish
+
+      - name: Install project dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Install PHPUnit for Drupal kernel tests
+        run: composer require --dev phpunit/phpunit:^11 --no-interaction --prefer-dist --no-progress
+
+      - name: Check PHP syntax
+        run: |
+          php -l modules/custom/brebo_knowledge/brebo_knowledge.module
+          php -l modules/custom/brebo_knowledge/brebo_knowledge.install
+          php -l modules/custom/brebo_knowledge/src/Service/StableIdGenerator.php
+          php -l modules/custom/brebo_knowledge/tests/src/Kernel/KnowledgeItemRuntimeTest.php
+
+      - name: Prepare SQLite test directory
+        run: mkdir -p sites/default/files
+
+      - name: Run KnowledgeItem kernel test
+        env:
+          SIMPLETEST_DB: sqlite://localhost/sites/default/files/.ht.sqlite
+          SIMPLETEST_BASE_URL: http://localhost
+        run: vendor/bin/phpunit -c core modules/custom/brebo_knowledge/tests/src/Kernel/KnowledgeItemRuntimeTest.php
