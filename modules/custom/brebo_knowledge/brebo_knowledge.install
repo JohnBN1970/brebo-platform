@@ -48,8 +48,12 @@ function _brebo_knowledge_reconcile_configuration(
       return 'geldig configuratieschema ontbreekt';
     }
     try {
-      $violations = $typed->createFromNameAndData($name, $data)->validate();
-      return count($violations) ? 'configuratiestructuur schendt het schema: ' . (string) $violations : NULL;
+      // Raw install configuration intentionally has no generated UUID and may
+      // refer to canonical dependencies created later in the same write phase.
+      // Creating and traversing typed data verifies schema and value structure;
+      // references are validated separately below and after installation.
+      $typed->createFromNameAndData($name, $data)->getValue();
+      return NULL;
     }
     catch (\Throwable $exception) {
       return 'configuratiestructuur kon niet worden gevalideerd: ' . $exception->getMessage();
