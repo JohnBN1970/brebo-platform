@@ -116,6 +116,23 @@ function brebo_knowledge_update_11001(): void {
  */
 function _brebo_knowledge_normalize_config(array $data): array {
   unset($data['uuid'], $data['_core'], $data['dependencies'], $data['hidden']);
+  _brebo_knowledge_sort_config($data);
   return $data;
+}
+
+/**
+ * Sorts associative config maps while preserving the order of lists.
+ */
+function _brebo_knowledge_sort_config(array &$data): void {
+  foreach ($data as &$value) {
+    if (is_array($value)) {
+      _brebo_knowledge_sort_config($value);
+    }
+  }
+  unset($value);
+
+  if (!array_is_list($data)) {
+    ksort($data);
+  }
 }
 
