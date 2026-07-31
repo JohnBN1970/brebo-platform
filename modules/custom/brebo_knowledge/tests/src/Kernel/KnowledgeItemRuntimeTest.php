@@ -212,6 +212,7 @@ final class KnowledgeItemRuntimeTest extends KernelTestBase {
     $path = $this->container->get('extension.list.module')->getPath('brebo_knowledge') . '/config/install';
     return new FileStorage($path);
   }
+
   /**
    * Copies canonical source configuration to memory.
    */
@@ -231,6 +232,7 @@ final class KnowledgeItemRuntimeTest extends KernelTestBase {
     ksort($data);
     return $data;
   }
+
   /**
    * Mutates one active object to construct a negative test scenario.
    */
