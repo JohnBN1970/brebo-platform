@@ -62,14 +62,7 @@ function brebo_knowledge_update_11001(): void {
       continue;
     }
 
-    unset($active_data['uuid']);
-    if (isset($active_data['_core']['default_config_hash'])) {
-      unset($active_data['_core']['default_config_hash']);
-      if ($active_data['_core'] === []) {
-        unset($active_data['_core']);
-      }
-    }
-    if ($active_data !== $source_data[$config_name]) {
+    if (_brebo_knowledge_normalize_config($active_data) !== _brebo_knowledge_normalize_config($source_data[$config_name])) {
       $different[] = $config_name;
     }
   }
@@ -104,14 +97,7 @@ function brebo_knowledge_update_11001(): void {
       continue;
     }
 
-    unset($active_data['uuid']);
-    if (isset($active_data['_core']['default_config_hash'])) {
-      unset($active_data['_core']['default_config_hash']);
-      if ($active_data['_core'] === []) {
-        unset($active_data['_core']);
-      }
-    }
-    if ($active_data !== $source_data[$config_name]) {
+    if (_brebo_knowledge_normalize_config($active_data) !== _brebo_knowledge_normalize_config($source_data[$config_name])) {
       $different_after[] = $config_name;
     }
   }
@@ -123,4 +109,12 @@ function brebo_knowledge_update_11001(): void {
       $different_after ? implode(', ', $different_after) : 'geen',
     ));
   }
+}
+
+/**
+ * Removes metadata that Drupal derives while installing config entities.
+ */
+function _brebo_knowledge_normalize_config(array $data): array {
+  unset($data['uuid'], $data['_core'], $data['dependencies']);
+  return $data;
 }

@@ -9,12 +9,14 @@ use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\node\Entity\NodeType;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Verifies the canonical KnowledgeItem Mapping 1.2 configuration.
  *
  * @group brebo_knowledge
  */
+#[RunTestsInSeparateProcesses]
 final class KnowledgeItemRuntimeTest extends KernelTestBase {
 
   protected static $modules = [
