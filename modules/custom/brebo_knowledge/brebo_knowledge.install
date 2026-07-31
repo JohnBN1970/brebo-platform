@@ -192,7 +192,7 @@ function _brebo_knowledge_config_differences(array $expected, array $actual): ar
       $expected['dependencies']['module'][] = 'text';
     }
     else {
-      $expected['dependencies']['module'][] = 'field';
+      $expected['dependencies']['module'][] = 'node';
     }
   }
   _brebo_knowledge_normalize_semantic_config($expected);
