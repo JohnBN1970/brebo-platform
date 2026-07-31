@@ -54,7 +54,7 @@ jobs:
             use Symfony\\Component\\Yaml\\Yaml;
             $files = glob("modules/custom/brebo_knowledge/config/install/*.yml");
             if (count($files) !== 16) { throw new RuntimeException("Expected exactly 16 YAML objects."); }
-            foreach ($files as $file) { Yaml::parseFile($file); }
+            foreach ($files as $file) { \\Symfony\\Component\\Yaml\\Yaml::parseFile($file); }
           '
 
       - name: Check Drupal coding standards
