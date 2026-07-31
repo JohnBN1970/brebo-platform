@@ -1,0 +1,125 @@
+langcode: nl
+status: true
+dependencies:
+  config:
+    - field.field.node.brebo_knowledge_item.field_knowledge_basis
+    - field.field.node.brebo_knowledge_item.field_knowledge_meaning
+    - field.field.node.brebo_knowledge_item.field_knowledge_next_step
+    - field.field.node.brebo_knowledge_item.field_knowledge_observation
+    - field.field.node.brebo_knowledge_item.field_knowledge_realization
+    - field.field.node.brebo_knowledge_item.field_knowledge_regie
+    - field.field.node.brebo_knowledge_item.field_knowledge_risk
+    - node.type.brebo_knowledge_item
+  module:
+    - text
+  enforced:
+    module:
+      - brebo_knowledge
+id: node.brebo_knowledge_item.default
+targetEntityType: node
+bundle: brebo_knowledge_item
+mode: default
+content:
+  title:
+    type: string_textfield
+    weight: 0
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {}
+  field_knowledge_observation:
+    type: text_textarea
+    weight: 10
+    region: content
+    settings:
+      rows: 8
+      placeholder: ''
+    third_party_settings: {}
+  field_knowledge_meaning:
+    type: text_textarea
+    weight: 20
+    region: content
+    settings:
+      rows: 10
+      placeholder: ''
+    third_party_settings: {}
+  field_knowledge_risk:
+    type: text_textarea
+    weight: 30
+    region: content
+    settings:
+      rows: 8
+      placeholder: ''
+    third_party_settings: {}
+  field_knowledge_next_step:
+    type: text_textarea
+    weight: 40
+    region: content
+    settings:
+      rows: 10
+      placeholder: ''
+    third_party_settings: {}
+  field_knowledge_basis:
+    type: text_textarea
+    weight: 50
+    region: content
+    settings:
+      rows: 8
+      placeholder: ''
+    third_party_settings: {}
+  field_knowledge_regie:
+    type: text_textarea
+    weight: 60
+    region: content
+    settings:
+      rows: 8
+      placeholder: ''
+    third_party_settings: {}
+  field_knowledge_realization:
+    type: text_textarea
+    weight: 70
+    region: content
+    settings:
+      rows: 8
+      placeholder: ''
+    third_party_settings: {}
+  status:
+    type: boolean_checkbox
+    weight: 90
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {}
+  uid:
+    type: entity_reference_autocomplete
+    weight: 100
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {}
+  created:
+    type: datetime_timestamp
+    weight: 110
+    region: content
+    settings: {}
+    third_party_settings: {}
+  promote:
+    type: boolean_checkbox
+    weight: 120
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {}
+  sticky:
+    type: boolean_checkbox
+    weight: 130
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {}
+hidden: {}
+third_party_settings: {}

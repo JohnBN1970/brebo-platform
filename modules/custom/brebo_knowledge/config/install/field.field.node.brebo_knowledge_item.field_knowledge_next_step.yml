@@ -1,0 +1,22 @@
+langcode: nl
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_knowledge_next_step
+    - node.type.brebo_knowledge_item
+  enforced:
+    module:
+      - brebo_knowledge
+id: node.brebo_knowledge_item.field_knowledge_next_step
+field_name: field_knowledge_next_step
+entity_type: node
+bundle: brebo_knowledge_item
+label: 'Te verzamelen informatie en volgende stap'
+description: 'Beschrijf welke informatie of inspectie eerst nodig is, waar zelfbeoordeling stopt en wat de eerstvolgende verantwoorde stap is.'
+required: true
+translatable: false
+default_value: []
+default_value_callback: ''
+settings:
+  allowed_formats: []
+field_type: text_long

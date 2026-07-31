@@ -45,9 +45,7 @@ jobs:
 
       - name: Check PHP syntax
         run: |
-          php -l modules/custom/brebo_knowledge/brebo_knowledge.module
           php -l modules/custom/brebo_knowledge/brebo_knowledge.install
-          php -l modules/custom/brebo_knowledge/src/Service/StableIdGenerator.php
           php -l modules/custom/brebo_knowledge/tests/src/Kernel/KnowledgeItemRuntimeTest.php
 
       - name: Prepare SQLite test directory

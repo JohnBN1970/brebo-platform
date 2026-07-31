@@ -1,0 +1,22 @@
+langcode: nl
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_knowledge_regie
+    - node.type.brebo_knowledge_item
+  enforced:
+    module:
+      - brebo_knowledge
+id: node.brebo_knowledge_item.field_knowledge_regie
+field_name: field_knowledge_regie
+entity_type: node
+bundle: brebo_knowledge_item
+label: Regie
+description: 'Beschrijf indien relevant de onderzoeksvolgorde, betrokken partijen, keuzes, verantwoordelijkheden en fasering.'
+required: false
+translatable: false
+default_value: []
+default_value_callback: ''
+settings:
+  allowed_formats: []
+field_type: text_long

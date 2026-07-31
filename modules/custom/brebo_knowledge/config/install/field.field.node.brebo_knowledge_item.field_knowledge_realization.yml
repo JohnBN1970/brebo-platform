@@ -1,0 +1,22 @@
+langcode: nl
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_knowledge_realization
+    - node.type.brebo_knowledge_item
+  enforced:
+    module:
+      - brebo_knowledge
+id: node.brebo_knowledge_item.field_knowledge_realization
+field_name: field_knowledge_realization
+entity_type: node
+bundle: brebo_knowledge_item
+label: 'Mogelijke oplossingsrichtingen'
+description: 'Beschrijf indien relevant mogelijke oplossingsrichtingen en voorwaarden. Schrijf zonder voldoende inzicht geen definitieve maatregel voor.'
+required: false
+translatable: false
+default_value: []
+default_value_callback: ''
+settings:
+  allowed_formats: []
+field_type: text_long
