@@ -179,12 +179,18 @@ final class KnowledgeItemRuntimeTest extends KernelTestBase {
    * Tests a conflicting bundle link.
    */
   public function testConflictingBundleLinkFailsWriteFree(): void {
-    $source = $this->memorySource();
-    $name = 'field.field.node.brebo_knowledge_item.field_knowledge_basis';
-    $data = $source->read($name);
-    $data['bundle'] = 'wrong_bundle';
-    $source->write($name, $data);
-    $this->assertRejectedWithoutWrites($source, NULL, 'koppeling');
+    $name = 'field.field.node.wrong_bundle.field_knowledge_basis';
+    $this->active()->write($name, [
+      'id' => 'node.wrong_bundle.field_knowledge_basis',
+      'entity_type' => 'node',
+      'bundle' => 'wrong_bundle',
+      'field_name' => 'field_knowledge_basis',
+    ]);
+    $this->assertRejectedWithoutWrites(
+      $this->source(),
+      NULL,
+      'legacy-, extra-, viewdisplay- of orphanconfiguratie',
+    );
   }
 
   /**
