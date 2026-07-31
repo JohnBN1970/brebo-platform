@@ -66,7 +66,8 @@ final class KnowledgeItemRuntimeTest extends KernelTestBase {
    */
   public function testFifteenCanonicalObjectsFailWriteFree(): void {
     $this->installCanonical();
-    $this->active()->delete(end(_brebo_knowledge_config_names()));
+    $names = _brebo_knowledge_config_names();
+    $this->active()->delete(end($names));
     $this->assertRejectedWithoutWrites(
       $this->source(),
       NULL,
