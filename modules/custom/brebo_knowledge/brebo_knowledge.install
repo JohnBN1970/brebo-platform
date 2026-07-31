@@ -117,6 +117,15 @@ function _brebo_knowledge_reconcile_configuration(
     }
   }
 
+  $existing_count = count($existing);
+  if ($existing_count > 0 && $existing_count < count($names)) {
+    $errors[] = sprintf(
+      'Partiële canonieke set: %d van 16 doelobjecten aanwezig (%s); verwacht exact 0 of exact 16; uitvoering is vóór schrijven gestopt en er is geen configuratiewijziging uitgevoerd',
+      $existing_count,
+      implode(', ', $existing),
+    );
+  }
+
   _brebo_knowledge_validate_relations($source_data, $errors);
   if ($errors) {
     throw new UpdateException("BREBO Knowledge-preflight geweigerd; er is niets gewijzigd:\n- " . implode("\n- ", array_unique($errors)));
@@ -125,8 +134,9 @@ function _brebo_knowledge_reconcile_configuration(
     return;
   }
 
-  // All possible checks completed without a write. ConfigInstaller preserves
-  // already-present canonical objects and creates only the missing defaults.
+  // The preflight proved that none of the canonical objects exist and that the
+  // bounded active configuration scope is conflict-free. Only now may Drupal
+  // create the complete canonical set.
   \Drupal::service('config.installer')->installDefaultConfig('module', 'brebo_knowledge');
 
   $post_errors = [];
