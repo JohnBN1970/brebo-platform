@@ -62,7 +62,9 @@ final class KnowledgeItemRuntimeTest extends KernelTestBase {
   }
 
   /**
-   * Tests that fifteen canonically equal target objects are rejected write-free.
+   * Tests that fifteen canonically equal target objects are rejected.
+   *
+   * The rejection must be write-free.
    */
   public function testFifteenCanonicalObjectsFailWriteFree(): void {
     $this->installCanonical();
