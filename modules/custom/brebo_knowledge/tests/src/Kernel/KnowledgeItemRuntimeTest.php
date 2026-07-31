@@ -36,8 +36,10 @@ final class KnowledgeItemRuntimeTest extends KernelTestBase {
   }
 
   public function testPartialCanonicalConfigurationCompletesSafely(): void {
-    $source = $this->source();
-    $this->active()->write('node.type.brebo_knowledge_item', $source->read('node.type.brebo_knowledge_item'));
+    brebo_knowledge_update_11001();
+    foreach (array_slice(_brebo_knowledge_config_names(), 1) as $name) {
+      $this->active()->delete($name);
+    }
     _brebo_knowledge_reconcile_configuration();
     self::assertCount(16, _brebo_knowledge_relevant_active_names($this->active()));
   }
