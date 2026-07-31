@@ -115,6 +115,7 @@ function brebo_knowledge_update_11001(): void {
  * Removes metadata that Drupal derives while installing config entities.
  */
 function _brebo_knowledge_normalize_config(array $data): array {
-  unset($data['uuid'], $data['_core'], $data['dependencies']);
+  unset($data['uuid'], $data['_core'], $data['dependencies'], $data['hidden']);
   return $data;
 }
+
