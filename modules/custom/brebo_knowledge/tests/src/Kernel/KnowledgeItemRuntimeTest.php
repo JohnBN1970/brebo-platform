@@ -47,15 +47,31 @@ final class KnowledgeItemRuntimeTest extends KernelTestBase {
   }
 
   /**
-   * Tests safe completion of a canonically equal partial state.
+   * Tests that one canonically equal target object is rejected write-free.
    */
-  public function testPartialCanonicalConfigurationCompletesSafely(): void {
-    brebo_knowledge_update_11001();
+  public function testOneCanonicalObjectFailsWriteFree(): void {
+    $this->installCanonical();
     foreach (array_slice(_brebo_knowledge_config_names(), 1) as $name) {
       $this->active()->delete($name);
     }
-    _brebo_knowledge_reconcile_configuration();
-    self::assertCount(16, _brebo_knowledge_relevant_active_names($this->active()));
+    $this->assertRejectedWithoutWrites(
+      $this->source(),
+      NULL,
+      'Partiële canonieke set: 1 van 16',
+    );
+  }
+
+  /**
+   * Tests that fifteen canonically equal target objects are rejected write-free.
+   */
+  public function testFifteenCanonicalObjectsFailWriteFree(): void {
+    $this->installCanonical();
+    $this->active()->delete(end(_brebo_knowledge_config_names()));
+    $this->assertRejectedWithoutWrites(
+      $this->source(),
+      NULL,
+      'Partiële canonieke set: 15 van 16',
+    );
   }
 
   /**
