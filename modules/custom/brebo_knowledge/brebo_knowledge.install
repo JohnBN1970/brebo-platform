@@ -174,7 +174,7 @@ function _brebo_knowledge_config_names(): array {
 function _brebo_knowledge_relevant_active_names(StorageInterface $active): array {
   $names = [];
   foreach ($active->listAll() as $name) {
-    if (preg_match('/^(node\.type\.brebo_knowledge|field\.storage\.[^.]+\.field_(?:knowledge|brebo)_|field\.field\.[^.]+\.[^.]*brebo_knowledge[^.]*\.field_|core\.entity_(?:form|view)_display\.[^.]+\.brebo_knowledge)/', $name)) {
+    if (preg_match('/^(node\.type\.brebo_knowledge|field\.storage\.[^.]+\.field_(?:knowledge|brebo)_|field\.field\.[^.]+\.[^.]+\.field_(?:knowledge|brebo)_|core\.entity_(?:form|view)_display\.[^.]+\.brebo_knowledge)/', $name)) {
       $names[] = $name;
       continue;
     }
