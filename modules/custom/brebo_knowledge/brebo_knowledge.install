@@ -1,141 +1,240 @@
 <?php
 
+declare(strict_types=1);
+
+use Drupal\Core\Config\FileStorage;
+use Drupal\Core\Config\StorageInterface;
+use Drupal\Core\Utility\UpdateException;
+
 /**
- * Installs the approved knowledge item configuration on existing sites.
+ * Installs the approved KnowledgeItem configuration on existing sites.
  */
 function brebo_knowledge_update_11001(): void {
-  $config_names = [
-    'node.type.brebo_knowledge_item',
-    'field.storage.node.field_knowledge_observation',
-    'field.storage.node.field_knowledge_meaning',
-    'field.storage.node.field_knowledge_risk',
-    'field.storage.node.field_knowledge_next_step',
-    'field.storage.node.field_knowledge_basis',
-    'field.storage.node.field_knowledge_regie',
-    'field.storage.node.field_knowledge_realization',
-    'field.field.node.brebo_knowledge_item.field_knowledge_observation',
-    'field.field.node.brebo_knowledge_item.field_knowledge_meaning',
-    'field.field.node.brebo_knowledge_item.field_knowledge_risk',
-    'field.field.node.brebo_knowledge_item.field_knowledge_next_step',
-    'field.field.node.brebo_knowledge_item.field_knowledge_basis',
-    'field.field.node.brebo_knowledge_item.field_knowledge_regie',
-    'field.field.node.brebo_knowledge_item.field_knowledge_realization',
-    'core.entity_form_display.node.brebo_knowledge_item.default',
-  ];
+  _brebo_knowledge_reconcile_configuration();
+}
 
+/**
+ * Reconciles the canonical configuration after a complete read-only preflight.
+ *
+ * Optional arguments exist solely to make failure paths testable without writes.
+ */
+function _brebo_knowledge_reconcile_configuration(
+  ?StorageInterface $source = NULL,
+  ?StorageInterface $active = NULL,
+  ?callable $schema_validator = NULL,
+  ?array $available_modules = NULL,
+): void {
+  $names = _brebo_knowledge_config_names();
   $module_path = \Drupal::service('extension.list.module')->getPath('brebo_knowledge');
-  $source = new \Drupal\Core\Config\FileStorage($module_path . '/config/install');
-  $active = \Drupal::service('config.storage');
+  $source ??= new FileStorage($module_path . '/config/install');
+  $active ??= \Drupal::service('config.storage');
 
+  $errors = [];
   $source_names = $source->listAll();
   sort($source_names);
-  $expected_names = $config_names;
+  $expected_names = $names;
   sort($expected_names);
-  if ($source_names !== $expected_names) {
-    $missing = array_values(array_diff($expected_names, $source_names));
-    $unexpected = array_values(array_diff($source_names, $expected_names));
-    throw new \Drupal\Core\Utility\UpdateException(sprintf(
-      'BREBO Knowledge-bronconfiguratie is incompleet of onverwacht. Ontbrekend: %s. Onverwacht: %s.',
-      $missing ? implode(', ', $missing) : 'geen',
-      $unexpected ? implode(', ', $unexpected) : 'geen',
-    ));
+  foreach (array_diff($expected_names, $source_names) as $name) {
+    $errors[] = "$name: canoniek bronobject ontbreekt";
+  }
+  foreach (array_diff($source_names, $expected_names) as $name) {
+    $errors[] = "$name: onverwacht bronobject";
   }
 
-  $source_data = $source->readMultiple($config_names);
-  if (count($source_data) !== count($config_names)) {
-    throw new \Drupal\Core\Utility\UpdateException('BREBO Knowledge-bronconfiguratie kon niet volledig worden gelezen.');
+  $source_data = [];
+  $typed = \Drupal::service('config.typed');
+  $schema_validator ??= static function (string $name, array $data) use ($typed): ?string {
+    if (!$typed->hasConfigSchema($name)) {
+      return 'geldig configuratieschema ontbreekt';
+    }
+    try {
+      $violations = $typed->createFromNameAndData($name, $data)->validate();
+      return count($violations) ? 'configuratiestructuur schendt het schema: ' . (string) $violations : NULL;
+    }
+    catch (\Throwable $exception) {
+      return 'configuratiestructuur kon niet worden gevalideerd: ' . $exception->getMessage();
+    }
+  };
+
+  foreach ($names as $name) {
+    $data = $source->read($name);
+    if (!is_array($data)) {
+      $errors[] = "$name: bronobject is niet leesbaar";
+      continue;
+    }
+    $source_data[$name] = $data;
+    if ($error = $schema_validator($name, $data)) {
+      $errors[] = "$name: $error";
+    }
+  }
+
+  $module_handler = \Drupal::service('module_handler');
+  $available_modules ??= array_keys(\Drupal::service('extension.list.module')->getList());
+  foreach ($source_data as $name => $data) {
+    foreach (($data['dependencies']['module'] ?? []) as $module) {
+      if (!in_array($module, $available_modules, TRUE) || !$module_handler->moduleExists($module)) {
+        $errors[] = "$name: moduledependency $module ontbreekt of is niet actief";
+      }
+    }
+    foreach (($data['dependencies']['enforced']['module'] ?? []) as $module) {
+      if (!in_array($module, $available_modules, TRUE) || !$module_handler->moduleExists($module)) {
+        $errors[] = "$name: enforced moduledependency $module ontbreekt of is niet actief";
+      }
+    }
+    foreach (($data['dependencies']['config'] ?? []) as $dependency) {
+      if (!isset($source_data[$dependency]) && !$active->exists($dependency)) {
+        $errors[] = "$name: configdependency $dependency ontbreekt";
+      }
+    }
+  }
+
+  $relevant = _brebo_knowledge_relevant_active_names($active);
+  $unexpected = array_values(array_diff($relevant, $names));
+  foreach ($unexpected as $name) {
+    $errors[] = "$name: legacy-, extra-, viewdisplay- of orphanconfiguratie binnen BREBO Knowledge-scope";
   }
 
   $existing = [];
   $missing = [];
-  $different = [];
-  foreach ($config_names as $config_name) {
-    if (!$active->exists($config_name)) {
-      $missing[] = $config_name;
+  foreach ($names as $name) {
+    if (!$active->exists($name)) {
+      $missing[] = $name;
       continue;
     }
-
-    $existing[] = $config_name;
-    $active_data = $active->read($config_name);
-    if (!is_array($active_data)) {
-      $different[] = $config_name;
+    $existing[] = $name;
+    $data = $active->read($name);
+    if (!is_array($data)) {
+      $errors[] = "$name: actieve configuratie is niet leesbaar";
       continue;
     }
-
-    if (_brebo_knowledge_normalize_config($active_data) !== _brebo_knowledge_normalize_config($source_data[$config_name])) {
-      $different[] = $config_name;
+    $differences = _brebo_knowledge_config_differences($source_data[$name] ?? [], $data);
+    if ($differences) {
+      $errors[] = "$name: wijkt af op " . implode(', ', $differences);
     }
   }
 
-  if ($different || ($existing && $missing)) {
-    throw new \Drupal\Core\Utility\UpdateException(sprintf(
-      'BREBO Knowledge-configuratieconflict. Bestaand: %s. Ontbrekend: %s. Afwijkend: %s. Er is niets gewijzigd.',
-      $existing ? implode(', ', $existing) : 'geen',
-      $missing ? implode(', ', $missing) : 'geen',
-      $different ? implode(', ', $different) : 'geen',
-    ));
+  _brebo_knowledge_validate_relations($source_data, $errors);
+  if ($errors) {
+    throw new UpdateException("BREBO Knowledge-preflight geweigerd; er is niets gewijzigd:\n- " . implode("\n- ", array_unique($errors)));
   }
-
   if (!$missing) {
     return;
   }
 
+  // All possible checks completed without a write. ConfigInstaller preserves
+  // already-present canonical objects and creates only the missing defaults.
   \Drupal::service('config.installer')->installDefaultConfig('module', 'brebo_knowledge');
-  $active = \Drupal::service('config.storage');
 
-  $missing_after = [];
-  $different_after = [];
-  foreach ($config_names as $config_name) {
-    if (!$active->exists($config_name)) {
-      $missing_after[] = $config_name;
+  $post_errors = [];
+  foreach ($names as $name) {
+    if (!$active->exists($name)) {
+      $post_errors[] = "$name: ontbreekt na schrijven";
       continue;
     }
-
-    $active_data = $active->read($config_name);
-    if (!is_array($active_data)) {
-      $different_after[] = $config_name;
-      continue;
-    }
-
-    if (_brebo_knowledge_normalize_config($active_data) !== _brebo_knowledge_normalize_config($source_data[$config_name])) {
-      $different_after[] = $config_name;
+    $differences = _brebo_knowledge_config_differences($source_data[$name], $active->read($name) ?: []);
+    if ($differences) {
+      $post_errors[] = "$name: wijkt na schrijven af op " . implode(', ', $differences);
     }
   }
-
-  if ($missing_after || $different_after) {
-    throw new \Drupal\Core\Utility\UpdateException(sprintf(
-      'BREBO Knowledge-nacontrole is mislukt. Ontbrekend: %s. Afwijkend: %s.',
-      $missing_after ? implode(', ', $missing_after) : 'geen',
-      $different_after ? implode(', ', $different_after) : 'geen',
-    ));
+  $post_extra = array_values(array_diff(_brebo_knowledge_relevant_active_names($active), $names));
+  foreach ($post_extra as $name) {
+    $post_errors[] = "$name: onverwacht object na schrijven";
+  }
+  if ($post_errors) {
+    throw new UpdateException("BREBO Knowledge-postcondition mislukt:\n- " . implode("\n- ", $post_errors));
   }
 }
 
-/**
- * Removes metadata that Drupal derives while installing config entities.
- */
-function _brebo_knowledge_normalize_config(array $data): array {
-  unset($data['uuid'], $data['_core'], $data['dependencies'], $data['hidden']);
-  _brebo_knowledge_sort_config($data);
-  return $data;
+/** Returns the sixteen canonical configuration names in dependency order. */
+function _brebo_knowledge_config_names(): array {
+  $fields = ['observation', 'meaning', 'risk', 'next_step', 'basis', 'regie', 'realization'];
+  return [
+    'node.type.brebo_knowledge_item',
+    ...array_map(static fn(string $field): string => "field.storage.node.field_knowledge_$field", $fields),
+    ...array_map(static fn(string $field): string => "field.field.node.brebo_knowledge_item.field_knowledge_$field", $fields),
+    'core.entity_form_display.node.brebo_knowledge_item.default',
+  ];
 }
 
-/**
- * Sorts associative config maps while preserving the order of lists.
- */
-function _brebo_knowledge_sort_config(array &$data): void {
-  foreach ($data as $key => &$value) {
-    if (is_array($value)) {
-      _brebo_knowledge_sort_config($value);
-      if ($value === []) {
-        unset($data[$key]);
+/** Finds all active configuration that can conflict with this bounded scope. */
+function _brebo_knowledge_relevant_active_names(StorageInterface $active): array {
+  $names = [];
+  foreach ($active->listAll() as $name) {
+    if (preg_match('/^(node\.type\.brebo_knowledge|field\.storage\.[^.]+\.field_(?:knowledge|brebo)_|field\.field\.[^.]+\.[^.]*brebo_knowledge[^.]*\.field_|core\.entity_(?:form|view)_display\.[^.]+\.brebo_knowledge)/', $name)) {
+      $names[] = $name;
+      continue;
+    }
+    $data = $active->read($name);
+    if (is_array($data) && preg_match('/^core\.entity_(?:form|view)_display\./', $name)) {
+      foreach (array_keys(($data['content'] ?? []) + ($data['hidden'] ?? [])) as $component) {
+        if (str_starts_with((string) $component, 'field_knowledge_') || str_starts_with((string) $component, 'field_brebo_')) {
+          $names[] = $name;
+          break;
+        }
       }
     }
   }
-  unset($value);
+  sort($names);
+  return array_values(array_unique($names));
+}
 
-  if (!array_is_list($data)) {
-    ksort($data);
+/** Compares every source property plus complete dependencies and display hidden. */
+function _brebo_knowledge_config_differences(array $expected, array $actual): array {
+  unset($actual['uuid'], $actual['_core']);
+  unset($expected['uuid'], $expected['_core']);
+  $differences = [];
+  _brebo_knowledge_compare_value($expected, $actual, '', $differences);
+  return $differences;
+}
+
+/** Recursively compares associative maps independent of key order. */
+function _brebo_knowledge_compare_value(mixed $expected, mixed $actual, string $path, array &$differences): void {
+  if (is_array($expected) && is_array($actual)) {
+    foreach (array_unique([...array_keys($expected), ...array_keys($actual)]) as $key) {
+      $child = $path === '' ? (string) $key : "$path.$key";
+      if (!array_key_exists($key, $expected) || !array_key_exists($key, $actual)) {
+        $differences[] = $child;
+      }
+      else {
+        _brebo_knowledge_compare_value($expected[$key], $actual[$key], $child, $differences);
+      }
+    }
+    return;
+  }
+  if ($expected !== $actual) {
+    $differences[] = $path;
   }
 }
 
+/** Validates canonical IDs, entity/bundle links and dependency ordering. */
+function _brebo_knowledge_validate_relations(array $data, array &$errors): void {
+  foreach (_brebo_knowledge_config_names() as $name) {
+    if (!isset($data[$name])) {
+      continue;
+    }
+    $item = $data[$name];
+    if (str_starts_with($name, 'field.storage.')) {
+      $expected_id = $item['entity_type'] . '.' . $item['field_name'];
+    }
+    elseif (str_starts_with($name, 'field.field.')) {
+      $expected_id = $item['entity_type'] . '.' . $item['bundle'] . '.' . $item['field_name'];
+      $storage = 'field.storage.' . $item['entity_type'] . '.' . $item['field_name'];
+      $bundle = 'node.type.' . $item['bundle'];
+      if (!isset($data[$storage], $data[$bundle])) {
+        $errors[] = "$name: orphan of ongeldige storage-/bundlekoppeling";
+      }
+    }
+    elseif (str_starts_with($name, 'core.entity_form_display.')) {
+      $expected_id = $item['targetEntityType'] . '.' . $item['bundle'] . '.' . $item['mode'];
+      if (!isset($data['node.type.' . $item['bundle']])) {
+        $errors[] = "$name: orphan display zonder bundle";
+      }
+    }
+    else {
+      $expected_id = $item['type'] ?? '';
+    }
+    if (($item['id'] ?? $item['type'] ?? NULL) !== $expected_id) {
+      $errors[] = "$name: configuratie-ID of entity-/bundlekoppeling is ongeldig";
+    }
+  }
+}
