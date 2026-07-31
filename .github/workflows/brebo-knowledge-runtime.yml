@@ -57,10 +57,7 @@ jobs:
           '
 
       - name: Check Drupal coding standards
-        run: |
-          vendor/bin/phpcs --standard=Drupal,DrupalPractice \\
-            modules/custom/brebo_knowledge/brebo_knowledge.install \\
-            modules/custom/brebo_knowledge/tests/src/Kernel/KnowledgeItemRuntimeTest.php
+        run: vendor/bin/phpcs --standard=Drupal,DrupalPractice modules/custom/brebo_knowledge/brebo_knowledge.install modules/custom/brebo_knowledge/tests/src/Kernel/KnowledgeItemRuntimeTest.php
 
       - name: Check PHP syntax
         run: |
