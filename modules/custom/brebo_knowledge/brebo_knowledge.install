@@ -124,9 +124,12 @@ function _brebo_knowledge_normalize_config(array $data): array {
  * Sorts associative config maps while preserving the order of lists.
  */
 function _brebo_knowledge_sort_config(array &$data): void {
-  foreach ($data as &$value) {
+  foreach ($data as $key => &$value) {
     if (is_array($value)) {
       _brebo_knowledge_sort_config($value);
+      if ($value === []) {
+        unset($data[$key]);
+      }
     }
   }
   unset($value);
