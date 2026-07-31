@@ -186,9 +186,41 @@ function _brebo_knowledge_relevant_active_names(StorageInterface $active): array
 function _brebo_knowledge_config_differences(array $expected, array $actual): array {
   unset($actual['uuid'], $actual['_core']);
   unset($expected['uuid'], $expected['_core']);
+  // Config entities add provider dependencies deterministically on save.
+  if (isset($expected['field_name'], $expected['entity_type'])) {
+    if (isset($expected['bundle'])) {
+      $expected['dependencies']['module'][] = 'text';
+    }
+    else {
+      $expected['dependencies']['module'][] = 'field';
+    }
+  }
+  _brebo_knowledge_normalize_semantic_config($expected);
+  _brebo_knowledge_normalize_semantic_config($actual);
   $differences = [];
   _brebo_knowledge_compare_value($expected, $actual, '', $differences);
   return $differences;
+}
+
+/** Normalizes only semantically unordered/empty configuration containers. */
+function _brebo_knowledge_normalize_semantic_config(array &$data, string $path = ''): void {
+  foreach ($data as $key => &$value) {
+    if (is_array($value)) {
+      $child = $path === '' ? (string) $key : "$path.$key";
+      _brebo_knowledge_normalize_semantic_config($value, $child);
+      if ($value === []) {
+        unset($data[$key]);
+      }
+      elseif (in_array($child, ['dependencies.config', 'dependencies.module', 'dependencies.enforced.module'], TRUE)) {
+        $value = array_values(array_unique($value));
+        sort($value);
+      }
+    }
+  }
+  unset($value);
+  if (!array_is_list($data)) {
+    ksort($data);
+  }
 }
 
 /** Recursively compares associative maps independent of key order. */
