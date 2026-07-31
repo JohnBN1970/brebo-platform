@@ -1,0 +1,22 @@
+langcode: nl
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_knowledge_basis
+    - node.type.brebo_knowledge_item
+  enforced:
+    module:
+      - brebo_knowledge
+id: node.brebo_knowledge_item.field_knowledge_basis
+field_name: field_knowledge_basis
+entity_type: node
+bundle: brebo_knowledge_item
+label: 'Bron, geldigheid en deskundige controle'
+description: 'Leg vast waarop de bijdrage is gebaseerd, voor welke omstandigheden deze geldt en wanneer deskundige beoordeling noodzakelijk is.'
+required: true
+translatable: false
+default_value: []
+default_value_callback: ''
+settings:
+  allowed_formats: []
+field_type: text_long

@@ -25,6 +25,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           show-progress: false
+          fetch-depth: 0
 
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
@@ -43,11 +44,24 @@ jobs:
       - name: Install Drupal test dependencies
         run: composer require --dev drupal/core-dev:^11.4 --with-all-dependencies --no-interaction --prefer-dist --no-progress --quiet
 
+      - name: Check repository diff
+        run: git diff --check "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}"
+
+      - name: Validate canonical YAML set
+        run: |
+          php -r '
+            require "vendor/autoload.php";
+            $files = glob("modules/custom/brebo_knowledge/config/install/*.yml");
+            if (count($files) !== 16) { throw new RuntimeException("Expected exactly 16 YAML objects."); }
+            foreach ($files as $file) { call_user_func(["Symfony\\Component\\Yaml\\Yaml", "parseFile"], $file); }
+          '
+
+      - name: Check Drupal coding standards
+        run: vendor/bin/phpcs --standard=Drupal,DrupalPractice modules/custom/brebo_knowledge/brebo_knowledge.install modules/custom/brebo_knowledge/tests/src/Kernel/KnowledgeItemRuntimeTest.php
+
       - name: Check PHP syntax
         run: |
-          php -l modules/custom/brebo_knowledge/brebo_knowledge.module
           php -l modules/custom/brebo_knowledge/brebo_knowledge.install
-          php -l modules/custom/brebo_knowledge/src/Service/StableIdGenerator.php
           php -l modules/custom/brebo_knowledge/tests/src/Kernel/KnowledgeItemRuntimeTest.php
 
       - name: Prepare SQLite test directory

@@ -1,0 +1,22 @@
+langcode: nl
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_knowledge_observation
+    - node.type.brebo_knowledge_item
+  enforced:
+    module:
+      - brebo_knowledge
+id: node.brebo_knowledge_item.field_knowledge_observation
+field_name: field_knowledge_observation
+entity_type: node
+bundle: brebo_knowledge_item
+label: 'Waarneming en afbakening'
+description: 'Beschrijf wat zichtbaar, merkbaar of gemeten is, waar het voorkomt en onder welke omstandigheden. Maak onderscheid tussen waarneming en verklaring.'
+required: true
+translatable: false
+default_value: []
+default_value_callback: ''
+settings:
+  allowed_formats: []
+field_type: text_long

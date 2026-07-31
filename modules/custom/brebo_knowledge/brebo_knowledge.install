@@ -2,185 +2,285 @@
 
 declare(strict_types=1);
 
-/**
- * @file
- * Installatie en updates voor BREBO Knowledge.
- */
-
-use Drupal\Core\Entity\Entity\EntityFormDisplay;
-use Drupal\Core\Entity\Entity\EntityViewDisplay;
-use Drupal\field\Entity\FieldConfig;
-use Drupal\field\Entity\FieldStorageConfig;
-use Drupal\node\Entity\NodeType;
+use Drupal\Core\Config\FileStorage;
+use Drupal\Core\Config\StorageInterface;
+use Drupal\Core\Utility\UpdateException;
 
 /**
- * Implements hook_install().
+ * Installs the approved KnowledgeItem configuration on existing sites.
  */
-function brebo_knowledge_install(): void {
-  $type = NodeType::load('brebo_knowledge_item');
-  if (!$type) {
-    $type = NodeType::create([
-      'type' => 'brebo_knowledge_item',
-      'name' => 'Kennisbijdrage',
-      'description' => 'Probleemgerichte, revisioneerbare BREBO-kennisbijdrage.',
-      'new_revision' => TRUE,
-      'preview_mode' => 1,
-      'display_submitted' => FALSE,
-    ]);
-    $type->save();
-  }
-  elseif (!$type->shouldCreateNewRevision()) {
-    throw new RuntimeException('Contenttype brebo_knowledge_item bestaat zonder verplichte revisie-instelling. Installatie is gestopt.');
-  }
-
-  $fields = _brebo_knowledge_field_definitions();
-  foreach ($fields as $field_name => $definition) {
-    _brebo_knowledge_ensure_field($field_name, $definition);
-  }
-
-  _brebo_knowledge_configure_displays($fields);
+function brebo_knowledge_update_11001(): void {
+  _brebo_knowledge_reconcile_configuration();
 }
 
 /**
- * Definieert de module-eigen KnowledgeItem-velden.
+ * Reconciles the canonical configuration after a complete read-only preflight.
+ *
+ * Optional arguments exist solely to make failure paths testable without writes.
  */
-function _brebo_knowledge_field_definitions(): array {
+function _brebo_knowledge_reconcile_configuration(
+  ?StorageInterface $source = NULL,
+  ?StorageInterface $active = NULL,
+  ?callable $schema_validator = NULL,
+  ?array $available_modules = NULL,
+): void {
+  $names = _brebo_knowledge_config_names();
+  $module_path = \Drupal::service('extension.list.module')->getPath('brebo_knowledge');
+  $source ??= new FileStorage($module_path . '/config/install');
+  $active ??= \Drupal::service('config.storage');
+
+  $errors = [];
+  $source_names = $source->listAll();
+  sort($source_names);
+  $expected_names = $names;
+  sort($expected_names);
+  foreach (array_diff($expected_names, $source_names) as $name) {
+    $errors[] = "$name: canoniek bronobject ontbreekt";
+  }
+  foreach (array_diff($source_names, $expected_names) as $name) {
+    $errors[] = "$name: onverwacht bronobject";
+  }
+
+  $source_data = [];
+  $typed = \Drupal::service('config.typed');
+  $schema_validator ??= static function (string $name, array $data) use ($typed): ?string {
+    if (!$typed->hasConfigSchema($name)) {
+      return 'geldig configuratieschema ontbreekt';
+    }
+    try {
+      // Raw install configuration intentionally has no generated UUID and may
+      // refer to canonical dependencies created later in the same write phase.
+      // Creating and traversing typed data verifies schema and value structure;
+      // references are validated separately below and after installation.
+      $typed->createFromNameAndData($name, $data)->getValue();
+      return NULL;
+    }
+    catch (\Throwable $exception) {
+      return 'configuratiestructuur kon niet worden gevalideerd: ' . $exception->getMessage();
+    }
+  };
+
+  foreach ($names as $name) {
+    $data = $source->read($name);
+    if (!is_array($data)) {
+      $errors[] = "$name: bronobject is niet leesbaar";
+      continue;
+    }
+    $source_data[$name] = $data;
+    if ($error = $schema_validator($name, $data)) {
+      $errors[] = "$name: $error";
+    }
+  }
+
+  $module_handler = \Drupal::service('module_handler');
+  $available_modules ??= array_keys(\Drupal::service('extension.list.module')->getList());
+  foreach ($source_data as $name => $data) {
+    foreach (($data['dependencies']['module'] ?? []) as $module) {
+      if (!in_array($module, $available_modules, TRUE) || !$module_handler->moduleExists($module)) {
+        $errors[] = "$name: moduledependency $module ontbreekt of is niet actief";
+      }
+    }
+    foreach (($data['dependencies']['enforced']['module'] ?? []) as $module) {
+      if (!in_array($module, $available_modules, TRUE) || !$module_handler->moduleExists($module)) {
+        $errors[] = "$name: enforced moduledependency $module ontbreekt of is niet actief";
+      }
+    }
+    foreach (($data['dependencies']['config'] ?? []) as $dependency) {
+      if (!isset($source_data[$dependency]) && !$active->exists($dependency)) {
+        $errors[] = "$name: configdependency $dependency ontbreekt";
+      }
+    }
+  }
+
+  $relevant = _brebo_knowledge_relevant_active_names($active);
+  $unexpected = array_values(array_diff($relevant, $names));
+  foreach ($unexpected as $name) {
+    $errors[] = "$name: legacy-, extra-, viewdisplay- of orphanconfiguratie binnen BREBO Knowledge-scope";
+  }
+
+  $existing = [];
+  $missing = [];
+  foreach ($names as $name) {
+    if (!$active->exists($name)) {
+      $missing[] = $name;
+      continue;
+    }
+    $existing[] = $name;
+    $data = $active->read($name);
+    if (!is_array($data)) {
+      $errors[] = "$name: actieve configuratie is niet leesbaar";
+      continue;
+    }
+    $differences = _brebo_knowledge_config_differences($source_data[$name] ?? [], $data);
+    if ($differences) {
+      $errors[] = "$name: wijkt af op " . implode(', ', $differences);
+    }
+  }
+
+  $existing_count = count($existing);
+  if ($existing_count > 0 && $existing_count < count($names)) {
+    $errors[] = sprintf(
+      'Partiële canonieke set: %d van 16 doelobjecten aanwezig (%s); verwacht exact 0 of exact 16; uitvoering is vóór schrijven gestopt en er is geen configuratiewijziging uitgevoerd',
+      $existing_count,
+      implode(', ', $existing),
+    );
+  }
+
+  _brebo_knowledge_validate_relations($source_data, $errors);
+  if ($errors) {
+    throw new UpdateException("BREBO Knowledge-preflight geweigerd; er is niets gewijzigd:\n- " . implode("\n- ", array_unique($errors)));
+  }
+  if (!$missing) {
+    return;
+  }
+
+  // The preflight proved that none of the canonical objects exist and that the
+  // bounded active configuration scope is conflict-free. Only now may Drupal
+  // create the complete canonical set.
+  \Drupal::service('config.installer')->installDefaultConfig('module', 'brebo_knowledge');
+
+  $post_errors = [];
+  foreach ($names as $name) {
+    if (!$active->exists($name)) {
+      $post_errors[] = "$name: ontbreekt na schrijven";
+      continue;
+    }
+    $differences = _brebo_knowledge_config_differences($source_data[$name], $active->read($name) ?: []);
+    if ($differences) {
+      $post_errors[] = "$name: wijkt na schrijven af op " . implode(', ', $differences);
+    }
+  }
+  $post_extra = array_values(array_diff(_brebo_knowledge_relevant_active_names($active), $names));
+  foreach ($post_extra as $name) {
+    $post_errors[] = "$name: onverwacht object na schrijven";
+  }
+  if ($post_errors) {
+    throw new UpdateException("BREBO Knowledge-postcondition mislukt:\n- " . implode("\n- ", $post_errors));
+  }
+}
+
+/** Returns the sixteen canonical configuration names in dependency order. */
+function _brebo_knowledge_config_names(): array {
+  $fields = ['observation', 'meaning', 'risk', 'next_step', 'basis', 'regie', 'realization'];
   return [
-    'field_brebo_stable_id' => [
-      'label' => 'Stabiele ID',
-      'description' => 'Systeembeheerde, onveranderlijke functionele identifier.',
-      'type' => 'string',
-      'required' => TRUE,
-      'settings' => ['max_length' => 9],
-      'form' => ['type' => 'string_textfield', 'weight' => -10, 'settings' => ['size' => 20, 'placeholder' => 'Wordt automatisch toegekend']],
-      'view' => ['type' => 'string', 'label' => 'above', 'weight' => -10],
-    ],
-    'field_brebo_observation' => [
-      'label' => 'Waarneming',
-      'description' => 'Feitelijke waarneming of onderhoudsvraag.',
-      'type' => 'text_long',
-      'required' => TRUE,
-      'form' => ['type' => 'text_textarea', 'weight' => 10, 'settings' => ['rows' => 6]],
-      'view' => ['type' => 'text_default', 'label' => 'above', 'weight' => 10],
-    ],
-    'field_brebo_meaning' => [
-      'label' => 'Betekenis',
-      'description' => 'Betekenis en duiding van de waarneming.',
-      'type' => 'text_long',
-      'required' => TRUE,
-      'form' => ['type' => 'text_textarea', 'weight' => 20, 'settings' => ['rows' => 6]],
-      'view' => ['type' => 'text_default', 'label' => 'above', 'weight' => 20],
-    ],
-    'field_brebo_urgency' => [
-      'label' => 'Urgentie',
-      'description' => 'Gesloten urgentieduiding.',
-      'type' => 'list_string',
-      'required' => TRUE,
-      'settings' => ['allowed_values' => ['low' => 'Laag', 'normal' => 'Normaal', 'high' => 'Hoog', 'critical' => 'Kritiek']],
-      'form' => ['type' => 'options_select', 'weight' => 30],
-      'view' => ['type' => 'list_default', 'label' => 'above', 'weight' => 30],
-    ],
-    'field_brebo_first_step' => [
-      'label' => 'Eerste stap',
-      'description' => 'Aanbevolen eerste onderzoek of handeling.',
-      'type' => 'text_long',
-      'required' => TRUE,
-      'form' => ['type' => 'text_textarea', 'weight' => 40, 'settings' => ['rows' => 5]],
-      'view' => ['type' => 'text_default', 'label' => 'above', 'weight' => 40],
-    ],
-    'field_brebo_risks' => [
-      'label' => 'Risico’s',
-      'description' => 'Relevante risico’s en mogelijke gevolgen.',
-      'type' => 'text_long',
-      'required' => FALSE,
-      'form' => ['type' => 'text_textarea', 'weight' => 50, 'settings' => ['rows' => 5]],
-      'view' => ['type' => 'text_default', 'label' => 'above', 'weight' => 50],
-    ],
-    'field_brebo_lens_stages' => [
-      'label' => 'BREBO Lens-fasen',
-      'description' => 'Gesloten waarden: Inzicht, Regie en Realisatie.',
-      'type' => 'list_string',
-      'required' => FALSE,
-      'cardinality' => -1,
-      'settings' => ['allowed_values' => ['insight' => 'Inzicht', 'direction' => 'Regie', 'realisation' => 'Realisatie']],
-      'form' => ['type' => 'options_buttons', 'weight' => 60],
-      'view' => ['type' => 'list_default', 'label' => 'above', 'weight' => 60],
-    ],
-    'field_brebo_lifecycle_status' => [
-      'label' => 'Lifecycle-status',
-      'description' => 'Functionele status van de kennisbijdrage.',
-      'type' => 'list_string',
-      'required' => TRUE,
-      'settings' => ['allowed_values' => ['concept' => 'Concept', 'published' => 'Gepubliceerd', 'archived' => 'Gearchiveerd']],
-      'default_value' => [['value' => 'concept']],
-      'form' => ['type' => 'options_select', 'weight' => 70],
-      'view' => ['type' => 'list_default', 'label' => 'above', 'weight' => 70],
-    ],
+    'node.type.brebo_knowledge_item',
+    ...array_map(static fn(string $field): string => "field.storage.node.field_knowledge_$field", $fields),
+    ...array_map(static fn(string $field): string => "field.field.node.brebo_knowledge_item.field_knowledge_$field", $fields),
+    'core.entity_form_display.node.brebo_knowledge_item.default',
   ];
 }
 
-/**
- * Maakt veldopslag en veldinstantie conflictveilig aan.
- */
-function _brebo_knowledge_ensure_field(string $field_name, array $definition): void {
-  $storage = FieldStorageConfig::loadByName('node', $field_name);
-  $cardinality = $definition['cardinality'] ?? 1;
-
-  if (!$storage) {
-    $storage = FieldStorageConfig::create([
-      'field_name' => $field_name,
-      'entity_type' => 'node',
-      'type' => $definition['type'],
-      'cardinality' => $cardinality,
-      'settings' => $definition['settings'] ?? [],
-      'translatable' => TRUE,
-    ]);
-    $storage->save();
+/** Finds all active configuration that can conflict with this bounded scope. */
+function _brebo_knowledge_relevant_active_names(StorageInterface $active): array {
+  $names = [];
+  foreach ($active->listAll() as $name) {
+    if (preg_match('/^(node\.type\.brebo_knowledge|field\.storage\.[^.]+\.field_(?:knowledge|brebo)_|field\.field\.[^.]+\.[^.]+\.field_(?:knowledge|brebo)_|core\.entity_(?:form|view)_display\.[^.]+\.brebo_knowledge)/', $name)) {
+      $names[] = $name;
+      continue;
+    }
+    $data = $active->read($name);
+    if (is_array($data) && preg_match('/^core\.entity_(?:form|view)_display\./', $name)) {
+      foreach (array_keys(($data['content'] ?? []) + ($data['hidden'] ?? [])) as $component) {
+        if (str_starts_with((string) $component, 'field_knowledge_') || str_starts_with((string) $component, 'field_brebo_')) {
+          $names[] = $name;
+          break;
+        }
+      }
+    }
   }
-  elseif ($storage->getType() !== $definition['type'] || $storage->getCardinality() !== $cardinality) {
-    throw new RuntimeException(sprintf('Conflicterende veldopslag voor %s. Installatie is gestopt.', $field_name));
-  }
+  sort($names);
+  return array_values(array_unique($names));
+}
 
-  $field = FieldConfig::loadByName('node', 'brebo_knowledge_item', $field_name);
-  if (!$field) {
-    $field = FieldConfig::create([
-      'field_storage' => $storage,
-      'bundle' => 'brebo_knowledge_item',
-      'label' => $definition['label'],
-      'description' => $definition['description'],
-      'required' => $definition['required'],
-      'translatable' => TRUE,
-      'default_value' => $definition['default_value'] ?? [],
-    ]);
-    $field->save();
+/** Compares every source property plus complete dependencies and display hidden. */
+function _brebo_knowledge_config_differences(array $expected, array $actual): array {
+  unset($actual['uuid'], $actual['_core']);
+  unset($expected['uuid'], $expected['_core']);
+  // Config entities add provider dependencies deterministically on save.
+  if (isset($expected['field_name'], $expected['entity_type'])) {
+    if (isset($expected['bundle'])) {
+      $expected['dependencies']['module'][] = 'text';
+    }
+    else {
+      $expected['dependencies']['module'][] = 'node';
+    }
+  }
+  _brebo_knowledge_normalize_semantic_config($expected);
+  _brebo_knowledge_normalize_semantic_config($actual);
+  $differences = [];
+  _brebo_knowledge_compare_value($expected, $actual, '', $differences);
+  return $differences;
+}
+
+/** Normalizes only semantically unordered/empty configuration containers. */
+function _brebo_knowledge_normalize_semantic_config(array &$data, string $path = ''): void {
+  foreach ($data as $key => &$value) {
+    if (is_array($value)) {
+      $child = $path === '' ? (string) $key : "$path.$key";
+      _brebo_knowledge_normalize_semantic_config($value, $child);
+      if ($value === []) {
+        unset($data[$key]);
+      }
+      elseif (in_array($child, ['dependencies.config', 'dependencies.module', 'dependencies.enforced.module'], TRUE)) {
+        $value = array_values(array_unique($value));
+        sort($value);
+      }
+    }
+  }
+  unset($value);
+  if (!array_is_list($data)) {
+    ksort($data);
   }
 }
 
-/**
- * Richt redactionele en volledige weergave in.
- */
-function _brebo_knowledge_configure_displays(array $fields): void {
-  $form_display = EntityFormDisplay::load('node.brebo_knowledge_item.default')
-    ?: EntityFormDisplay::create([
-      'targetEntityType' => 'node',
-      'bundle' => 'brebo_knowledge_item',
-      'mode' => 'default',
-      'status' => TRUE,
-    ]);
-
-  $view_display = EntityViewDisplay::load('node.brebo_knowledge_item.default')
-    ?: EntityViewDisplay::create([
-      'targetEntityType' => 'node',
-      'bundle' => 'brebo_knowledge_item',
-      'mode' => 'default',
-      'status' => TRUE,
-    ]);
-
-  foreach ($fields as $field_name => $definition) {
-    $form_display->setComponent($field_name, $definition['form']);
-    $view_display->setComponent($field_name, $definition['view']);
+/** Recursively compares associative maps independent of key order. */
+function _brebo_knowledge_compare_value(mixed $expected, mixed $actual, string $path, array &$differences): void {
+  if (is_array($expected) && is_array($actual)) {
+    foreach (array_unique([...array_keys($expected), ...array_keys($actual)]) as $key) {
+      $child = $path === '' ? (string) $key : "$path.$key";
+      if (!array_key_exists($key, $expected) || !array_key_exists($key, $actual)) {
+        $differences[] = $child;
+      }
+      else {
+        _brebo_knowledge_compare_value($expected[$key], $actual[$key], $child, $differences);
+      }
+    }
+    return;
   }
+  if ($expected !== $actual) {
+    $differences[] = $path;
+  }
+}
 
-  $form_display->save();
-  $view_display->save();
+/** Validates canonical IDs, entity/bundle links and dependency ordering. */
+function _brebo_knowledge_validate_relations(array $data, array &$errors): void {
+  foreach (_brebo_knowledge_config_names() as $name) {
+    if (!isset($data[$name])) {
+      continue;
+    }
+    $item = $data[$name];
+    if (str_starts_with($name, 'field.storage.')) {
+      $expected_id = $item['entity_type'] . '.' . $item['field_name'];
+    }
+    elseif (str_starts_with($name, 'field.field.')) {
+      $expected_id = $item['entity_type'] . '.' . $item['bundle'] . '.' . $item['field_name'];
+      $storage = 'field.storage.' . $item['entity_type'] . '.' . $item['field_name'];
+      $bundle = 'node.type.' . $item['bundle'];
+      if (!isset($data[$storage], $data[$bundle])) {
+        $errors[] = "$name: orphan of ongeldige storage-/bundlekoppeling";
+      }
+    }
+    elseif (str_starts_with($name, 'core.entity_form_display.')) {
+      $expected_id = $item['targetEntityType'] . '.' . $item['bundle'] . '.' . $item['mode'];
+      if (!isset($data['node.type.' . $item['bundle']])) {
+        $errors[] = "$name: orphan display zonder bundle";
+      }
+    }
+    else {
+      $expected_id = $item['type'] ?? '';
+    }
+    if (($item['id'] ?? $item['type'] ?? NULL) !== $expected_id) {
+      $errors[] = "$name: configuratie-ID of entity-/bundlekoppeling is ongeldig";
+    }
+  }
 }

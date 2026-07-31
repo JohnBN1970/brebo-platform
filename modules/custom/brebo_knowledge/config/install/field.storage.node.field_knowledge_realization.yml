@@ -1,0 +1,20 @@
+langcode: nl
+status: true
+dependencies:
+  module:
+    - text
+  enforced:
+    module:
+      - brebo_knowledge
+id: node.field_knowledge_realization
+field_name: field_knowledge_realization
+entity_type: node
+type: text_long
+settings: {}
+module: text
+locked: false
+cardinality: 1
+translatable: false
+indexes: {}
+persist_with_no_fields: false
+custom_storage: false

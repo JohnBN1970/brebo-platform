@@ -1,0 +1,22 @@
+langcode: nl
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_knowledge_risk
+    - node.type.brebo_knowledge_item
+  enforced:
+    module:
+      - brebo_knowledge
+id: node.brebo_knowledge_item.field_knowledge_risk
+field_name: field_knowledge_risk
+entity_type: node
+bundle: brebo_knowledge_item
+label: 'Risico en urgentie'
+description: 'Beschrijf gevolgen, veiligheidsrisico’s, mogelijke vervolgschade en de reden om wel of niet direct te handelen.'
+required: true
+translatable: false
+default_value: []
+default_value_callback: ''
+settings:
+  allowed_formats: []
+field_type: text_long

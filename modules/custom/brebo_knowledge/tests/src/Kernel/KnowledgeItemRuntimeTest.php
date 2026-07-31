@@ -4,173 +4,267 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\brebo_knowledge\Kernel;
 
-use Drupal\Core\Entity\EntityStorageException;
-use Drupal\Core\Session\UserSession;
+use Drupal\Core\Config\FileStorage;
+use Drupal\Core\Config\MemoryStorage;
+use Drupal\Core\Config\StorageInterface;
+use Drupal\Core\Utility\UpdateException;
 use Drupal\KernelTests\KernelTestBase;
-use Drupal\node\Entity\Node;
-use Drupal\user\Entity\Role;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
- * Test de minimale KnowledgeItem-runtime.
- *
- * @group brebo_knowledge
+ * Tests the fail-closed KnowledgeItem Mapping 1.2 reconciler.
  */
 #[RunTestsInSeparateProcesses]
 final class KnowledgeItemRuntimeTest extends KernelTestBase {
 
-  protected static $modules = [
-    'system',
-    'user',
-    'field',
-    'text',
-    'options',
-    'node',
-    'brebo_knowledge',
-  ];
+  /**
+   * {@inheritdoc}
+   */
+  protected static $modules = ['system', 'user', 'field', 'text', 'node', 'brebo_knowledge'];
 
+  /**
+   * {@inheritdoc}
+   */
   protected function setUp(): void {
     parent::setUp();
     $this->installEntitySchema('user');
     $this->installEntitySchema('node');
     $this->installSchema('node', ['node_access']);
-    $this->installConfig(['field', 'node', 'user']);
+    $this->installConfig(['field', 'node']);
     $this->container->get('module_handler')->loadInclude('brebo_knowledge', 'install');
-    brebo_knowledge_install();
-    $this->setCurrentAccount(1, []);
   }
 
-  public function testBundleFieldsIdentityLifecycleAndRevisions(): void {
-    $node = $this->createKnowledgeItem('concept');
-
-    self::assertSame('KI-000001', $node->get('field_brebo_stable_id')->value);
-    self::assertFalse($node->isPublished());
-
-    $storage = $this->container->get('entity_type.manager')->getStorage('node');
-    self::assertCount(1, $storage->revisionIds($node));
-
-    $node->set('field_brebo_lifecycle_status', 'published');
-    $node->save();
-    self::assertTrue($node->isPublished());
-    self::assertSame('KI-000001', $node->get('field_brebo_stable_id')->value);
-    self::assertCount(2, $storage->revisionIds($node));
-
-    $node->set('field_brebo_lifecycle_status', 'archived');
-    $node->save();
-    self::assertFalse($node->isPublished());
-    self::assertCount(3, $storage->revisionIds($node));
+  /**
+   * Tests exact creation and a write-free second execution.
+   */
+  public function testSuccessfulExecutionIsExactAndIdempotent(): void {
+    brebo_knowledge_update_11001();
+    $first = $this->snapshot();
+    self::assertSame(_brebo_knowledge_config_names(), array_values(array_intersect(_brebo_knowledge_config_names(), array_keys($first))));
+    self::assertCount(16, _brebo_knowledge_relevant_active_names($this->active()));
+    brebo_knowledge_update_11001();
+    self::assertSame($first, $this->snapshot());
   }
 
-  public function testDeletedStableIdIsNeverReused(): void {
-    $first = $this->createKnowledgeItem('concept');
-    self::assertSame('KI-000001', $first->get('field_brebo_stable_id')->value);
-    $first->delete();
-
-    $second = $this->createKnowledgeItem('concept', 'Tweede kennisbijdrage');
-    self::assertSame('KI-000002', $second->get('field_brebo_stable_id')->value);
+  /**
+   * Tests that one canonically equal target object is rejected write-free.
+   */
+  public function testOneCanonicalObjectFailsWriteFree(): void {
+    $this->installCanonical();
+    foreach (array_slice(_brebo_knowledge_config_names(), 1) as $name) {
+      $this->active()->delete($name);
+    }
+    $this->assertRejectedWithoutWrites(
+      $this->source(),
+      NULL,
+      'Partiële canonieke set: 1 van 16',
+    );
   }
 
-  public function testStableIdCannotBeChangedOrDuplicated(): void {
-    $first = $this->createKnowledgeItem('concept');
+  /**
+   * Tests that fifteen canonically equal target objects are rejected.
+   *
+   * The rejection must be write-free.
+   */
+  public function testFifteenCanonicalObjectsFailWriteFree(): void {
+    $this->installCanonical();
+    $names = _brebo_knowledge_config_names();
+    $this->active()->delete(end($names));
+    $this->assertRejectedWithoutWrites(
+      $this->source(),
+      NULL,
+      'Partiële canonieke set: 15 van 16',
+    );
+  }
 
-    $first->set('field_brebo_stable_id', 'KI-000999');
+  /**
+   * Tests a missing source object.
+   */
+  public function testMissingSourceFailsWriteFree(): void {
+    $source = $this->memorySource();
+    $source->delete('field.storage.node.field_knowledge_basis');
+    $this->assertRejectedWithoutWrites($source, NULL, 'bronobject ontbreekt');
+  }
+
+  /**
+   * Tests a source object without a schema.
+   */
+  public function testInvalidSchemaFailsWriteFree(): void {
+    $validator = static fn(string $name): ?string => str_contains($name, 'field_knowledge_basis') ? 'geldig configuratieschema ontbreekt' : NULL;
+    $this->assertRejectedWithoutWrites($this->source(), $validator, 'configuratieschema ontbreekt');
+  }
+
+  /**
+   * Tests an unavailable module dependency.
+   */
+  public function testMissingModuleDependencyFailsWriteFree(): void {
+    $source = $this->memorySource();
+    $data = $source->read('field.storage.node.field_knowledge_basis');
+    $data['dependencies']['module'][] = 'missing_module';
+    $source->write('field.storage.node.field_knowledge_basis', $data);
+    $this->assertRejectedWithoutWrites($source, NULL, 'missing_module');
+  }
+
+  /**
+   * Tests an unavailable configuration dependency.
+   */
+  public function testMissingConfigDependencyFailsWriteFree(): void {
+    $source = $this->memorySource();
+    $data = $source->read('field.field.node.brebo_knowledge_item.field_knowledge_basis');
+    $data['dependencies']['config'][] = 'node.type.missing_bundle';
+    $source->write('field.field.node.brebo_knowledge_item.field_knowledge_basis', $data);
+    $this->assertRejectedWithoutWrites($source, NULL, 'node.type.missing_bundle');
+  }
+
+  /**
+   * Tests differing active dependencies.
+   */
+  public function testDependenciesDifferenceFailsWriteFree(): void {
+    $this->installCanonical();
+    $this->mutateActive('field.storage.node.field_knowledge_basis', static function (array &$data): void {
+      $data['dependencies']['module'][] = 'system';
+    });
+    $this->assertRejectedWithoutWrites($this->source(), NULL, 'dependencies.module');
+  }
+
+  /**
+   * Tests a differing hidden display component.
+   */
+  public function testHiddenDifferenceFailsWriteFree(): void {
+    $this->installCanonical();
+    $this->mutateActive('core.entity_form_display.node.brebo_knowledge_item.default', static function (array &$data): void {
+      $data['hidden']['field_knowledge_basis'] = TRUE;
+    });
+    $this->assertRejectedWithoutWrites($this->source(), NULL, 'hidden');
+  }
+
+  /**
+   * Tests a differing normative field property.
+   */
+  public function testRelevantPropertyDifferenceFailsWriteFree(): void {
+    $this->installCanonical();
+    $this->mutateActive('field.field.node.brebo_knowledge_item.field_knowledge_basis', static function (array &$data): void {
+      $data['required'] = FALSE;
+    });
+    $this->assertRejectedWithoutWrites($this->source(), NULL, 'required');
+  }
+
+  /**
+   * Tests legacy configuration.
+   */
+  public function testLegacyConfigurationFailsWriteFree(): void {
+    $this->active()->write('field.storage.node.field_brebo_legacy', ['id' => 'node.field_brebo_legacy']);
+    $this->assertRejectedWithoutWrites($this->source(), NULL, 'legacy-');
+  }
+
+  /**
+   * Tests extra configuration in the bounded scope.
+   */
+  public function testExtraConfigurationFailsWriteFree(): void {
+    $this->active()->write('field.storage.node.field_knowledge_extra', ['id' => 'node.field_knowledge_extra']);
+    $this->assertRejectedWithoutWrites($this->source(), NULL, 'extra-');
+  }
+
+  /**
+   * Tests differing partial configuration.
+   */
+  public function testPartialDifferentConfigurationFailsWriteFree(): void {
+    $data = $this->source()->read('node.type.brebo_knowledge_item');
+    $data['name'] = 'Afwijkend';
+    $this->active()->write('node.type.brebo_knowledge_item', $data);
+    $this->assertRejectedWithoutWrites($this->source(), NULL, 'name');
+  }
+
+  /**
+   * Tests a conflicting bundle link.
+   */
+  public function testConflictingBundleLinkFailsWriteFree(): void {
+    $name = 'field.field.node.wrong_bundle.field_knowledge_basis';
+    $this->active()->write($name, [
+      'id' => 'node.wrong_bundle.field_knowledge_basis',
+      'entity_type' => 'node',
+      'bundle' => 'wrong_bundle',
+      'field_name' => 'field_knowledge_basis',
+    ]);
+    $this->assertRejectedWithoutWrites(
+      $this->source(),
+      NULL,
+      'legacy-, extra-, viewdisplay- of orphanconfiguratie',
+    );
+  }
+
+  /**
+   * Tests an orphan field instance.
+   */
+  public function testOrphanConfigurationFailsWriteFree(): void {
+    $this->active()->write('field.field.node.brebo_knowledge_item.field_brebo_orphan', ['id' => 'node.brebo_knowledge_item.field_brebo_orphan']);
+    $this->assertRejectedWithoutWrites($this->source(), NULL, 'orphanconfiguratie');
+  }
+
+  /**
+   * Asserts that a rejected preflight did not write configuration.
+   */
+  private function assertRejectedWithoutWrites(StorageInterface $source, ?callable $validator, string $message): void {
+    $before = $this->snapshot();
     try {
-      $first->save();
-      self::fail('Wijzigen van een stable ID had moeten mislukken.');
+      _brebo_knowledge_reconcile_configuration($source, $this->active(), $validator);
+      self::fail('Preflight had moeten blokkeren.');
     }
-    catch (EntityStorageException $exception) {
-      self::assertStringContainsString('onveranderlijk', $exception->getMessage());
+    catch (UpdateException $exception) {
+      self::assertStringContainsString($message, $exception->getMessage());
     }
-
-    $duplicate = Node::create([
-      'type' => 'brebo_knowledge_item',
-      'title' => 'Duplicaat',
-      'status' => FALSE,
-      'field_brebo_stable_id' => 'KI-000001',
-      'field_brebo_observation' => 'Observatie',
-      'field_brebo_meaning' => 'Betekenis',
-      'field_brebo_urgency' => 'normal',
-      'field_brebo_first_step' => 'Eerste stap',
-      'field_brebo_lifecycle_status' => 'concept',
-    ]);
-    $duplicate->setUnpublished();
-
-    $this->expectException(EntityStorageException::class);
-    $this->expectExceptionMessage('bestaat al');
-    $duplicate->save();
+    self::assertSame($before, $this->snapshot(), 'Afgewezen preflight moet write-free zijn.');
   }
 
-  public function testProgrammaticPublicationRequiresPermission(): void {
-    $node = $this->createKnowledgeItem('concept');
-    $this->setCurrentAccount(2, []);
-
-    $node->set('field_brebo_lifecycle_status', 'published');
-    $this->expectException(EntityStorageException::class);
-    $this->expectExceptionMessage('Geen toestemming');
-    $node->save();
+  /**
+   * Installs the canonical configuration.
+   */
+  private function installCanonical(): void {
+    brebo_knowledge_update_11001();
   }
 
-  public function testPublishedContentCannotBeChangedWithoutPublishPermission(): void {
-    $node = $this->createKnowledgeItem('published');
-    $this->setCurrentAccount(2, ['edit any brebo knowledge items']);
-
-    $node->setTitle('Onbevoegd gewijzigde publieke titel');
-    $this->expectException(EntityStorageException::class);
-    $this->expectExceptionMessage('Geen toestemming');
-    $node->save();
+  /**
+   * Returns active configuration storage.
+   */
+  private function active(): StorageInterface {
+    return $this->container->get('config.storage');
   }
 
-  public function testAuthorizedPublisherCanChangePublishedContent(): void {
-    $node = $this->createKnowledgeItem('published');
-    $this->setCurrentAccount(3, [
-      'edit any brebo knowledge items',
-      'publish brebo knowledge items',
-    ]);
-
-    $node->setTitle('Geautoriseerd gewijzigde publieke titel');
-    $node->save();
-
-    self::assertSame('Geautoriseerd gewijzigde publieke titel', $node->label());
-    self::assertTrue($node->isPublished());
+  /**
+   * Returns canonical source storage.
+   */
+  private function source(): StorageInterface {
+    $path = $this->container->get('extension.list.module')->getPath('brebo_knowledge') . '/config/install';
+    return new FileStorage($path);
   }
 
-  private function createKnowledgeItem(string $lifecycle, string $title = 'Testkennisbijdrage'): Node {
-    $node = Node::create([
-      'type' => 'brebo_knowledge_item',
-      'title' => $title,
-      'field_brebo_observation' => 'Er is vochtdoorslag zichtbaar.',
-      'field_brebo_meaning' => 'De gevelschil moet nader worden onderzocht.',
-      'field_brebo_urgency' => 'high',
-      'field_brebo_first_step' => 'Voer een gerichte inspectie uit.',
-      'field_brebo_lifecycle_status' => $lifecycle,
-    ]);
-
-    if ($lifecycle === 'published') {
-      $node->setPublished();
+  /**
+   * Copies canonical source configuration to memory.
+   */
+  private function memorySource(): MemoryStorage {
+    $memory = new MemoryStorage();
+    foreach (_brebo_knowledge_config_names() as $name) {
+      $memory->write($name, $this->source()->read($name));
     }
-    else {
-      $node->setUnpublished();
-    }
-
-    $node->save();
-    return $node;
+    return $memory;
   }
 
-  private function setCurrentAccount(int $uid, array $permissions): void {
-    $role_id = 'runtime_test_' . $uid;
-    $role = Role::load($role_id) ?: Role::create([
-      'id' => $role_id,
-      'label' => 'Runtime test ' . $uid,
-    ]);
-    $role->set('permissions', $permissions);
-    $role->save();
+  /**
+   * Returns a stable snapshot of all active configuration.
+   */
+  private function snapshot(): array {
+    $data = $this->active()->readMultiple($this->active()->listAll());
+    ksort($data);
+    return $data;
+  }
 
-    $account = new UserSession([
-      'uid' => $uid,
-      'name' => 'test-user-' . $uid,
-      'roles' => ['authenticated', $role_id],
-    ]);
-    $this->container->get('current_user')->setAccount($account);
+  /**
+   * Mutates one active object to construct a negative test scenario.
+   */
+  private function mutateActive(string $name, callable $mutator): void {
+    $data = $this->active()->read($name);
+    $mutator($data);
+    $this->active()->write($name, $data);
   }
 
 }

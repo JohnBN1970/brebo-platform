@@ -1,0 +1,19 @@
+langcode: nl
+status: true
+dependencies:
+  enforced:
+    module:
+      - brebo_knowledge
+name: 'Probleemgerichte kennisbijdrage'
+type: brebo_knowledge_item
+description: >
+  Gestructureerde kennisbijdrage die een gebouwsignaal via betekenis,
+  risico en informatieverzameling naar een verantwoorde volgende stap
+  begeleidt.
+help: >
+  Beschrijf algemene gebouw- en onderhoudskennis. Maak onzekerheden
+  expliciet, stel geen individuele diagnose en schrijf zonder voldoende
+  onderzoek geen definitieve maatregel voor.
+new_revision: true
+preview_mode: 1
+display_submitted: false
