@@ -60,7 +60,7 @@ jobs:
             sleep $((attempt * 2))
           done
 
-      - name: Pull website branch and rebuild Drupal cache
+      - name: Pull website branch rebuild cache and diagnose public URL
         env:
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
         shell: bash
@@ -95,6 +95,25 @@ jobs:
             echo "::warning::Drush cache rebuild exited with $cache_rebuild_rc; applying router/render fallback."
             "${drush[@]}" php:eval '\Drupal::service("router.builder")->rebuild(); \Drupal::service("cache.render")->deleteAll(); print "CACHE_REBUILD_MODE=router_render_fallback\n";'
           fi
+
+          echo "===== WEBSITE URL DIAGNOSE ====="
+          echo "DRUPAL_ROOT=$(readlink -f web)"
+          "${drush[@]}" status --fields=uri,root,site --format=list || true
+
+          echo "PUBLIC_HTML_INDEXES_BEGIN"
+          find "$HOME/domains/brebobv.nl/public_html" -maxdepth 3 -type f -name index.php -print 2>/dev/null | sort || true
+          echo "PUBLIC_HTML_INDEXES_END"
+
+          for url in \
+            'https://brebobv.nl/' \
+            'https://brebobv.nl/platform/' \
+            'https://brebobv.nl/platform/web/' \
+            'https://platform.brebobv.nl/' \
+            'https://dev-platform.brebobv.nl/'; do
+            result="$(curl -L -sS -o /dev/null --max-time 15 -w '%{http_code} %{url_effective}' "$url" 2>/dev/null || printf '000 unavailable')"
+            printf 'URL_PROBE=%s -> %s\n' "$url" "$result"
+          done
+          echo "===== WEBSITE URL DIAGNOSE EINDE ====="
 
           deployed_sha="$(git rev-parse HEAD)"
           echo "DEPLOY_OK=1"
