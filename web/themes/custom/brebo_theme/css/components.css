@@ -16,6 +16,7 @@ input[type="submit"] {
   transition:
     background-color var(--brebo-transition),
     border-color var(--brebo-transition),
+    box-shadow var(--brebo-transition),
     transform var(--brebo-transition);
 }
 
@@ -24,6 +25,22 @@ button:hover,
 input[type="submit"]:hover {
   background: #69329f;
   transform: translateY(-1px);
+}
+
+.button:focus-visible,
+button:focus-visible,
+input[type="submit"]:focus-visible,
+a:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--brebo-focus) 35%, transparent);
+  outline-offset: 3px;
+}
+
+.button:disabled,
+button:disabled,
+input[type="submit"]:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  transform: none;
 }
 
 .button--header {
@@ -45,4 +62,47 @@ textarea {
   border: 1px solid var(--brebo-border);
   border-radius: var(--brebo-radius-sm);
   background: #ffffff;
+  color: var(--brebo-text);
+  transition:
+    border-color var(--brebo-transition),
+    box-shadow var(--brebo-transition);
+}
+
+textarea {
+  min-height: 9rem;
+  resize: vertical;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="tel"]:focus,
+input[type="password"]:focus,
+input[type="search"]:focus,
+input[type="url"]:focus,
+input[type="number"]:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--brebo-purple);
+  outline: 0;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--brebo-focus) 18%, transparent);
+}
+
+label {
+  display: inline-block;
+  margin-bottom: 0.4rem;
+  color: var(--brebo-text);
+  font-weight: 700;
+}
+
+.form-item,
+.form-actions {
+  margin-block: 0 1.25rem;
+}
+
+.description,
+.form-item__description {
+  margin-top: 0.4rem;
+  color: var(--brebo-text-muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
 }
