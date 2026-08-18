@@ -40,16 +40,18 @@
   letter-spacing: -0.04em;
 }
 
-/* Centrale beslisroute op Uw gebouw. */
+/* Centrale routes voor gebouwvraag, ondersteuning en verantwoordelijkheid. */
 .brebo-building-route,
-.brebo-support-route {
+.brebo-support-route,
+.brebo-responsibility-route {
   padding-block: clamp(2.5rem, 5vw, 4.5rem);
   background: #ffffff;
   border-bottom: 1px solid rgba(17, 24, 39, 0.1);
 }
 
 .brebo-building-route__eyebrow,
-.brebo-support-route__eyebrow {
+.brebo-support-route__eyebrow,
+.brebo-responsibility-route__eyebrow {
   margin: 0 0 0.75rem;
   color: var(--brebo-purple);
   font-size: 0.75rem;
@@ -59,7 +61,8 @@
 }
 
 .brebo-building-route h2,
-.brebo-support-route h2 {
+.brebo-support-route h2,
+.brebo-responsibility-route h2 {
   max-width: 19ch;
   margin: 0 0 2rem;
   font-size: clamp(1.75rem, 3.4vw, 3rem);
@@ -98,7 +101,8 @@
   line-height: 1.3;
 }
 
-.brebo-support-route__intro {
+.brebo-support-route__intro,
+.brebo-responsibility-route__intro {
   max-width: 68ch;
   margin: -0.75rem 0 2rem;
   color: var(--brebo-text-muted);
@@ -106,13 +110,15 @@
   line-height: 1.65;
 }
 
-.brebo-support-route__grid {
+.brebo-support-route__grid,
+.brebo-responsibility-route__grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1rem;
 }
 
-.brebo-support-route__grid article {
+.brebo-support-route__grid article,
+.brebo-responsibility-route__grid article {
   min-height: 230px;
   padding: clamp(1.4rem, 3vw, 2rem);
   border: 1px solid rgba(17, 24, 39, 0.1);
@@ -120,7 +126,8 @@
   background: var(--brebo-surface);
 }
 
-.brebo-support-route__grid span {
+.brebo-support-route__grid span,
+.brebo-responsibility-route__grid span {
   display: block;
   margin-bottom: 2rem;
   color: var(--brebo-purple);
@@ -128,13 +135,15 @@
   font-weight: 800;
 }
 
-.brebo-support-route__grid h3 {
+.brebo-support-route__grid h3,
+.brebo-responsibility-route__grid h3 {
   margin: 0 0 0.75rem;
   font-size: clamp(1.25rem, 2vw, 1.6rem);
   line-height: 1.2;
 }
 
-.brebo-support-route__grid p {
+.brebo-support-route__grid p,
+.brebo-responsibility-route__grid p {
   margin: 0;
   color: var(--brebo-text-muted);
   line-height: 1.6;
@@ -239,7 +248,8 @@
 
 @media (max-width: 999px) {
   .brebo-building-route__grid,
-  .brebo-support-route__grid {
+  .brebo-support-route__grid,
+  .brebo-responsibility-route__grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -251,17 +261,20 @@
   }
 
   .brebo-building-route__grid,
-  .brebo-support-route__grid {
+  .brebo-support-route__grid,
+  .brebo-responsibility-route__grid {
     grid-template-columns: 1fr;
   }
 
   .brebo-building-route__grid > div,
-  .brebo-support-route__grid article {
+  .brebo-support-route__grid article,
+  .brebo-responsibility-route__grid article {
     min-height: auto;
   }
 
   .brebo-building-route__grid span,
-  .brebo-support-route__grid span {
+  .brebo-support-route__grid span,
+  .brebo-responsibility-route__grid span {
     margin-bottom: 0.75rem;
   }
 
