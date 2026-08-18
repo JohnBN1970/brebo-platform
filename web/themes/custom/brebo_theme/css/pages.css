@@ -40,6 +40,61 @@
   letter-spacing: -0.04em;
 }
 
+/* Centrale beslisroute op Uw gebouw. */
+.brebo-building-route {
+  padding-block: clamp(2.5rem, 5vw, 4.5rem);
+  background: #ffffff;
+  border-bottom: 1px solid rgba(17, 24, 39, 0.1);
+}
+
+.brebo-building-route__eyebrow {
+  margin: 0 0 0.75rem;
+  color: var(--brebo-purple);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.brebo-building-route h2 {
+  max-width: 19ch;
+  margin: 0 0 2rem;
+  font-size: clamp(1.75rem, 3.4vw, 3rem);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+}
+
+.brebo-building-route__grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 1px;
+  overflow: hidden;
+  border: 1px solid rgba(17, 24, 39, 0.1);
+  border-radius: var(--brebo-radius-md);
+  background: rgba(17, 24, 39, 0.1);
+}
+
+.brebo-building-route__grid > div {
+  min-height: 145px;
+  padding: 1.25rem;
+  background: #ffffff;
+}
+
+.brebo-building-route__grid span {
+  display: block;
+  margin-bottom: 2rem;
+  color: var(--brebo-purple);
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.brebo-building-route__grid strong {
+  display: block;
+  max-width: 15ch;
+  font-size: 1rem;
+  line-height: 1.3;
+}
+
 .brebo-inner-page__content {
   padding-block: clamp(3.5rem, 7vw, 7rem);
 }
@@ -137,10 +192,28 @@
   flex: 0 0 auto;
 }
 
+@media (max-width: 999px) {
+  .brebo-building-route__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 767px) {
   .brebo-page-intro__inner,
   .brebo-inner-page__content {
     padding-block: 3rem;
+  }
+
+  .brebo-building-route__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .brebo-building-route__grid > div {
+    min-height: auto;
+  }
+
+  .brebo-building-route__grid span {
+    margin-bottom: 0.75rem;
   }
 
   .brebo-inner-page__content > .field--name-body > p:first-child {
