@@ -1,80 +1,25 @@
-###############################################################################
-# BREBO Platform - Git Ignore
-###############################################################################
+# Composer-built dependencies and Drupal scaffold.
+/vendor/
+/web/core/
+/web/modules/contrib/
+/web/themes/contrib/
+/web/profiles/contrib/
+/web/libraries/
 
-#
-# Drupal runtime and uploads
-#
-sites/*/files/
-sites/*/private/
-sites/simpletest/
+# Runtime and environment-specific Drupal files.
+/web/sites/*/files/
+/web/sites/*/private/
+/web/sites/simpletest/
+/web/sites/*/settings.local.php
+/web/sites/*/services.local.yml
 
-#
-# Local configuration and secrets
-#
-sites/*/settings.local.php
-sites/*/services.local.yml
+# Secrets, databases, logs and local tooling.
 .env
 .env.*
-
-#
-# IDE
-#
-.vscode/
-.idea/
-
-#
-# Operating system
-#
-.DS_Store
-Thumbs.db
-*~
-
-#
-# Logs
-#
-*.log
-error_log
-
-#
-# Temporary files and caches
-#
-tmp/
-cache/
-.phpunit.result.cache
-
-#
-# Node
-#
-node_modules/
-
-#
-# PHPUnit local configuration
-#
-phpunit.xml
-
-#
-# Backups and database exports
-#
 *.sql
 *.sql.gz
-backup/
-backups/
-
-#
-# Local Composer executable
-#
-composer.phar
-
-#
-# Git credentials
-#
-.git-credentials
-
-###############################################################################
-# Important BREBO project decisions
-#
-# - sites/*/settings.php stays in Git.
-# - Sensitive settings belong in settings.local.php.
-# - vendor/ currently stays in Git for the Hostinger deployment workflow.
-###############################################################################
+*.log
+.phpunit.result.cache
+/.idea/
+/.vscode/
+.DS_Store
