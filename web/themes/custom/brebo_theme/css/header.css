@@ -16,14 +16,16 @@
 }
 
 .site-header__inner {
-  min-height: 96px;
+  height: 88px;
+  min-height: 88px;
   display: flex;
   align-items: center;
   transition: min-height var(--brebo-transition);
 }
 
 .site-header.is-scrolled .site-header__inner {
-  min-height: 82px;
+  height: 76px;
+  min-height: 76px;
 }
 
 .region-header {
@@ -57,12 +59,14 @@
 }
 
 .region-header [id*="site-branding"] img,
-.region-header .block-system-branding-block img {
+.region-header .block-system-branding-block img,
+.region-header .site-logo img,
+.region-header a[rel="home"] img {
   display: block;
-  width: 220px !important;
-  height: auto !important;
-  max-width: 220px !important;
-  max-height: 72px !important;
+  width: 190px !important;
+  height: 58px !important;
+  max-width: 190px !important;
+  max-height: 58px !important;
   object-fit: contain;
   transition:
     width var(--brebo-transition),
@@ -70,9 +74,13 @@
 }
 
 .site-header.is-scrolled .region-header [id*="site-branding"] img,
-.site-header.is-scrolled .region-header .block-system-branding-block img {
-  width: 196px !important;
-  max-width: 196px !important;
+.site-header.is-scrolled .region-header .block-system-branding-block img,
+.site-header.is-scrolled .region-header .site-logo img,
+.site-header.is-scrolled .region-header a[rel="home"] img {
+  width: 170px !important;
+  height: 52px !important;
+  max-width: 170px !important;
+  max-height: 52px !important;
 }
 
 .region-header .site-name,
@@ -162,7 +170,8 @@
 @media (max-width: 1023px) {
   .site-header__inner,
   .site-header.is-scrolled .site-header__inner {
-    min-height: 72px;
+    height: 68px;
+    min-height: 68px;
   }
 
   .region-header {
@@ -173,11 +182,16 @@
 
   .region-header [id*="site-branding"] img,
   .region-header .block-system-branding-block img,
+  .region-header .site-logo img,
+  .region-header a[rel="home"] img,
   .site-header.is-scrolled .region-header [id*="site-branding"] img,
-  .site-header.is-scrolled .region-header .block-system-branding-block img {
-    width: 160px !important;
-    max-width: 160px !important;
-    max-height: 50px !important;
+  .site-header.is-scrolled .region-header .block-system-branding-block img,
+  .site-header.is-scrolled .region-header .site-logo img,
+  .site-header.is-scrolled .region-header a[rel="home"] img {
+    width: 145px !important;
+    height: 44px !important;
+    max-width: 145px !important;
+    max-height: 44px !important;
   }
 
   .site-header__cta {
@@ -186,30 +200,5 @@
 
   .site-header__toggle {
     display: inline-flex;
-  }
-}
-
-/* Release 5.1: sterkere BREBO-signatuur zonder de navigatie te verschuiven. */
-.region-header [id*="site-branding"],
-.region-header .block-system-branding-block {
-  width: 220px;
-  overflow: visible;
-}
-
-.region-header [id*="site-branding"] img,
-.region-header .block-system-branding-block img {
-  transform: scale(1.18);
-  transform-origin: left center;
-}
-
-@media (max-width: 1023px) {
-  .region-header [id*="site-branding"],
-  .region-header .block-system-branding-block {
-    width: 160px;
-  }
-
-  .region-header [id*="site-branding"] img,
-  .region-header .block-system-branding-block img {
-    transform: scale(1.12);
   }
 }
