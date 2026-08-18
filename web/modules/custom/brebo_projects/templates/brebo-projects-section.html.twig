@@ -1,13 +1,12 @@
 <section class="brebo-projects" aria-labelledby="brebo-projects-title">
   <div class="brebo-projects__inner">
     <header class="brebo-projects__header">
-      <p class="brebo-projects__eyebrow">Bewezen in de praktijk</p>
+      <p class="brebo-projects__eyebrow">Van vraag naar resultaat</p>
       <h2 class="brebo-projects__title" id="brebo-projects-title">
-        Gebouwen die vandaag beter presteren dan gisteren.
+        Hoe wordt een gebouwvraag in de praktijk opgelost?
       </h2>
       <p class="brebo-projects__intro">
-        Geen twee gebouwen zijn hetzelfde. Daarom begint ieder project met een goed begrip van uw situatie.
-        Vanuit inzicht organiseren we de juiste aanpak en zorgen we voor een uitvoering die past bij uw gebouw én de lange termijn.
+        Een project is pas relevant als u kunt zien welke vraag er speelde, welke afweging is gemaakt en wat het resultaat voor het gebouw en de opdrachtgever was. Daarom laten we projecten vanuit die lijn zien.
       </p>
     </header>
 
@@ -23,7 +22,7 @@
           </a>
 
           <div class="brebo-project__content">
-            <div class="brebo-project__pillars" aria-label="Toegepaste pijlers">
+            <div class="brebo-project__pillars" aria-label="Onderdelen van de aanpak">
               <span class="brebo-project__pillar {{ project.pillars.insight ? 'is-active' : '' }}">
                 <span class="brebo-project__pillar-dot" aria-hidden="true">◉</span>
                 Inzicht
@@ -40,7 +39,7 @@
 
             <div class="brebo-project__body">
               <div class="brebo-project__question">
-                <p class="brebo-project__label">Klantvraag</p>
+                <p class="brebo-project__label">De vraag</p>
                 <h3 class="brebo-project__heading">
                   {{ project.question ?: project.title }}
                 </h3>
@@ -48,13 +47,13 @@
 
               <div class="brebo-project__columns">
                 <div>
-                  <p class="brebo-project__label">Aanpak</p>
+                  <p class="brebo-project__label">De gekozen aanpak</p>
                   <p class="brebo-project__text">{{ project.approach }}</p>
                 </div>
 
                 {% if project.results %}
                   <div>
-                    <p class="brebo-project__label">Resultaat</p>
+                    <p class="brebo-project__label">Wat leverde het op?</p>
                     <ul class="brebo-project__results">
                       {% for result in project.results %}
                         <li>{{ result }}</li>
@@ -66,7 +65,7 @@
             </div>
 
             <a class="brebo-project__link" href="{{ project.url }}">
-              Bekijk project
+              Bekijk vraag, aanpak en resultaat
               <span aria-hidden="true">→</span>
             </a>
           </div>
@@ -76,7 +75,7 @@
 
     <div class="brebo-projects__footer">
       <a class="brebo-projects__all" href="{{ projects_url }}">
-        Bekijk alle projecten
+        Bekijk meer praktijkvoorbeelden
         <span aria-hidden="true">→</span>
       </a>
     </div>
