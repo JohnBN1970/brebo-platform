@@ -44,7 +44,7 @@
 .brebo-building-route,
 .brebo-support-route,
 .brebo-responsibility-route {
-  padding-block: clamp(2.5rem, 5vw, 4.5rem);
+  padding-block: clamp(3rem, 6vw, 5.25rem);
   background: #ffffff;
   border-bottom: 1px solid rgba(17, 24, 39, 0.1);
 }
@@ -52,7 +52,7 @@
 .brebo-building-route__eyebrow,
 .brebo-support-route__eyebrow,
 .brebo-responsibility-route__eyebrow {
-  margin: 0 0 0.75rem;
+  margin: 0 0 0.8rem;
   color: var(--brebo-purple);
   font-size: 0.75rem;
   font-weight: 800;
@@ -63,11 +63,17 @@
 .brebo-building-route h2,
 .brebo-support-route h2,
 .brebo-responsibility-route h2 {
-  max-width: 19ch;
-  margin: 0 0 2rem;
-  font-size: clamp(1.75rem, 3.4vw, 3rem);
+  max-width: 20ch;
+  margin: 0 0 1.25rem;
+  font-size: clamp(1.85rem, 3.4vw, 3rem);
   line-height: 1.08;
   letter-spacing: -0.03em;
+}
+
+.brebo-building-route__grid,
+.brebo-support-route__grid,
+.brebo-responsibility-route__grid {
+  margin-top: clamp(2rem, 4vw, 3rem);
 }
 
 .brebo-building-route__grid {
@@ -81,46 +87,48 @@
 }
 
 .brebo-building-route__grid > div {
-  min-height: 145px;
-  padding: 1.25rem;
+  min-height: 165px;
+  padding: clamp(1.25rem, 2vw, 1.75rem);
   background: #ffffff;
+  scroll-margin-top: 7rem;
 }
 
 .brebo-building-route__grid span {
   display: block;
-  margin-bottom: 2rem;
+  margin-bottom: clamp(1.5rem, 4vw, 2.75rem);
   color: var(--brebo-purple);
   font-size: 0.75rem;
   font-weight: 800;
+  letter-spacing: 0.06em;
 }
 
 .brebo-building-route__grid strong {
   display: block;
   max-width: 15ch;
-  font-size: 1rem;
-  line-height: 1.3;
+  font-size: 1.05rem;
+  line-height: 1.35;
 }
 
 .brebo-support-route__intro,
 .brebo-responsibility-route__intro {
   max-width: 68ch;
-  margin: -0.75rem 0 2rem;
+  margin: 0;
   color: var(--brebo-text-muted);
-  font-size: 1.05rem;
-  line-height: 1.65;
+  font-size: clamp(1rem, 1.5vw, 1.1rem);
+  line-height: 1.7;
 }
 
 .brebo-support-route__grid,
 .brebo-responsibility-route__grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1rem;
+  gap: clamp(0.8rem, 1.5vw, 1.25rem);
 }
 
 .brebo-support-route__grid article,
 .brebo-responsibility-route__grid article {
-  min-height: 230px;
-  padding: clamp(1.4rem, 3vw, 2rem);
+  min-height: 240px;
+  padding: clamp(1.5rem, 3vw, 2.15rem);
   border: 1px solid rgba(17, 24, 39, 0.1);
   border-radius: var(--brebo-radius-md);
   background: var(--brebo-surface);
@@ -129,15 +137,17 @@
 .brebo-support-route__grid span,
 .brebo-responsibility-route__grid span {
   display: block;
-  margin-bottom: 2rem;
+  margin-bottom: clamp(1.75rem, 4vw, 2.75rem);
   color: var(--brebo-purple);
   font-size: 0.75rem;
   font-weight: 800;
+  letter-spacing: 0.06em;
 }
 
 .brebo-support-route__grid h3,
 .brebo-responsibility-route__grid h3 {
-  margin: 0 0 0.75rem;
+  max-width: 22ch;
+  margin: 0 0 0.85rem;
   font-size: clamp(1.25rem, 2vw, 1.6rem);
   line-height: 1.2;
 }
@@ -146,11 +156,11 @@
 .brebo-responsibility-route__grid p {
   margin: 0;
   color: var(--brebo-text-muted);
-  line-height: 1.6;
+  line-height: 1.65;
 }
 
 .brebo-inner-page__content {
-  padding-block: clamp(3.5rem, 7vw, 7rem);
+  padding-block: clamp(4rem, 8vw, 7rem);
 }
 
 .brebo-inner-page__content > .field--name-body {
@@ -221,7 +231,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 2rem;
-  padding-block: clamp(2.5rem, 5vw, 4.5rem);
+  padding-block: clamp(3rem, 6vw, 5rem);
 }
 
 .brebo-inner-page__cta-eyebrow {
@@ -252,10 +262,17 @@
   .brebo-responsibility-route__grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .brebo-building-route__grid > div:last-child {
+    grid-column: 1 / -1;
+  }
 }
 
 @media (max-width: 767px) {
   .brebo-page-intro__inner,
+  .brebo-building-route,
+  .brebo-support-route,
+  .brebo-responsibility-route,
   .brebo-inner-page__content {
     padding-block: 3rem;
   }
@@ -264,6 +281,10 @@
   .brebo-support-route__grid,
   .brebo-responsibility-route__grid {
     grid-template-columns: 1fr;
+  }
+
+  .brebo-building-route__grid > div:last-child {
+    grid-column: auto;
   }
 
   .brebo-building-route__grid > div,
