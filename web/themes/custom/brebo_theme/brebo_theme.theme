@@ -11,11 +11,23 @@
 function brebo_theme_preprocess_node(array &$variables): void {
   $node = $variables['node'] ?? NULL;
 
+  if (!$node) {
+    return;
+  }
+
   if (
-    $node &&
     $node->bundle() === 'dienst' &&
     ($variables['view_mode'] ?? '') === 'full'
   ) {
     $variables['#attached']['library'][] = 'brebo_theme/service-detail';
+  }
+
+  if (
+    $node->bundle() === 'page' &&
+    ($variables['view_mode'] ?? '') === 'full'
+  ) {
+    $system_path = '/node/' . $node->id();
+    $alias = \Drupal::service('path_alias.manager')->getAliasByPath($system_path);
+    $variables['is_uw_gebouw_page'] = rtrim($alias, '/') === '/uw-gebouw';
   }
 }
