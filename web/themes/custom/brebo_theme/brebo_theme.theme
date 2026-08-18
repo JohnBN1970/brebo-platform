@@ -30,5 +30,6 @@ function brebo_theme_preprocess_node(array &$variables): void {
     $alias = rtrim(\Drupal::service('path_alias.manager')->getAliasByPath($system_path), '/');
     $variables['is_uw_gebouw_page'] = $alias === '/uw-gebouw';
     $variables['is_diensten_page'] = $alias === '/diensten';
+    $variables['is_voor_wie_page'] = $alias === '/voor-wie';
   }
 }
