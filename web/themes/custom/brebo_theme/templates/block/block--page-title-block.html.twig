@@ -1,0 +1,10 @@
+{% if content %}
+  <section{{ attributes.addClass('brebo-page-intro') }}>
+    <div class="site-container brebo-page-intro__inner">
+      <p class="brebo-page-intro__eyebrow">{{ 'Uw gebouw centraal'|t }}</p>
+      {{ title_prefix }}
+      {{ content }}
+      {{ title_suffix }}
+    </div>
+  </section>
+{% endif %}
