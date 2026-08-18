@@ -1,20 +1,16 @@
-# Composer-built dependencies and Drupal scaffold.
+# Composer-built Drupal webroot. Only BREBO custom code is versioned.
 /vendor/
-/web/core/
-/web/modules/contrib/
-/web/themes/contrib/
-/web/profiles/contrib/
-/web/libraries/
+/web/*
+!/web/modules/
+!/web/themes/
+/web/modules/*
+!/web/modules/custom/
+!/web/modules/custom/**
+/web/themes/*
+!/web/themes/custom/
+!/web/themes/custom/**
 
-# Runtime and environment-specific Drupal files.
-/web/sites/*/files/
-/web/sites/*/private/
-/web/sites/simpletest/
-/web/sites/*/settings.php
-/web/sites/*/settings.local.php
-/web/sites/*/services.local.yml
-
-# Secrets, databases, logs and local tooling.
+# Runtime and environment-specific files.
 .env
 .env.*
 *.sql
