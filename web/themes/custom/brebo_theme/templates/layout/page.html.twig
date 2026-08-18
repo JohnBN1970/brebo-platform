@@ -5,29 +5,44 @@
     </div>
   {% endif %}
 
-  {% if page.hero %}
+  {% if page.hero and not is_not_found_page %}
     <div class="site-page__hero">
       {{ page.hero }}
     </div>
   {% endif %}
 
-  {% if page.content_top %}
+  {% if page.content_top and not is_not_found_page %}
     <div class="site-page__content-top">
       {{ page.content_top }}
     </div>
   {% endif %}
 
   <main class="site-page__main" id="main-content">
-    {{ page.content }}
+    {% if is_not_found_page %}
+      <section class="brebo-not-found" aria-labelledby="brebo-not-found-title">
+        <div class="site-container brebo-not-found__inner">
+          <p class="brebo-not-found__eyebrow">{{ 'Pagina niet gevonden'|t }}</p>
+          <h1 id="brebo-not-found-title">{{ 'Deze route loopt dood. Uw gebouwvraag hoeft dat niet.'|t }}</h1>
+          <p class="brebo-not-found__lead">{{ 'De pagina die u zoekt bestaat niet of is verplaatst. Ga terug naar uw gebouwvraag, bekijk de hoofdpagina of neem direct contact op.'|t }}</p>
+          <div class="brebo-not-found__actions">
+            <a class="button button--primary" href="/uw-gebouw">{{ 'Naar uw gebouw'|t }}</a>
+            <a class="button" href="/">{{ 'Naar home'|t }}</a>
+            <a class="button" href="/contact">{{ 'Contact'|t }}</a>
+          </div>
+        </div>
+      </section>
+    {% else %}
+      {{ page.content }}
+    {% endif %}
   </main>
 
-  {% if page.content_bottom %}
+  {% if page.content_bottom and not is_not_found_page %}
     <div class="site-page__content-bottom">
       {{ page.content_bottom }}
     </div>
   {% endif %}
 
-  {% if page.cta %}
+  {% if page.cta and not is_not_found_page %}
     <div class="site-page__cta">
       {{ page.cta }}
     </div>
