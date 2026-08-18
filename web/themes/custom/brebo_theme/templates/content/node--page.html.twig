@@ -34,6 +34,33 @@
     </section>
   {% endif %}
 
+  {% if page and is_diensten_page %}
+    <section class="brebo-support-route" aria-labelledby="brebo-support-route-title">
+      <div class="site-container">
+        <p class="brebo-support-route__eyebrow">{{ 'Wat heeft uw gebouw nodig?'|t }}</p>
+        <h2 id="brebo-support-route-title">{{ 'Niet iedere gebouwvraag vraagt om dezelfde rol.'|t }}</h2>
+        <p class="brebo-support-route__intro">{{ 'Soms is eerst onderzoek of advies nodig. Soms vooral regie. En soms is de maatregel al duidelijk en gaat het om goede uitvoering. De juiste ondersteuning volgt uit de gebouwvraag, niet andersom.'|t }}</p>
+        <div class="brebo-support-route__grid">
+          <article>
+            <span>01</span>
+            <h3>{{ 'Eerst duidelijkheid krijgen'|t }}</h3>
+            <p>{{ 'Wanneer oorzaak, omvang, risico of onderhoudsbehoefte nog niet voldoende vaststaat.'|t }}</p>
+          </article>
+          <article>
+            <span>02</span>
+            <h3>{{ 'De aanpak organiseren'|t }}</h3>
+            <p>{{ 'Wanneer keuzes, scope, planning, kosten en betrokken partijen beheerst op elkaar moeten aansluiten.'|t }}</p>
+          </article>
+          <article>
+            <span>03</span>
+            <h3>{{ 'De maatregel realiseren'|t }}</h3>
+            <p>{{ 'Wanneer helder is wat nodig is en uitvoering aantoonbaar volgens afspraak moet plaatsvinden.'|t }}</p>
+          </article>
+        </div>
+      </div>
+    </section>
+  {% endif %}
+
   <div{{ content_attributes.addClass('brebo-inner-page__content', 'site-container') }}>
     {{ content|without('links') }}
   </div>
