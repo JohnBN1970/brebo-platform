@@ -12,116 +12,75 @@
 <article{{ attributes.addClass(classes) }}>
   {{ title_prefix }}
   {% if label and not page %}
-    <h2{{ title_attributes }}>
-      <a href="{{ url }}" rel="bookmark">{{ label }}</a>
-    </h2>
+    <h2{{ title_attributes }}><a href="{{ url }}" rel="bookmark">{{ label }}</a></h2>
   {% endif %}
   {{ title_suffix }}
 
   {% if page and is_uw_gebouw_page %}
-    <section class="brebo-building-route" aria-labelledby="brebo-building-route-title">
-      <div class="site-container">
-        <p class="brebo-building-route__eyebrow">{{ 'Uw beslisroute'|t }}</p>
-        <h2 id="brebo-building-route-title">{{ 'Van eerste signaal naar een beheerste aanpak.'|t }}</h2>
-        <div class="brebo-building-route__grid">
-          <div><span>01</span><strong>{{ 'Wat ziet of ervaart u?'|t }}</strong></div>
-          <div><span>02</span><strong>{{ 'Wat is de oorzaak?'|t }}</strong></div>
-          <div><span>03</span><strong>{{ 'Wat moet eerst?'|t }}</strong></div>
-          <div><span>04</span><strong>{{ 'Wat kan worden gepland?'|t }}</strong></div>
-          <div><span>05</span><strong>{{ 'Hoe houdt u grip?'|t }}</strong></div>
-        </div>
+    <section class="brebo-building-route" aria-labelledby="brebo-building-route-title"><div class="site-container">
+      <p class="brebo-building-route__eyebrow">{{ 'Uw beslisroute'|t }}</p>
+      <h2 id="brebo-building-route-title">{{ 'Van eerste signaal naar een beheerste aanpak.'|t }}</h2>
+      <div class="brebo-building-route__grid">
+        <div><span>01</span><strong>{{ 'Wat ziet of ervaart u?'|t }}</strong></div><div><span>02</span><strong>{{ 'Wat is de oorzaak?'|t }}</strong></div><div><span>03</span><strong>{{ 'Wat moet eerst?'|t }}</strong></div><div><span>04</span><strong>{{ 'Wat kan worden gepland?'|t }}</strong></div><div><span>05</span><strong>{{ 'Hoe houdt u grip?'|t }}</strong></div>
       </div>
-    </section>
+    </div></section>
   {% endif %}
 
   {% if page and is_diensten_page %}
-    <section class="brebo-support-route" aria-labelledby="brebo-support-route-title">
-      <div class="site-container">
-        <p class="brebo-support-route__eyebrow">{{ 'Wat heeft uw gebouw nodig?'|t }}</p>
-        <h2 id="brebo-support-route-title">{{ 'Niet iedere gebouwvraag vraagt om dezelfde rol.'|t }}</h2>
-        <p class="brebo-support-route__intro">{{ 'Soms is eerst onderzoek of advies nodig. Soms vooral regie. En soms is de maatregel al duidelijk en gaat het om goede uitvoering. De juiste ondersteuning volgt uit de gebouwvraag, niet andersom.'|t }}</p>
-        <div class="brebo-support-route__grid">
-          <article><span>01</span><h3>{{ 'Eerst duidelijkheid krijgen'|t }}</h3><p>{{ 'Wanneer oorzaak, omvang, risico of onderhoudsbehoefte nog niet voldoende vaststaat.'|t }}</p></article>
-          <article><span>02</span><h3>{{ 'De aanpak organiseren'|t }}</h3><p>{{ 'Wanneer keuzes, scope, planning, kosten en betrokken partijen beheerst op elkaar moeten aansluiten.'|t }}</p></article>
-          <article><span>03</span><h3>{{ 'De maatregel realiseren'|t }}</h3><p>{{ 'Wanneer helder is wat nodig is en uitvoering aantoonbaar volgens afspraak moet plaatsvinden.'|t }}</p></article>
-        </div>
-      </div>
-    </section>
+    <section class="brebo-support-route" aria-labelledby="brebo-support-route-title"><div class="site-container">
+      <p class="brebo-support-route__eyebrow">{{ 'Wat heeft uw gebouw nodig?'|t }}</p>
+      <h2 id="brebo-support-route-title">{{ 'Niet iedere gebouwvraag vraagt om dezelfde rol.'|t }}</h2>
+      <p class="brebo-support-route__intro">{{ 'Soms is eerst onderzoek of advies nodig. Soms vooral regie. En soms is de maatregel al duidelijk en gaat het om goede uitvoering. De juiste ondersteuning volgt uit de gebouwvraag, niet andersom.'|t }}</p>
+      <div class="brebo-support-route__grid"><article><span>01</span><h3>{{ 'Eerst duidelijkheid krijgen'|t }}</h3><p>{{ 'Wanneer oorzaak, omvang, risico of onderhoudsbehoefte nog niet voldoende vaststaat.'|t }}</p></article><article><span>02</span><h3>{{ 'De aanpak organiseren'|t }}</h3><p>{{ 'Wanneer keuzes, scope, planning, kosten en betrokken partijen beheerst op elkaar moeten aansluiten.'|t }}</p></article><article><span>03</span><h3>{{ 'De maatregel realiseren'|t }}</h3><p>{{ 'Wanneer helder is wat nodig is en uitvoering aantoonbaar volgens afspraak moet plaatsvinden.'|t }}</p></article></div>
+    </div></section>
   {% endif %}
 
   {% if page and is_voor_wie_page %}
-    <section class="brebo-responsibility-route" aria-labelledby="brebo-responsibility-route-title">
-      <div class="site-container">
-        <p class="brebo-responsibility-route__eyebrow">{{ 'Uw verantwoordelijkheid'|t }}</p>
-        <h2 id="brebo-responsibility-route-title">{{ 'U moet beslissingen nemen over een gebouw. Daar begint het.'|t }}</h2>
-        <p class="brebo-responsibility-route__intro">{{ 'Of u nu eigenaar, beheerder, bestuurder of opdrachtgever bent: u wilt kunnen uitleggen waarom een maatregel nodig is, waarom die nu moet en wat die betekent voor risico, kosten, gebruik en lange termijn.'|t }}</p>
-        <div class="brebo-responsibility-route__grid">
-          <article><span>01</span><h3>{{ 'U bent verantwoordelijk voor de technische staat'|t }}</h3><p>{{ 'U wilt weten wat er speelt, welke risico’s aanwezig zijn en welke onderhoudsbehoefte werkelijk bestaat.'|t }}</p></article>
-          <article><span>02</span><h3>{{ 'U moet keuzes en budget kunnen onderbouwen'|t }}</h3><p>{{ 'U wilt onderscheid kunnen maken tussen urgent, noodzakelijk en planbaar werk, met zicht op gevolgen en kosten.'|t }}</p></article>
-          <article><span>03</span><h3>{{ 'U wilt grip houden op het vervolg'|t }}</h3><p>{{ 'U wilt duidelijkheid over scope, planning, kwaliteit, verantwoordelijkheid en het aantoonbare resultaat.'|t }}</p></article>
-        </div>
-      </div>
-    </section>
+    <section class="brebo-responsibility-route" aria-labelledby="brebo-responsibility-route-title"><div class="site-container">
+      <p class="brebo-responsibility-route__eyebrow">{{ 'Uw verantwoordelijkheid'|t }}</p>
+      <h2 id="brebo-responsibility-route-title">{{ 'U moet beslissingen nemen over een gebouw. Daar begint het.'|t }}</h2>
+      <p class="brebo-responsibility-route__intro">{{ 'Of u nu eigenaar, beheerder, bestuurder of opdrachtgever bent: u wilt kunnen uitleggen waarom een maatregel nodig is, waarom die nu moet en wat die betekent voor risico, kosten, gebruik en lange termijn.'|t }}</p>
+      <div class="brebo-responsibility-route__grid"><article><span>01</span><h3>{{ 'U bent verantwoordelijk voor de technische staat'|t }}</h3><p>{{ 'U wilt weten wat er speelt, welke risico’s aanwezig zijn en welke onderhoudsbehoefte werkelijk bestaat.'|t }}</p></article><article><span>02</span><h3>{{ 'U moet keuzes en budget kunnen onderbouwen'|t }}</h3><p>{{ 'U wilt onderscheid kunnen maken tussen urgent, noodzakelijk en planbaar werk, met zicht op gevolgen en kosten.'|t }}</p></article><article><span>03</span><h3>{{ 'U wilt grip houden op het vervolg'|t }}</h3><p>{{ 'U wilt duidelijkheid over scope, planning, kwaliteit, verantwoordelijkheid en het aantoonbare resultaat.'|t }}</p></article></div>
+    </div></section>
   {% endif %}
 
   {% if page and is_projecten_page %}
-    <section class="brebo-support-route" aria-labelledby="brebo-project-proof-title">
-      <div class="site-container">
-        <p class="brebo-support-route__eyebrow">{{ 'Praktijk als bewijs'|t }}</p>
-        <h2 id="brebo-project-proof-title">{{ 'Een project is pas interessant als u ziet waarom een keuze werkte.'|t }}</h2>
-        <p class="brebo-support-route__intro">{{ 'Daarom kijken we niet alleen naar het eindbeeld. Relevanter is welke gebouwvraag er lag, welke feiten en risico’s bepalend waren, welke maatregel is gekozen en wat die keuze aantoonbaar heeft opgeleverd.'|t }}</p>
-        <div class="brebo-support-route__grid">
-          <article><span>01</span><h3>{{ 'Wat was de gebouwvraag?'|t }}</h3><p>{{ 'Welke klacht, onderhoudsbehoefte, risico of ambitie vormde het vertrekpunt?'|t }}</p></article>
-          <article><span>02</span><h3>{{ 'Welke afweging is gemaakt?'|t }}</h3><p>{{ 'Waarom werd deze aanpak gekozen en welke alternatieven, risico’s, kosten en belangen speelden mee?'|t }}</p></article>
-          <article><span>03</span><h3>{{ 'Wat leverde het op?'|t }}</h3><p>{{ 'Het resultaat moet herkenbaar zijn voor gebouw, gebruiker en opdrachtgever — technisch én organisatorisch.'|t }}</p></article>
-        </div>
-      </div>
-    </section>
+    <section class="brebo-support-route" aria-labelledby="brebo-project-proof-title"><div class="site-container">
+      <p class="brebo-support-route__eyebrow">{{ 'Praktijk als bewijs'|t }}</p><h2 id="brebo-project-proof-title">{{ 'Een project is pas interessant als u ziet waarom een keuze werkte.'|t }}</h2><p class="brebo-support-route__intro">{{ 'Daarom kijken we niet alleen naar het eindbeeld. Relevanter is welke gebouwvraag er lag, welke feiten en risico’s bepalend waren, welke maatregel is gekozen en wat die keuze aantoonbaar heeft opgeleverd.'|t }}</p>
+      <div class="brebo-support-route__grid"><article><span>01</span><h3>{{ 'Wat was de gebouwvraag?'|t }}</h3><p>{{ 'Welke klacht, onderhoudsbehoefte, risico of ambitie vormde het vertrekpunt?'|t }}</p></article><article><span>02</span><h3>{{ 'Welke afweging is gemaakt?'|t }}</h3><p>{{ 'Waarom werd deze aanpak gekozen en welke alternatieven, risico’s, kosten en belangen speelden mee?'|t }}</p></article><article><span>03</span><h3>{{ 'Wat leverde het op?'|t }}</h3><p>{{ 'Het resultaat moet herkenbaar zijn voor gebouw, gebruiker en opdrachtgever — technisch én organisatorisch.'|t }}</p></article></div>
+    </div></section>
   {% endif %}
 
   {% if page and is_over_brebo_page %}
-    <section class="brebo-support-route" aria-labelledby="brebo-about-expectation-title">
-      <div class="site-container">
-        <p class="brebo-support-route__eyebrow">{{ 'Wat mag u verwachten?'|t }}</p>
-        <h2 id="brebo-about-expectation-title">{{ 'Een goede partij helpt u eerst de juiste beslissing te nemen.'|t }}</h2>
-        <p class="brebo-support-route__intro">{{ 'Bij onderhoud en renovatie hoort u niet afhankelijk te zijn van een vooraf gekozen oplossing. U mag verwachten dat feiten, belangen, risico’s en keuzes eerst helder worden gemaakt en dat daarna zichtbaar blijft wie waarvoor verantwoordelijk is.'|t }}</p>
-        <div class="brebo-support-route__grid">
-          <article><span>01</span><h3>{{ 'Advies moet uitlegbaar zijn'|t }}</h3><p>{{ 'U moet kunnen herleiden welke waarnemingen, oorzaken en risico’s tot een advies of maatregel hebben geleid.'|t }}</p></article>
-          <article><span>02</span><h3>{{ 'Belang en rol moeten helder blijven'|t }}</h3><p>{{ 'Advies, regie en uitvoering kunnen samenkomen, maar het gebouwbelang en uw besluitvorming blijven het uitgangspunt.'|t }}</p></article>
-          <article><span>03</span><h3>{{ 'Resultaat moet aantoonbaar zijn'|t }}</h3><p>{{ 'Scope, kwaliteit, kosten, planning en oplevering horen controleerbaar te zijn — niet alleen beloofd.'|t }}</p></article>
-        </div>
-      </div>
-    </section>
+    <section class="brebo-support-route" aria-labelledby="brebo-about-expectation-title"><div class="site-container">
+      <p class="brebo-support-route__eyebrow">{{ 'Wat mag u verwachten?'|t }}</p><h2 id="brebo-about-expectation-title">{{ 'Een goede partij helpt u eerst de juiste beslissing te nemen.'|t }}</h2><p class="brebo-support-route__intro">{{ 'Bij onderhoud en renovatie hoort u niet afhankelijk te zijn van een vooraf gekozen oplossing. U mag verwachten dat feiten, belangen, risico’s en keuzes eerst helder worden gemaakt en dat daarna zichtbaar blijft wie waarvoor verantwoordelijk is.'|t }}</p>
+      <div class="brebo-support-route__grid"><article><span>01</span><h3>{{ 'Advies moet uitlegbaar zijn'|t }}</h3><p>{{ 'U moet kunnen herleiden welke waarnemingen, oorzaken en risico’s tot een advies of maatregel hebben geleid.'|t }}</p></article><article><span>02</span><h3>{{ 'Belang en rol moeten helder blijven'|t }}</h3><p>{{ 'Advies, regie en uitvoering kunnen samenkomen, maar het gebouwbelang en uw besluitvorming blijven het uitgangspunt.'|t }}</p></article><article><span>03</span><h3>{{ 'Resultaat moet aantoonbaar zijn'|t }}</h3><p>{{ 'Scope, kwaliteit, kosten, planning en oplevering horen controleerbaar te zijn — niet alleen beloofd.'|t }}</p></article></div>
+    </div></section>
   {% endif %}
 
   {% if page and is_kennis_page %}
-    <section class="brebo-support-route" aria-labelledby="brebo-knowledge-title">
-      <div class="site-container">
-        <p class="brebo-support-route__eyebrow">{{ 'Kennis voor uw gebouw'|t }}</p>
-        <h2 id="brebo-knowledge-title">{{ 'Begrijp eerst wat u ziet voordat u een oplossing kiest.'|t }}</h2>
-        <p class="brebo-support-route__intro">{{ 'Technische kennis is voor u pas bruikbaar als die helpt om een gebouwsignaal te begrijpen en een betere beslissing te nemen. Daarom verbinden we waarnemingen aan mogelijke oorzaken, gevolgen, risico’s en relevante vervolgstappen.'|t }}</p>
-        <div class="brebo-support-route__grid">
-          <article><span>01</span><h3>{{ 'Wat ziet u?'|t }}</h3><p>{{ 'Herken klachten, schadebeelden, slijtage en andere signalen zonder direct een conclusie of oplossing voor te schrijven.'|t }}</p></article>
-          <article><span>02</span><h3>{{ 'Wat kan het betekenen?'|t }}</h3><p>{{ 'Begrijp welke oorzaken, technische samenhang en gevolgen nader onderzocht moeten worden.'|t }}</p></article>
-          <article><span>03</span><h3>{{ 'Welke afweging volgt?'|t }}</h3><p>{{ 'Gebruik kennis om gerichter te bepalen wat urgent is, wat nader onderzoek vraagt en welke maatregel verantwoord kan zijn.'|t }}</p></article>
-        </div>
-      </div>
-    </section>
+    <section class="brebo-support-route" aria-labelledby="brebo-knowledge-title"><div class="site-container">
+      <p class="brebo-support-route__eyebrow">{{ 'Kennis voor uw gebouw'|t }}</p><h2 id="brebo-knowledge-title">{{ 'Begrijp eerst wat u ziet voordat u een oplossing kiest.'|t }}</h2><p class="brebo-support-route__intro">{{ 'Technische kennis is voor u pas bruikbaar als die helpt om een gebouwsignaal te begrijpen en een betere beslissing te nemen. Daarom verbinden we waarnemingen aan mogelijke oorzaken, gevolgen, risico’s en relevante vervolgstappen.'|t }}</p>
+      <div class="brebo-support-route__grid"><article><span>01</span><h3>{{ 'Wat ziet u?'|t }}</h3><p>{{ 'Herken klachten, schadebeelden, slijtage en andere signalen zonder direct een conclusie of oplossing voor te schrijven.'|t }}</p></article><article><span>02</span><h3>{{ 'Wat kan het betekenen?'|t }}</h3><p>{{ 'Begrijp welke oorzaken, technische samenhang en gevolgen nader onderzocht moeten worden.'|t }}</p></article><article><span>03</span><h3>{{ 'Welke afweging volgt?'|t }}</h3><p>{{ 'Gebruik kennis om gerichter te bepalen wat urgent is, wat nader onderzoek vraagt en welke maatregel verantwoord kan zijn.'|t }}</p></article></div>
+    </div></section>
   {% endif %}
 
-  <div{{ content_attributes.addClass('brebo-inner-page__content', 'site-container') }}>
-    {{ content|without('links') }}
-  </div>
-
-  {% if page %}
-    <section class="brebo-inner-page__cta" aria-labelledby="brebo-page-cta-title">
-      <div class="site-container brebo-inner-page__cta-inner">
-        <div>
-          <p class="brebo-inner-page__cta-eyebrow">{{ 'Uw gebouw centraal'|t }}</p>
-          <h2 id="brebo-page-cta-title">{{ 'Bespreek wat uw gebouw nodig heeft.'|t }}</h2>
-        </div>
-        <a class="button button--primary" href="/contact">{{ 'Neem contact op'|t }}</a>
+  {% if page and is_contact_page %}
+    <section class="brebo-support-route" aria-labelledby="brebo-contact-title"><div class="site-container">
+      <p class="brebo-support-route__eyebrow">{{ 'Begin met wat u weet'|t }}</p>
+      <h2 id="brebo-contact-title">{{ 'U hoeft nog niet te weten wat de oplossing is.'|t }}</h2>
+      <p class="brebo-support-route__intro">{{ 'Vertel wat u ziet, wat u ervaart of welke beslissing voorligt. Ook als oorzaak, omvang of maatregel nog onduidelijk zijn, is dat een prima vertrekpunt. De eerste stap is de gebouwvraag goed krijgen.'|t }}</p>
+      <div class="brebo-support-route__grid">
+        <article><span>01</span><h3>{{ 'Dit zie of ervaar ik'|t }}</h3><p>{{ 'Beschrijf de klacht, schade, slijtage, terugkerende storing of andere waarneming zo concreet mogelijk.'|t }}</p></article>
+        <article><span>02</span><h3>{{ 'Dit wil ik bereiken'|t }}</h3><p>{{ 'Bijvoorbeeld risico beperken, onderhoud plannen, kosten onderbouwen, renoveren of eerst duidelijkheid krijgen.'|t }}</p></article>
+        <article><span>03</span><h3>{{ 'Dit weet ik nog niet'|t }}</h3><p>{{ 'U hoeft oorzaak, technische oplossing of exacte scope niet vooraf in te vullen. Dat mag juist onderdeel van de beoordeling zijn.'|t }}</p></article>
       </div>
-    </section>
+    </div></section>
+  {% endif %}
+
+  <div{{ content_attributes.addClass('brebo-inner-page__content', 'site-container') }}>{{ content|without('links') }}</div>
+
+  {% if page and not is_contact_page %}
+    <section class="brebo-inner-page__cta" aria-labelledby="brebo-page-cta-title"><div class="site-container brebo-inner-page__cta-inner"><div><p class="brebo-inner-page__cta-eyebrow">{{ 'Uw gebouw centraal'|t }}</p><h2 id="brebo-page-cta-title">{{ 'Bespreek wat uw gebouw nodig heeft.'|t }}</h2></div><a class="button button--primary" href="/contact">{{ 'Neem contact op'|t }}</a></div></section>
   {% endif %}
 </article>
