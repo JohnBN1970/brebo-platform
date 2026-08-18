@@ -1,5 +1,7 @@
-# Composer-built Drupal webroot. Only BREBO custom code is versioned.
+# Composer-built Drupal project. Only BREBO custom code is versioned.
 /vendor/
+/recipes/
+/LICENSE.txt
 /web/*
 !/web/modules/
 !/web/themes/
