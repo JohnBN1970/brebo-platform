@@ -1,0 +1,103 @@
+name: Deploy website karkas
+
+on:
+  push:
+    branches:
+      - agent/website-karkas
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: website-karkas-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy website karkas to Hostinger
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      DEPLOY_HOST: 77.37.34.160
+      DEPLOY_PORT: '65002'
+
+    steps:
+      - name: Validate deployment settings
+        env:
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          for name in DEPLOY_HOST DEPLOY_PORT DEPLOY_USER DEPLOY_SSH_KEY; do
+            if [[ -z "${!name}" ]]; then
+              echo "::error::Required deployment setting $name is missing."
+              exit 1
+            fi
+          done
+
+      - name: Configure SSH
+        env:
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          : > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+          for attempt in 1 2 3 4 5; do
+            if timeout 20 ssh -o BatchMode=yes -o ConnectTimeout=15 -o ServerAliveInterval=5 -o ServerAliveCountMax=2 -o StrictHostKeyChecking=accept-new -o UserKnownHostsFile="$HOME/.ssh/known_hosts" -i ~/.ssh/deploy_key -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" 'true'; then
+              break
+            fi
+            if [[ "$attempt" -eq 5 ]]; then
+              echo "::error::Unable to establish authenticated SSH connection."
+              exit 1
+            fi
+            sleep $((attempt * 2))
+          done
+
+      - name: Pull website branch and rebuild Drupal cache
+        env:
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          ssh -o ConnectTimeout=15 -o ServerAliveInterval=10 -o ServerAliveCountMax=3 -i ~/.ssh/deploy_key -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" 'bash -se' <<'REMOTE'
+          set -eEuo pipefail
+          export NO_COLOR=1 TERM=dumb
+
+          target="$HOME/domains/brebobv.nl/public_html/platform"
+          branch="agent/website-karkas"
+
+          [[ -d "$target/.git" ]] || { echo "::error::Target is not a Git repository: $target"; exit 1; }
+          cd "$target"
+
+          current_branch="$(git branch --show-current)"
+          [[ "$current_branch" == "$branch" ]] || { echo "::error::Expected branch $branch, found $current_branch"; exit 1; }
+
+          git fetch origin "$branch"
+          git pull --ff-only origin "$branch"
+
+          remote_php="/opt/alt/php83/usr/bin/php"
+          [[ -x "$remote_php" ]] || { echo "::error::Required PHP 8.3 binary not found: $remote_php"; exit 1; }
+          test -f vendor/drush/drush/drush.php
+
+          drush=("$remote_php" -d memory_limit=512M vendor/drush/drush/drush.php --root=web --no-ansi)
+
+          if "${drush[@]}" cr -vvv; then
+            echo "CACHE_REBUILD_MODE=drush"
+          else
+            cache_rebuild_rc="$?"
+            echo "::warning::Drush cache rebuild exited with $cache_rebuild_rc; applying router/render fallback."
+            "${drush[@]}" php:eval '\Drupal::service("router.builder")->rebuild(); \Drupal::service("cache.render")->deleteAll(); print "CACHE_REBUILD_MODE=router_render_fallback\n";'
+          fi
+
+          deployed_sha="$(git rev-parse HEAD)"
+          echo "DEPLOY_OK=1"
+          echo "DEPLOYED_SHA=$deployed_sha"
+          echo "TARGET=$target"
+          REMOTE
