@@ -23,10 +23,10 @@ final class BreboCtaBlock extends BlockBase {
    */
   public function defaultConfiguration(): array {
     return [
-      'eyebrow' => 'Samen verder',
-      'title' => 'Een goed project begint met een goed gesprek.',
-      'text' => 'Heeft u een gevelvraagstuk of wilt u weten wat BREBO voor uw gebouw kan betekenen? We denken graag met u mee.',
-      'button_label' => 'Plan een kennismaking',
+      'eyebrow' => 'Begin bij uw gebouw',
+      'title' => 'U hoeft de oplossing nog niet te kennen.',
+      'text' => 'Een klacht, gebrek, onderhoudsvraag of renovatieplan is genoeg om te beginnen. Eerst brengen we in beeld wat er werkelijk speelt. Daarna kunt u onderbouwd bepalen wat nodig is, wat prioriteit heeft en hoe het vervolg wordt georganiseerd.',
+      'button_label' => 'Bespreek uw gebouwvraag',
       'button_url' => '/contact',
     ] + parent::defaultConfiguration();
   }
