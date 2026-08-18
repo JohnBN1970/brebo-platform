@@ -27,7 +27,8 @@ function brebo_theme_preprocess_node(array &$variables): void {
     ($variables['view_mode'] ?? '') === 'full'
   ) {
     $system_path = '/node/' . $node->id();
-    $alias = \Drupal::service('path_alias.manager')->getAliasByPath($system_path);
-    $variables['is_uw_gebouw_page'] = rtrim($alias, '/') === '/uw-gebouw';
+    $alias = rtrim(\Drupal::service('path_alias.manager')->getAliasByPath($system_path), '/');
+    $variables['is_uw_gebouw_page'] = $alias === '/uw-gebouw';
+    $variables['is_diensten_page'] = $alias === '/diensten';
   }
 }
