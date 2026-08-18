@@ -33,5 +33,6 @@ function brebo_theme_preprocess_node(array &$variables): void {
     $variables['is_voor_wie_page'] = $alias === '/voor-wie';
     $variables['is_projecten_page'] = $alias === '/projecten';
     $variables['is_over_brebo_page'] = $alias === '/over-brebo';
+    $variables['is_kennis_page'] = $alias === '/kennis';
   }
 }
