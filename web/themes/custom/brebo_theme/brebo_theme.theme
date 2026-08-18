@@ -6,6 +6,32 @@
  */
 
 /**
+ * Implements hook_preprocess_page().
+ */
+function brebo_theme_preprocess_page(array &$variables): void {
+  $route_name = \Drupal::routeMatch()->getRouteName();
+  $variables['is_not_found_page'] = $route_name === 'system.404';
+}
+
+/**
+ * Implements hook_page_attachments().
+ */
+function brebo_theme_page_attachments(array &$attachments): void {
+  if (\Drupal::routeMatch()->getRouteName() === 'system.404') {
+    $attachments['#attached']['html_head'][] = [
+      [
+        '#tag' => 'meta',
+        '#attributes' => [
+          'name' => 'robots',
+          'content' => 'noindex, nofollow',
+        ],
+      ],
+      'brebo_404_robots',
+    ];
+  }
+}
+
+/**
  * Implements hook_preprocess_node().
  */
 function brebo_theme_preprocess_node(array &$variables): void {
