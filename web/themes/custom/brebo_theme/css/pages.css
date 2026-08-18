@@ -101,6 +101,42 @@
   text-underline-offset: 0.2em;
 }
 
+/* Vaste afsluiting: iedere kernpagina eindigt met een duidelijke vervolgstap. */
+.brebo-inner-page__cta {
+  color: #ffffff;
+  background: #111827;
+}
+
+.brebo-inner-page__cta-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  padding-block: clamp(2.5rem, 5vw, 4.5rem);
+}
+
+.brebo-inner-page__cta-eyebrow {
+  margin: 0 0 0.65rem;
+  color: #bda7e8;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.brebo-inner-page__cta h2 {
+  max-width: 18ch;
+  margin: 0;
+  color: #ffffff;
+  font-size: clamp(1.75rem, 3vw, 2.75rem);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+}
+
+.brebo-inner-page__cta .button {
+  flex: 0 0 auto;
+}
+
 @media (max-width: 767px) {
   .brebo-page-intro__inner,
   .brebo-inner-page__content {
@@ -109,5 +145,10 @@
 
   .brebo-inner-page__content > .field--name-body > p:first-child {
     margin-bottom: 2.5rem;
+  }
+
+  .brebo-inner-page__cta-inner {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }
