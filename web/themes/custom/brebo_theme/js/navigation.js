@@ -18,6 +18,7 @@
           header.classList.toggle('is-menu-open', open);
           document.body.classList.toggle('has-open-mobile-menu', open);
           toggle.setAttribute('aria-expanded', String(open));
+          toggle.setAttribute('aria-label', open ? 'Menu sluiten' : 'Menu openen');
 
           if (overlay) {
             overlay.hidden = !open;
@@ -33,7 +34,10 @@
         });
 
         if (overlay) {
-          overlay.addEventListener('click', () => setMenuState(false));
+          overlay.addEventListener('click', () => {
+            setMenuState(false);
+            toggle.focus();
+          });
         }
 
         navigation.addEventListener('click', (event) => {
@@ -59,6 +63,7 @@
         });
 
         window.addEventListener('scroll', setScrollState, { passive: true });
+        setMenuState(false);
         setScrollState();
       });
     }
