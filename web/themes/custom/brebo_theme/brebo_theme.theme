@@ -17,7 +17,9 @@ function brebo_theme_preprocess_page(array &$variables): void {
  * Implements hook_page_attachments().
  */
 function brebo_theme_page_attachments(array &$attachments): void {
-  if (\Drupal::routeMatch()->getRouteName() === 'system.404') {
+  $route_name = \Drupal::routeMatch()->getRouteName();
+
+  if ($route_name === 'system.404') {
     $attachments['#attached']['html_head'][] = [
       [
         '#tag' => 'meta',
@@ -27,6 +29,37 @@ function brebo_theme_page_attachments(array &$attachments): void {
         ],
       ],
       'brebo_404_robots',
+    ];
+
+    return;
+  }
+
+  $path = rtrim(\Drupal::service('path.current')->getPath(), '/');
+  $alias = $path === '' ? '/' : rtrim(\Drupal::service('path_alias.manager')->getAliasByPath($path), '/');
+  $alias = $alias === '' ? '/' : $alias;
+
+  $descriptions = [
+    '/' => 'Krijg inzicht in wat er aan uw gebouw speelt, welke keuzes nodig zijn en hoe u grip houdt op onderhoud, renovatie en uitvoering.',
+    '/uw-gebouw' => 'Van eerste signaal naar een beheerste aanpak: begrijp oorzaak, risico, prioriteit, planning en vervolgstappen voor uw gebouw.',
+    '/brebo-lens' => 'De BREBO Lens helpt u van inzicht naar regie en realisatie, zodat beslissingen over uw gebouw onderbouwd en beheerst worden genomen.',
+    '/diensten' => 'Welke ondersteuning heeft uw gebouw nodig? Van onderzoek en advies tot regie en uitvoering, passend bij de werkelijke gebouwvraag.',
+    '/voor-wie' => 'Voor eigenaren, beheerders en opdrachtgevers die technische keuzes, budget, planning en kwaliteit rond hun gebouw willen kunnen onderbouwen.',
+    '/projecten' => 'Bekijk praktijkvoorbeelden vanuit de gebouwvraag, gemaakte afweging, gekozen aanpak en het aantoonbare resultaat.',
+    '/over-brebo' => 'Lees wat u van BREBO mag verwachten bij onderhoud en renovatie: uitlegbaar advies, heldere rollen en aantoonbaar resultaat.',
+    '/kennis' => 'Technische kennis die helpt om gebouwsignalen, oorzaken, risico’s en relevante vervolgstappen beter te begrijpen.',
+    '/contact' => 'Bespreek uw gebouwvraag met BREBO. U hoeft de oorzaak of oplossing nog niet te kennen om te beginnen.',
+  ];
+
+  if (isset($descriptions[$alias])) {
+    $attachments['#attached']['html_head'][] = [
+      [
+        '#tag' => 'meta',
+        '#attributes' => [
+          'name' => 'description',
+          'content' => $descriptions[$alias],
+        ],
+      ],
+      'brebo_meta_description',
     ];
   }
 }
