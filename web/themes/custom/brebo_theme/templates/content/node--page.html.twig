@@ -9,6 +9,7 @@
     'brebo-inner-page'
   ]
 %}
+{% set is_structured_core_page = page and (is_uw_gebouw_page or is_diensten_page or is_voor_wie_page or is_projecten_page or is_over_brebo_page or is_kennis_page or is_contact_page) %}
 <article{{ attributes.addClass(classes) }}>
   {{ title_prefix }}
   {% if label and not page %}
@@ -109,7 +110,13 @@
     </div></section>
   {% endif %}
 
-  <div{{ content_attributes.addClass('brebo-inner-page__content', 'site-container') }}>{{ content|without('links') }}</div>
+  <div{{ content_attributes.addClass('brebo-inner-page__content', 'site-container') }}>
+    {% if is_structured_core_page %}
+      {{ content|without('body', 'links') }}
+    {% else %}
+      {{ content|without('links') }}
+    {% endif %}
+  </div>
 
   {% if page and not is_contact_page %}
     <section class="brebo-inner-page__cta" aria-labelledby="brebo-page-cta-title"><div class="site-container brebo-inner-page__cta-inner"><div><p class="brebo-inner-page__cta-eyebrow">{{ 'Uw gebouw centraal'|t }}</p><h2 id="brebo-page-cta-title">{{ 'Bespreek wat uw gebouw nodig heeft.'|t }}</h2></div><a class="button button--primary" href="/contact">{{ 'Neem contact op'|t }}</a></div></section>
