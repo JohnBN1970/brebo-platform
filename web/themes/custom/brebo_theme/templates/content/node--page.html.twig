@@ -118,7 +118,7 @@
     {% endif %}
   </div>
 
-  {% if page and not is_contact_page %}
+  {% if is_structured_core_page and not is_contact_page %}
     <section class="brebo-inner-page__cta" aria-labelledby="brebo-page-cta-title"><div class="site-container brebo-inner-page__cta-inner"><div><p class="brebo-inner-page__cta-eyebrow">{{ 'Uw gebouw centraal'|t }}</p><h2 id="brebo-page-cta-title">{{ 'Bespreek wat uw gebouw nodig heeft.'|t }}</h2></div><a class="button button--primary" href="/contact">{{ 'Neem contact op'|t }}</a></div></section>
   {% endif %}
 </article>
