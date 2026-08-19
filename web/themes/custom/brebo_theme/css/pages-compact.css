@@ -1,0 +1,100 @@
+/* Compacte cosmetische correctie voor publieke binnenpagina's. */
+.brebo-page-intro__inner {
+  padding-block: clamp(3.5rem, 6vw, 5.5rem);
+}
+
+.brebo-page-intro h1 {
+  font-size: clamp(2.7rem, 5.8vw, 5rem);
+  line-height: .96;
+}
+
+.brebo-building-route,
+.brebo-support-route,
+.brebo-responsibility-route {
+  padding-block: clamp(3.5rem, 6vw, 5.5rem);
+}
+
+.brebo-building-route h2,
+.brebo-support-route h2,
+.brebo-responsibility-route h2 {
+  font-size: clamp(1.95rem, 3.6vw, 3.35rem);
+  line-height: 1.02;
+}
+
+.brebo-building-route__grid,
+.brebo-support-route__grid,
+.brebo-responsibility-route__grid {
+  margin-top: clamp(2rem, 3.5vw, 3rem);
+}
+
+.brebo-building-route__grid > div {
+  min-height: 235px;
+  padding: clamp(1.35rem, 2vw, 1.8rem);
+}
+
+.brebo-building-route__grid span,
+.brebo-support-route__grid span,
+.brebo-responsibility-route__grid span {
+  margin-bottom: clamp(1.4rem, 2.5vw, 2.2rem);
+  font-size: clamp(2.25rem, 4vw, 3.7rem);
+}
+
+.brebo-support-route__grid article,
+.brebo-responsibility-route__grid article {
+  min-height: 245px;
+  padding: clamp(1.5rem, 2.3vw, 2rem);
+}
+
+.brebo-inner-page__content {
+  padding-block: clamp(3.25rem, 5.5vw, 5rem);
+}
+
+.brebo-inner-page__content > .field--name-body > p:first-child {
+  margin-bottom: clamp(2.25rem, 4vw, 3.5rem);
+}
+
+.brebo-inner-page__content > .field--name-body h2 {
+  margin-top: clamp(2.4rem, 4vw, 3.6rem);
+}
+
+.brebo-inner-page__cta,
+.brebo-project-detail__cta {
+  padding-block: clamp(2.75rem, 4.5vw, 4rem);
+}
+
+.brebo-inner-page__cta h2,
+.brebo-project-detail__cta h2 {
+  font-size: clamp(1.75rem, 3vw, 2.75rem);
+}
+
+.brebo-project-detail__hero {
+  padding-block: clamp(2.75rem, 5vw, 4.75rem);
+}
+
+.brebo-project-detail__hero-inner {
+  gap: clamp(2rem, 4vw, 3.75rem);
+}
+
+.brebo-project-detail__title {
+  font-size: clamp(2.5rem, 4.8vw, 4.5rem);
+}
+
+.brebo-project-detail__decision {
+  padding-block: clamp(2.75rem, 5vw, 4.75rem);
+}
+
+.brebo-project-detail__section {
+  padding-block: clamp(1.8rem, 3vw, 2.75rem);
+}
+
+@media (max-width: 620px) {
+  .brebo-page-intro__inner {
+    padding-block: 3rem;
+  }
+
+  .brebo-building-route,
+  .brebo-support-route,
+  .brebo-responsibility-route {
+    padding-block: 3.25rem;
+  }
+}
