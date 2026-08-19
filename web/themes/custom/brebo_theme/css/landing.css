@@ -1,6 +1,6 @@
 /* =========================================================
    BREBO LANDINGPAGINA'S
-   Intro en content sluiten aan op dezelfde paginacontainer.
+   Rustig ritme tussen hero, inhoud, bewijs en CTA.
    ========================================================= */
 
 .region--content-top {
@@ -43,9 +43,80 @@
 .region--content-bottom { padding-block: 5rem; }
 .region--cta { margin-top: 0; }
 
+/* Homepage: componenten bepalen zelf hun verticale ruimte. Geen dubbele regio-padding. */
+.path-frontpage .site-page__content-top,
+.path-frontpage .site-page__main,
+.path-frontpage .site-page__content-bottom,
+.path-frontpage .site-page__cta {
+  position: relative;
+}
+
+.path-frontpage .region--content-top,
+.path-frontpage .region--content,
+.path-frontpage .region--content-bottom,
+.path-frontpage .region--cta {
+  padding-block: 0;
+}
+
+.path-frontpage .site-page__content-top {
+  background: #ffffff;
+}
+
+.path-frontpage .site-page__main {
+  background: #f7f7f8;
+}
+
+.path-frontpage .site-page__content-bottom {
+  background: #ffffff;
+}
+
+.path-frontpage .site-page__content-top::after,
+.path-frontpage .site-page__main::after,
+.path-frontpage .site-page__content-bottom::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: min(86%, 1180px);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(22,139,255,.13) 38%, rgba(122,63,177,.13) 62%, transparent);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.path-frontpage .site-page__cta {
+  background: #ffffff;
+}
+
+/* Laat opeenvolgende componenten visueel in elkaar grijpen zonder margestapeling. */
+.path-frontpage .site-page__content-top > .region,
+.path-frontpage .site-page__main > .region,
+.path-frontpage .site-page__content-bottom > .region,
+.path-frontpage .site-page__cta > .region {
+  margin: 0;
+}
+
+.path-frontpage .block,
+.path-frontpage .block > .content {
+  margin-block: 0;
+}
+
 @media (max-width: 720px) {
   .region--content-top { padding-block: 2.75rem 3.25rem; }
   .region--content-top h2 { font-size: clamp(2rem, 9vw, 2.65rem); }
   .region--content { padding-bottom: 3.5rem; }
   .region--content-bottom { padding-block: 3.5rem; }
+
+  .path-frontpage .region--content-top,
+  .path-frontpage .region--content,
+  .path-frontpage .region--content-bottom,
+  .path-frontpage .region--cta {
+    padding-block: 0;
+  }
+
+  .path-frontpage .site-page__content-top::after,
+  .path-frontpage .site-page__main::after,
+  .path-frontpage .site-page__content-bottom::after {
+    width: calc(100% - 2rem);
+  }
 }
