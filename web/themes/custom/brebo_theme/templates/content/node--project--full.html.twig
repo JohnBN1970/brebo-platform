@@ -1,9 +1,20 @@
+{% set project_image = content.field_project_image|render %}
+{% set project_question = content.field_client_question|render %}
+{% set project_approach = content.field_brebo_approach|render %}
+{% set project_results = content.field_project_results|render %}
+{% set has_image = project_image|striptags('<img>')|trim %}
+{% set has_question = project_question|striptags|trim %}
+{% set has_approach = project_approach|striptags|trim %}
+{% set has_results = project_results|striptags|trim %}
+{% set approach_step = has_question ? '02' : '01' %}
+{% set result_step = has_question and has_approach ? '03' : (has_question or has_approach ? '02' : '01') %}
 {%
   set classes = [
     'node',
     'node--type-project',
     'node--view-mode-full',
-    'brebo-project-detail'
+    'brebo-project-detail',
+    not has_image ? 'brebo-project-detail--no-image'
   ]
 %}
 <article{{ attributes.addClass(classes) }}>
@@ -15,46 +26,52 @@
       <div class="brebo-project-detail__intro">
         <p class="brebo-project-detail__eyebrow">{{ 'Praktijkvoorbeeld'|t }}</p>
         <h1{{ title_attributes.addClass('brebo-project-detail__title') }}>{{ label }}</h1>
-        {% if content.field_client_question|render|striptags|trim %}
-          <p class="brebo-project-detail__lead">{{ content.field_client_question }}</p>
+        {% if has_question %}
+          <div class="brebo-project-detail__lead">{{ project_question }}</div>
         {% endif %}
       </div>
-      {% if content.field_project_image|render|striptags('<img>')|trim %}
-        <div class="brebo-project-detail__image">{{ content.field_project_image }}</div>
+      {% if has_image %}
+        <div class="brebo-project-detail__image">{{ project_image }}</div>
       {% endif %}
     </div>
   </header>
 
-  <div class="site-container brebo-project-detail__decision">
-    <section class="brebo-project-detail__section" aria-labelledby="project-question-title">
-      <p class="brebo-project-detail__step">01</p>
-      <div>
-        <p class="brebo-project-detail__label">{{ 'De gebouwvraag'|t }}</p>
-        <h2 id="project-question-title">{{ 'Wat moest worden opgelost of voorkomen?'|t }}</h2>
-        {{ content.field_client_question }}
-      </div>
-    </section>
+  {% if has_question or has_approach or has_results %}
+    <div class="site-container brebo-project-detail__decision">
+      {% if has_question %}
+        <section class="brebo-project-detail__section" aria-labelledby="project-question-title">
+          <p class="brebo-project-detail__step">01</p>
+          <div>
+            <p class="brebo-project-detail__label">{{ 'De gebouwvraag'|t }}</p>
+            <h2 id="project-question-title">{{ 'Wat moest worden opgelost of voorkomen?'|t }}</h2>
+            {{ project_question }}
+          </div>
+        </section>
+      {% endif %}
 
-    <section class="brebo-project-detail__section" aria-labelledby="project-choice-title">
-      <p class="brebo-project-detail__step">02</p>
-      <div>
-        <p class="brebo-project-detail__label">{{ 'De afweging en maatregel'|t }}</p>
-        <h2 id="project-choice-title">{{ 'Waarom paste deze aanpak bij het gebouw?'|t }}</h2>
-        {{ content.field_brebo_approach }}
-      </div>
-    </section>
+      {% if has_approach %}
+        <section class="brebo-project-detail__section" aria-labelledby="project-choice-title">
+          <p class="brebo-project-detail__step">{{ approach_step }}</p>
+          <div>
+            <p class="brebo-project-detail__label">{{ 'De afweging en maatregel'|t }}</p>
+            <h2 id="project-choice-title">{{ 'Waarom paste deze aanpak bij het gebouw?'|t }}</h2>
+            {{ project_approach }}
+          </div>
+        </section>
+      {% endif %}
 
-    {% if content.field_project_results|render|striptags|trim %}
-      <section class="brebo-project-detail__section" aria-labelledby="project-result-title">
-        <p class="brebo-project-detail__step">03</p>
-        <div>
-          <p class="brebo-project-detail__label">{{ 'Het aantoonbare resultaat'|t }}</p>
-          <h2 id="project-result-title">{{ 'Wat kon de opdrachtgever na afloop vaststellen?'|t }}</h2>
-          {{ content.field_project_results }}
-        </div>
-      </section>
-    {% endif %}
-  </div>
+      {% if has_results %}
+        <section class="brebo-project-detail__section" aria-labelledby="project-result-title">
+          <p class="brebo-project-detail__step">{{ result_step }}</p>
+          <div>
+            <p class="brebo-project-detail__label">{{ 'Het aantoonbare resultaat'|t }}</p>
+            <h2 id="project-result-title">{{ 'Wat kon de opdrachtgever na afloop vaststellen?'|t }}</h2>
+            {{ project_results }}
+          </div>
+        </section>
+      {% endif %}
+    </div>
+  {% endif %}
 
   <section class="brebo-project-detail__cta" aria-labelledby="project-cta-title">
     <div class="site-container brebo-project-detail__cta-inner">
