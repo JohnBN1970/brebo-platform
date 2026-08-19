@@ -22,6 +22,7 @@ global:
       css/project-detail.css: {}
       css/contact.css: {}
       css/over-brebo.css: {}
+      css/responsive-final.css: {}
       css/utilities.css: {}
   js:
     js/navigation.js: {}
