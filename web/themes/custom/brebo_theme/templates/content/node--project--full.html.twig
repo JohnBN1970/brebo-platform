@@ -1,0 +1,70 @@
+{%
+  set classes = [
+    'node',
+    'node--type-project',
+    'node--view-mode-full',
+    'brebo-project-detail'
+  ]
+%}
+<article{{ attributes.addClass(classes) }}>
+  {{ title_prefix }}
+  {{ title_suffix }}
+
+  <header class="brebo-project-detail__hero">
+    <div class="site-container brebo-project-detail__hero-inner">
+      <div class="brebo-project-detail__intro">
+        <p class="brebo-project-detail__eyebrow">{{ 'Praktijkvoorbeeld'|t }}</p>
+        <h1{{ title_attributes.addClass('brebo-project-detail__title') }}>{{ label }}</h1>
+        {% if content.field_client_question|render|striptags|trim %}
+          <p class="brebo-project-detail__lead">{{ content.field_client_question }}</p>
+        {% endif %}
+      </div>
+      {% if content.field_project_image|render|striptags('<img>')|trim %}
+        <div class="brebo-project-detail__image">{{ content.field_project_image }}</div>
+      {% endif %}
+    </div>
+  </header>
+
+  <div class="site-container brebo-project-detail__decision">
+    <section class="brebo-project-detail__section" aria-labelledby="project-question-title">
+      <p class="brebo-project-detail__step">01</p>
+      <div>
+        <p class="brebo-project-detail__label">{{ 'De gebouwvraag'|t }}</p>
+        <h2 id="project-question-title">{{ 'Wat moest worden opgelost of voorkomen?'|t }}</h2>
+        {{ content.field_client_question }}
+      </div>
+    </section>
+
+    <section class="brebo-project-detail__section" aria-labelledby="project-choice-title">
+      <p class="brebo-project-detail__step">02</p>
+      <div>
+        <p class="brebo-project-detail__label">{{ 'De afweging en maatregel'|t }}</p>
+        <h2 id="project-choice-title">{{ 'Waarom paste deze aanpak bij het gebouw?'|t }}</h2>
+        {{ content.field_brebo_approach }}
+      </div>
+    </section>
+
+    {% if content.field_project_results|render|striptags|trim %}
+      <section class="brebo-project-detail__section" aria-labelledby="project-result-title">
+        <p class="brebo-project-detail__step">03</p>
+        <div>
+          <p class="brebo-project-detail__label">{{ 'Het aantoonbare resultaat'|t }}</p>
+          <h2 id="project-result-title">{{ 'Wat kon de opdrachtgever na afloop vaststellen?'|t }}</h2>
+          {{ content.field_project_results }}
+        </div>
+      </section>
+    {% endif %}
+  </div>
+
+  <section class="brebo-project-detail__cta" aria-labelledby="project-cta-title">
+    <div class="site-container brebo-project-detail__cta-inner">
+      <div>
+        <p class="brebo-project-detail__eyebrow">{{ 'Uw gebouw centraal'|t }}</p>
+        <h2 id="project-cta-title">{{ 'Een vergelijkbare vraag? Begin bij wat u aan het gebouw ziet of wilt bereiken.'|t }}</h2>
+      </div>
+      <a class="button button--primary" href="/contact">{{ 'Bespreek uw gebouw'|t }}</a>
+    </div>
+  </section>
+
+  {{ content|without('field_project_image', 'field_client_question', 'field_brebo_approach', 'field_project_results', 'links') }}
+</article>
