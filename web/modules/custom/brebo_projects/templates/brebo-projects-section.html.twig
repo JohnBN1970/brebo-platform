@@ -1,19 +1,20 @@
 <section class="brebo-projects" aria-labelledby="brebo-projects-title">
   <div class="brebo-projects__inner">
     <header class="brebo-projects__header">
-      <p class="brebo-projects__eyebrow">Praktijk als bewijs</p>
+      <p class="brebo-projects__eyebrow">Besluiten in de praktijk</p>
       <h2 class="brebo-projects__title" id="brebo-projects-title">
-        Welke keuze was nodig — en waarom?
+        Niet wat wij maakten.<br>
+        Maar waarom deze keuze werkte.
       </h2>
       <p class="brebo-projects__intro">
-        Een project laat meer zien dan het eindbeeld. U wilt kunnen volgen wat er met het gebouw speelde, welke afweging is gemaakt, welke maatregel daaruit volgde en of het resultaat daarna aantoonbaar voldeed.
+        Een goed project begint niet bij uitvoering, maar bij een onderbouwde keuze. Deze praktijkvoorbeelden laten zien wat er aan het gebouw speelde, welke afweging voor de opdrachtgever doorslaggevend was en wat daarna aantoonbaar werd bereikt.
       </p>
     </header>
 
     <div class="brebo-projects__list">
       {% for project in projects %}
         <article class="brebo-project {{ loop.index is even ? 'brebo-project--reverse' : '' }}">
-          <a class="brebo-project__media" href="{{ project.url }}" aria-label="Bekijk project {{ project.title }}">
+          <a class="brebo-project__media" href="{{ project.url }}" aria-label="Bekijk praktijkvoorbeeld {{ project.title }}">
             {% if project.image_url %}
               <img src="{{ project.image_url }}" alt="{{ project.image_alt }}" loading="lazy">
             {% else %}
@@ -39,7 +40,7 @@
 
             <div class="brebo-project__body">
               <div class="brebo-project__question">
-                <p class="brebo-project__label">Gebouwvraag</p>
+                <p class="brebo-project__label">Wat speelde er aan het gebouw?</p>
                 <h3 class="brebo-project__heading">
                   {{ project.question ?: project.title }}
                 </h3>
@@ -47,13 +48,13 @@
 
               <div class="brebo-project__columns">
                 <div>
-                  <p class="brebo-project__label">Afweging en maatregel</p>
+                  <p class="brebo-project__label">Waarom deze keuze?</p>
                   <p class="brebo-project__text">{{ project.approach }}</p>
                 </div>
 
                 {% if project.results %}
                   <div>
-                    <p class="brebo-project__label">Aantoonbaar resultaat</p>
+                    <p class="brebo-project__label">Wat leverde dat aantoonbaar op?</p>
                     <ul class="brebo-project__results">
                       {% for result in project.results %}
                         <li>{{ result }}</li>
@@ -65,7 +66,7 @@
             </div>
 
             <a class="brebo-project__link" href="{{ project.url }}">
-              Bekijk gebouwvraag, keuze en resultaat
+              Bekijk de afweging en het resultaat
               <span aria-hidden="true">→</span>
             </a>
           </div>
