@@ -21,6 +21,7 @@ global:
       css/voor-wie.css: {}
       css/project-detail.css: {}
       css/contact.css: {}
+      css/over-brebo.css: {}
       css/utilities.css: {}
   js:
     js/navigation.js: {}
