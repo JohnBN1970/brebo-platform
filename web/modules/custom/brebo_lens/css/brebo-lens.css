@@ -59,7 +59,7 @@
 .brebo-lens__container { width: min(1280px,100%); margin-inline:auto; }
 .brebo-lens__intro { max-width: 760px; margin-bottom: clamp(4rem,7vw,6.5rem); }
 .brebo-lens__eyebrow { margin:0 0 1rem; color:var(--brebo-purple); font-size:.72rem; font-weight:800; letter-spacing:.18em; text-transform:uppercase; }
-.brebo-lens__title { max-width:11ch; margin:0; font-size:clamp(3.5rem,7vw,6.5rem); line-height:.9; letter-spacing:-.06em; font-weight:800; }
+.brebo-lens__title { max-width:13ch; margin:0; font-size:clamp(2.8rem,5.3vw,5.2rem); line-height:.94; letter-spacing:-.055em; font-weight:800; }
 .brebo-lens__lead { max-width:640px; margin:1.8rem 0 0; color:var(--brebo-muted); font-size:clamp(1.05rem,1.45vw,1.22rem); line-height:1.75; }
 
 .brebo-lens__layout {
@@ -138,7 +138,7 @@
 @media (max-width:820px) {
   .brebo-lens { padding:5rem 1rem; }
   .brebo-lens__intro { margin-bottom:3rem; }
-  .brebo-lens__title { max-width:12ch; font-size:clamp(3rem,13vw,4.6rem); }
+  .brebo-lens__title { max-width:13ch; font-size:clamp(2.5rem,11vw,3.8rem); }
   .brebo-lens__orbit { display:grid; gap:.8rem; width:100%; aspect-ratio:auto; }
   .brebo-lens__orbit-ring,.brebo-lens__orbit::before { display:none; }
   .brebo-lens__glass { position:relative; left:auto; top:auto; order:-1; width:min(330px,78vw); margin:0 auto 1.75rem; transform:none; }
@@ -156,7 +156,9 @@
 @media (prefers-reduced-motion:reduce) {
   .brebo-lens *,
   .brebo-lens *::before,
-  .brebo-lens *::after { animation:none !important; transition:none !important; }
+  .brebo-lens *::after { animation:none!important; transition:none!important; }
 }
 
-@media (max-width:820px) { .brebo-lens.is-changing .brebo-lens__glass { animation:none; } }
+@media (max-width:820px) {
+  .brebo-lens.is-changing .brebo-lens__glass { animation:none; }
+}
