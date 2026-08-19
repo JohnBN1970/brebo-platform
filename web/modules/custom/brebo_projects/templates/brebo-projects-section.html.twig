@@ -1,12 +1,12 @@
 <section class="brebo-projects" aria-labelledby="brebo-projects-title">
   <div class="brebo-projects__inner">
     <header class="brebo-projects__header">
-      <p class="brebo-projects__eyebrow">Van vraag naar resultaat</p>
+      <p class="brebo-projects__eyebrow">Praktijk als bewijs</p>
       <h2 class="brebo-projects__title" id="brebo-projects-title">
-        Hoe wordt een gebouwvraag in de praktijk opgelost?
+        Welke keuze was nodig — en waarom?
       </h2>
       <p class="brebo-projects__intro">
-        Een project is pas relevant als u kunt zien welke vraag er speelde, welke afweging is gemaakt en wat het resultaat voor het gebouw en de opdrachtgever was. Daarom laten we projecten vanuit die lijn zien.
+        Een project laat meer zien dan het eindbeeld. U wilt kunnen volgen wat er met het gebouw speelde, welke afweging is gemaakt, welke maatregel daaruit volgde en of het resultaat daarna aantoonbaar voldeed.
       </p>
     </header>
 
@@ -22,7 +22,7 @@
           </a>
 
           <div class="brebo-project__content">
-            <div class="brebo-project__pillars" aria-label="Onderdelen van de aanpak">
+            <div class="brebo-project__pillars" aria-label="Rol binnen dit project">
               <span class="brebo-project__pillar {{ project.pillars.insight ? 'is-active' : '' }}">
                 <span class="brebo-project__pillar-dot" aria-hidden="true">◉</span>
                 Inzicht
@@ -39,7 +39,7 @@
 
             <div class="brebo-project__body">
               <div class="brebo-project__question">
-                <p class="brebo-project__label">De vraag</p>
+                <p class="brebo-project__label">Gebouwvraag</p>
                 <h3 class="brebo-project__heading">
                   {{ project.question ?: project.title }}
                 </h3>
@@ -47,13 +47,13 @@
 
               <div class="brebo-project__columns">
                 <div>
-                  <p class="brebo-project__label">De gekozen aanpak</p>
+                  <p class="brebo-project__label">Afweging en maatregel</p>
                   <p class="brebo-project__text">{{ project.approach }}</p>
                 </div>
 
                 {% if project.results %}
                   <div>
-                    <p class="brebo-project__label">Wat leverde het op?</p>
+                    <p class="brebo-project__label">Aantoonbaar resultaat</p>
                     <ul class="brebo-project__results">
                       {% for result in project.results %}
                         <li>{{ result }}</li>
@@ -65,7 +65,7 @@
             </div>
 
             <a class="brebo-project__link" href="{{ project.url }}">
-              Bekijk vraag, aanpak en resultaat
+              Bekijk gebouwvraag, keuze en resultaat
               <span aria-hidden="true">→</span>
             </a>
           </div>
