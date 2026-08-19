@@ -14,6 +14,22 @@ function brebo_theme_preprocess_page(array &$variables): void {
 }
 
 /**
+ * Implements hook_preprocess_block().
+ */
+function brebo_theme_preprocess_block(array &$variables): void {
+  $plugin_id = $variables['elements']['#plugin_id'] ?? '';
+
+  if ($plugin_id !== 'page_title_block') {
+    return;
+  }
+
+  $node = \Drupal::routeMatch()->getParameter('node');
+  if ($node instanceof \Drupal\node\NodeInterface && in_array($node->bundle(), ['dienst', 'project'], TRUE)) {
+    $variables['content'] = [];
+  }
+}
+
+/**
  * Implements hook_page_attachments().
  */
 function brebo_theme_page_attachments(array &$attachments): void {
