@@ -5,7 +5,7 @@
   --brebo-text:#5f6b68;
   --brebo-bg:#f7f7f8;
   --brebo-line:#e3e6ea;
-  padding:clamp(5rem,9vw,8.5rem) clamp(1rem,3vw,2rem);
+  padding:clamp(5rem,8vw,7.5rem) clamp(1rem,3vw,2rem) clamp(3.5rem,5vw,4.75rem);
   color:var(--brebo-ink);
   background:var(--brebo-bg);
 }
@@ -39,7 +39,7 @@
   .brebo-pillar__text{max-width:52ch}
 }
 @media(max-width:640px){
-  .brebo-pillars{padding-inline:1rem}
+  .brebo-pillars{padding:4rem 1rem 3rem}
   .brebo-pillars__header{margin-bottom:3rem}
   .brebo-pillars__title{font-size:clamp(2.45rem,13vw,3.55rem)}
   .brebo-pillars__intro{font-size:1.04rem}
