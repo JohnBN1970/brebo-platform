@@ -11,7 +11,7 @@
 }
 
 /* De volgorde blijft correct, ook wanneer component-CSS order gebruikt. */
-.site-page__header { order: 0; position: relative; z-index: 2000; }
+.site-page__header { order: 0; position: sticky; top: 0; z-index: 2000; }
 .site-page__hero { order: 10; position: relative; z-index: 1; }
 .site-page__content-top { order: 20; }
 .site-page__main { order: 30; min-height: 20vh; }
