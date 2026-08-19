@@ -17,6 +17,7 @@ global:
     theme:
       css/pages.css: {}
       css/pages-compact.css: {}
+      css/uw-gebouw.css: {}
       css/utilities.css: {}
   js:
     js/navigation.js: {}
