@@ -1,0 +1,30 @@
+/* Laatste responsive vangnetten voor publieke BREBO-pagina's. */
+html,body{max-width:100%;overflow-x:hidden}.site-page,.site-page__main,.region,.block,.content{min-width:0}.field img{height:auto}.button,input[type="submit"]{max-width:100%;white-space:normal;text-align:center}
+
+@media(max-width:1024px){
+  .brebo-card-grid .view-content,.brebo-card-grid:not(:has(.view-content)){grid-template-columns:repeat(2,minmax(0,1fr));gap:1.5rem}
+  .brebo-support-route__grid,.brebo-responsibility-route__grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .brebo-support-route__grid article:last-child,.brebo-responsibility-route__grid article:last-child{grid-column:1/-1}
+  .brebo-project-detail__hero-inner{grid-template-columns:1fr;gap:2rem}.brebo-project-detail__image{max-width:760px}
+}
+
+@media(max-width:760px){
+  :root{--brebo-gutter:1rem}
+  .site-container,.brebo-container,.brebo-container--reading{width:calc(100% - 2rem)}
+  h1,h2{overflow-wrap:anywhere}
+  .brebo-support-route__grid,.brebo-responsibility-route__grid,.brebo-card-grid .view-content,.brebo-card-grid:not(:has(.view-content)){grid-template-columns:1fr}
+  .brebo-support-route__grid article:last-child,.brebo-responsibility-route__grid article:last-child{grid-column:auto}
+  .brebo-inner-page__cta-inner,.brebo-project-detail__cta-inner{gap:1.5rem}
+  .brebo-inner-page__cta .button,.brebo-project-detail__cta .button{width:100%}
+  .service-card__media{height:220px}.service-card__heading,.service-card__content{padding-inline:1.25rem}.service-card__content{padding-block:1.25rem 1.4rem}
+  table{display:block;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+}
+
+@media(max-width:480px){
+  .site-container,.brebo-container,.brebo-container--reading{width:calc(100% - 1.5rem)}
+  .brebo-page-intro h1{font-size:clamp(2.35rem,12vw,3.25rem)}
+  .brebo-building-route h2,.brebo-support-route h2,.brebo-responsibility-route h2{font-size:clamp(1.8rem,9vw,2.45rem)}
+  .brebo-project-detail__title{font-size:clamp(2.3rem,11vw,3.35rem)}
+  .button,input[type="submit"]{width:100%}
+  .pager__items{gap:.25rem}.pager a{min-width:38px;min-height:38px;padding:.35rem .55rem}
+}
