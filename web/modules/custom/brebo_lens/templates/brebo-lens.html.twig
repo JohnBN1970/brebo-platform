@@ -18,6 +18,15 @@
           {% for phase in phases %}
             <button class="brebo-lens__phase brebo-lens__phase--{{ loop.index }}{{ loop.first ? ' is-active' : '' }}" type="button" data-lens-step="{{ loop.index0 }}" data-lens-image="{{ phase.image }}" aria-pressed="{{ loop.first ? 'true' : 'false' }}">
               <span class="brebo-lens__phase-number">0{{ loop.index }}</span>
+              <span class="brebo-lens__phase-icon" aria-hidden="true">
+                {% if loop.index == 1 %}
+                  <svg viewBox="0 0 24 24"><circle cx="10" cy="10" r="6"/><path d="m14.5 14.5 5 5"/></svg>
+                {% elseif loop.index == 2 %}
+                  <svg viewBox="0 0 24 24"><circle cx="8" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M2.5 20c.4-4 2.3-6 5.5-6s5.1 2 5.5 6M14 15c3.6-.5 6 .9 7 4"/></svg>
+                {% else %}
+                  <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="m8.5 12 2.2 2.2 4.8-5"/></svg>
+                {% endif %}
+              </span>
               <strong>{{ phase.title }}</strong>
               <small>{{ phase.subtitle }}</small>
             </button>
@@ -31,6 +40,8 @@
             <div class="brebo-lens__motto"><span>Het gebouw</span><strong>staat centraal.</strong></div>
           </div>
         </div>
+
+        <p class="brebo-lens__hint"><span aria-hidden="true">☝</span>Klik op een fase om te zien hoe we samen stap voor stap werken aan de beste oplossing voor uw gebouw.</p>
       </div>
 
       <aside class="brebo-lens__panel" aria-live="polite" aria-atomic="true">
@@ -50,6 +61,7 @@
           <button type="button" class="brebo-lens__nav brebo-lens__nav--prev" aria-label="Vorige fase">←</button>
           <button type="button" class="brebo-lens__nav brebo-lens__nav--next" aria-label="Volgende fase">→</button>
         </div>
+        <div class="brebo-lens__dots" aria-hidden="true"><span class="is-active"></span><span></span><span></span></div>
       </aside>
     </div>
   </div>
