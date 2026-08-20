@@ -16,3 +16,17 @@
 }
 @keyframes breboLensOrbit{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 @media(prefers-reduced-motion:reduce){.brebo-lens__core::before{animation:none}}
+
+/* BREBO Lens v3: sterkere titelcompositie, grotere centrale lens en lichtere foto-overlay. */
+@media (min-width:761px){
+  .brebo-lens__intro{max-width:940px;margin-bottom:clamp(2rem,2.6vw,2.6rem)}
+  .brebo-lens__title{max-width:20ch;font-size:clamp(3rem,4.7vw,4.8rem);line-height:.96}
+  .brebo-lens__lead{max-width:760px}
+  .brebo-lens__core{width:252px;height:252px;top:52%}
+  .brebo-lens__core::before{inset:-20px;box-shadow:20px 14px 34px rgba(17,24,39,.11),-10px -8px 24px rgba(122,63,177,.09)}
+  .brebo-lens__core::after{inset:-9px;border-width:9px}
+  .brebo-lens__core-photo{inset:10px}
+  .brebo-lens__motto{inset:10px;background:rgba(17,24,39,.34);text-shadow:0 1px 8px rgba(0,0,0,.34)}
+  .brebo-lens__motto span{font-size:.78rem}
+  .brebo-lens__motto strong{font-size:1.62rem}
+}
