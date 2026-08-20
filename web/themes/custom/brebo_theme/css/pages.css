@@ -2,6 +2,7 @@
 .path-frontpage .region--content > .site-container > .block-system-main-block > div:not([class]),
 .path-frontpage .region--content > .site-container > .block-system-main-block > p,
 .path-frontpage .region--content > .site-container > .block-system-main-block > ul { display: none; }
+.path-frontpage .brebo-inner-page__content { display: none; }
 
 .path-node:not(.path-frontpage) .site-page__main { min-height: 55vh; background: var(--brebo-surface); }
 
