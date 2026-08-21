@@ -1,0 +1,5 @@
+name: 'BREBO Building Focus'
+type: module
+description: 'Klantgerichte gebouwfocus met nadruk op gevelopeningen, kozijnen en glas.'
+package: BREBO
+core_version_requirement: ^10 || ^11
