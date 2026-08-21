@@ -1,0 +1,4 @@
+building_focus:
+  css:
+    component:
+      css/brebo-building-focus.css: {}
