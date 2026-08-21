@@ -5,7 +5,7 @@
     attach(context) {
       once('brebo-navigation', '.site-header', context).forEach((header) => {
         const toggle = header.querySelector('.site-header__toggle');
-        const navigation = header.querySelector('.block-menu');
+        const navigation = header.querySelector('.main-navigation') || header.querySelector('.block-menu');
         const overlay = header.querySelector('.site-header__overlay');
 
         if (!toggle || !navigation) {
@@ -29,7 +29,9 @@
           header.classList.toggle('is-scrolled', window.scrollY > 12);
         };
 
-        toggle.addEventListener('click', () => {
+        toggle.addEventListener('click', (event) => {
+          event.preventDefault();
+          event.stopPropagation();
           setMenuState(!header.classList.contains('is-menu-open'));
         });
 
@@ -43,7 +45,7 @@
         navigation.addEventListener('click', (event) => {
           if (
             event.target.closest('a') &&
-            window.matchMedia('(max-width: 1023px)').matches
+            window.matchMedia('(max-width: 1199px)').matches
           ) {
             setMenuState(false);
           }
@@ -57,7 +59,7 @@
         });
 
         window.addEventListener('resize', () => {
-          if (!window.matchMedia('(max-width: 1023px)').matches) {
+          if (!window.matchMedia('(max-width: 1199px)').matches) {
             setMenuState(false);
           }
         });
