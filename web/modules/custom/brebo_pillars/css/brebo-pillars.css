@@ -39,11 +39,26 @@
   .brebo-pillar__text{max-width:52ch}
 }
 @media(max-width:640px){
-  .brebo-pillars{padding:4rem 1rem 3rem}
-  .brebo-pillars__header{margin-bottom:3rem}
-  .brebo-pillars__title{font-size:clamp(2.45rem,13vw,3.55rem)}
-  .brebo-pillars__intro{font-size:1.04rem}
-  .brebo-pillar{padding-left:2.5rem}
-  .brebo-pillar__number{font-size:4.35rem}
+  .brebo-pillars{padding:3.25rem 1rem 2.5rem}
+  .brebo-pillars__header{margin-bottom:2rem}
+  .brebo-pillars__eyebrow{margin-bottom:.75rem;font-size:.7rem;line-height:1.45}
+  .brebo-pillars__title{max-width:12ch;font-size:clamp(2.25rem,10.8vw,2.75rem);line-height:.98;letter-spacing:-.045em;text-wrap:balance}
+  .brebo-pillars__intro{max-width:31ch;margin-top:1rem;font-size:1rem;line-height:1.55}
+  .brebo-pillar{padding:0 0 2.1rem 2.3rem}
+  .brebo-pillar::before{left:-7px;top:.2rem;width:13px;height:13px;border-width:4px}
+  .brebo-pillar__number{margin:0 0 .7rem;font-size:4rem;line-height:.82}
+  .brebo-pillar__title{margin-bottom:.7rem;font-size:2.15rem;line-height:1}
+  .brebo-pillar__heading{margin-bottom:.65rem;font-size:1rem;line-height:1.35}
+  .brebo-pillar__text{max-width:31ch;margin-bottom:1.35rem;font-size:1rem;line-height:1.58}
+  .brebo-pillar__link{padding-top:.9rem;font-size:.95rem}
+}
+@media(max-width:390px){
+  .brebo-pillars{padding-inline:.85rem}
+  .brebo-pillars__title{font-size:2.2rem}
+  .brebo-pillars__intro{font-size:.96rem}
+  .brebo-pillar{padding-left:2.05rem}
+  .brebo-pillar__number{font-size:3.7rem}
+  .brebo-pillar__title{font-size:2rem}
+  .brebo-pillar__text{font-size:.96rem}
 }
 @media(prefers-reduced-motion:reduce){.brebo-pillar__link-arrow{transition:none}}
