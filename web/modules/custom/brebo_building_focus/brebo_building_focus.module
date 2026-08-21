@@ -1,0 +1,14 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * Implements hook_theme().
+ */
+function brebo_building_focus_theme(): array {
+  return [
+    'brebo_building_focus' => [
+      'variables' => [],
+    ],
+  ];
+}
