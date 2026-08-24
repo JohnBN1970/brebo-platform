@@ -1,0 +1,4 @@
+maintenance_renovation:
+  css:
+    theme:
+      css/brebo-maintenance-renovation.css: {}
