@@ -5,6 +5,9 @@ body.path-uw-gebouw .brebo-page-intro__inner{padding-bottom:clamp(2.5rem,4vw,4re
 body.path-uw-gebouw .brebo-building-route{padding-top:clamp(4rem,6vw,6rem);padding-bottom:clamp(4rem,6vw,6rem)}
 body.path-uw-gebouw .brebo-inner-page__cta{margin-top:clamp(1rem,2vw,2rem)}
 
+/* Drupal local task links are useful to editors, but they should not interrupt the visual page canvas. */
+body.path-uw-gebouw .block-local-tasks-block{display:none}
+
 @media(min-width:1101px){body.path-uw-gebouw .brebo-building-route__grid{margin-top:3.25rem}body.path-uw-gebouw .brebo-building-route__grid>div{min-height:260px;padding:2rem 1.75rem}body.path-uw-gebouw .brebo-building-route__grid>div span{width:48px;height:48px;margin-bottom:1.55rem}body.path-uw-gebouw .brebo-building-route__grid>div p{font-size:.95rem;line-height:1.58}}
 @media(max-width:1100px){.brebo-building-route__grid::before{display:none}.brebo-building-route__grid>div span{margin-bottom:1.5rem}}
 @media(max-width:620px){.brebo-building-route__grid>div{padding-block:1.75rem}.brebo-building-route__grid>div span{width:48px;height:48px;margin-bottom:1.25rem;box-shadow:none}}
