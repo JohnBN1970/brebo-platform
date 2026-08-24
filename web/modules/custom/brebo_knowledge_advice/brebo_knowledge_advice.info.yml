@@ -1,0 +1,5 @@
+name: 'BREBO Knowledge Advice'
+type: module
+description: 'Publieke gebouwgerichte presentatie voor Kennis & advies.'
+package: BREBO
+core_version_requirement: ^11
