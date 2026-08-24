@@ -1,0 +1,5 @@
+name: 'BREBO Maintenance Renovation'
+type: module
+description: 'Publieke gebouwgerichte presentatie voor Onderhoud & renovatie.'
+package: BREBO
+core_version_requirement: ^11
