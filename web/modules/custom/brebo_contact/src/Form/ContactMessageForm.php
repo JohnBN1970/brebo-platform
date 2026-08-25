@@ -36,9 +36,12 @@ final class ContactMessageForm extends FormBase {
     $form['#attributes']['class'][] = 'brebo-contact-message';
 
     $request = $this->contactRequestStack->getCurrentRequest();
-    $tracking = trim((string) ($request?->query->get('kenmerk') ?? $form_state->get('brebo_contact_tracking') ?? ''));
-    if ($tracking !== '') {
-      $safe_tracking = htmlspecialchars($tracking, ENT_QUOTES, 'UTF-8');
+    $routeName = (string) ($request?->attributes->get('_route') ?? '');
+
+    if ($routeName === 'brebo_contact.confirmation') {
+      $tracking = trim((string) ($request?->query->get('kenmerk') ?? ''));
+      $safeTracking = htmlspecialchars($tracking, ENT_QUOTES, 'UTF-8');
+
       $form['#attributes']['class'][] = 'brebo-contact-message--confirmation';
       $form['confirmation'] = [
         '#type' => 'container',
@@ -47,11 +50,14 @@ final class ContactMessageForm extends FormBase {
         'eyebrow' => ['#markup' => '<p class="brebo-contact__eyebrow">Bericht ontvangen</p>'],
         'title' => ['#markup' => '<h1>Bedankt. Uw bericht is ontvangen.</h1>'],
         'lead' => ['#markup' => '<p class="brebo-contact-message__confirmation-lead">We bekijken eerst wat er speelt en nemen van daaruit contact met u op.<br>Als aanvullende informatie nodig is, vragen we daar gericht om.</p>'],
-        'reference' => ['#markup' => '<div class="brebo-contact-message__reference">Kenmerk: <strong>' . $safe_tracking . '</strong></div>'],
+        'reference' => [
+          '#markup' => $safeTracking !== '' ? '<div class="brebo-contact-message__reference">Kenmerk: <strong>' . $safeTracking . '</strong></div>' : '',
+        ],
         'actions' => [
           '#markup' => '<div class="brebo-contact-message__confirmation-actions"><a class="brebo-contact-message__back" href="/"><span aria-hidden="true">→</span> Terug naar BREBO</a><p>Liever direct contact? Bel BREBO: <a href="tel:+31855003838">085-5003838</a></p></div>',
         ],
       ];
+
       return $form;
     }
 
@@ -163,8 +169,7 @@ final class ContactMessageForm extends FormBase {
 
     if (!empty($result['result'])) {
       $form_state->clearErrors();
-      $form_state->set('brebo_contact_tracking', $tracking);
-      $form_state->setRebuild(TRUE);
+      $form_state->setRedirect('brebo_contact.confirmation', [], ['query' => ['kenmerk' => $tracking]]);
       return;
     }
 
