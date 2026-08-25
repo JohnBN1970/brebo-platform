@@ -38,15 +38,18 @@ final class ContactMessageForm extends FormBase {
     $request = $this->contactRequestStack->getCurrentRequest();
     $tracking = trim((string) ($request?->query->get('kenmerk') ?? ''));
     if ($tracking !== '') {
+      $safe_tracking = htmlspecialchars($tracking, ENT_QUOTES, 'UTF-8');
+      $form['#attributes']['class'][] = 'brebo-contact-message--confirmation';
       $form['confirmation'] = [
         '#type' => 'container',
         '#attributes' => ['class' => ['brebo-contact-message__confirmation']],
+        'icon' => ['#markup' => '<div class="brebo-contact-message__check" aria-hidden="true"><span></span></div>'],
         'eyebrow' => ['#markup' => '<p class="brebo-contact__eyebrow">Bericht ontvangen</p>'],
-        'title' => ['#markup' => '<h2>Bedankt. Uw bericht is ontvangen.</h2>'],
-        'lead' => ['#markup' => '<p>We bekijken eerst wat er speelt en nemen van daaruit contact met u op. Als aanvullende informatie nuttig is, vragen we daar gericht om.</p>'],
-        'reference' => ['#markup' => '<p class="brebo-contact-message__reference">Kenmerk: <strong>' . htmlspecialchars($tracking, ENT_QUOTES, 'UTF-8') . '</strong></p>'],
+        'title' => ['#markup' => '<h1>Bedankt. Uw bericht is ontvangen.</h1>'],
+        'lead' => ['#markup' => '<p class="brebo-contact-message__confirmation-lead">We bekijken eerst wat er speelt en nemen van daaruit contact met u op.<br>Als aanvullende informatie nodig is, vragen we daar gericht om.</p>'],
+        'reference' => ['#markup' => '<div class="brebo-contact-message__reference">Kenmerk: <strong>' . $safe_tracking . '</strong></div>'],
         'actions' => [
-          '#markup' => '<p class="brebo-contact-message__confirmation-actions"><a href="/">Terug naar de website</a> <span aria-hidden="true">·</span> <a href="tel:+31855003838">Bel BREBO: 085-5003838</a></p>',
+          '#markup' => '<div class="brebo-contact-message__confirmation-actions"><a class="brebo-contact-message__back" href="/"><span aria-hidden="true">→</span> Terug naar BREBO</a><p>Liever direct contact? Bel BREBO: <a href="tel:+31855003838">085-5003838</a></p></div>',
         ],
       ];
       return $form;
