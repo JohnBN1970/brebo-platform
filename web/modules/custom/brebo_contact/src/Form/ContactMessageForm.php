@@ -68,10 +68,8 @@ final class ContactMessageForm extends FormBase {
     ];
 
     $form['company_website'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Website'),
-      '#attributes' => ['autocomplete' => 'off', 'tabindex' => '-1'],
-      '#wrapper_attributes' => ['class' => ['brebo-contact-message__trap']],
+      '#type' => 'hidden',
+      '#value' => '',
     ];
 
     $form['actions'] = ['#type' => 'actions'];
