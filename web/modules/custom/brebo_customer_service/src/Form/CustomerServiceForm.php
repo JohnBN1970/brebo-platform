@@ -16,7 +16,7 @@ final class CustomerServiceForm extends FormBase {
   public function __construct(
     private readonly MailManagerInterface $mailManager,
     private readonly FloodInterface $flood,
-    private readonly RequestStack $requestStack,
+    private readonly RequestStack $customerServiceRequestStack,
   ) {}
 
   public static function create(ContainerInterface $container): static {
@@ -122,14 +122,14 @@ final class CustomerServiceForm extends FormBase {
       $form_state->setErrorByName('message', $this->t('Uw bericht kon niet worden verzonden.'));
     }
 
-    $identifier = $this->requestStack->getCurrentRequest()?->getClientIp() ?? 'unknown';
+    $identifier = $this->customerServiceRequestStack->getCurrentRequest()?->getClientIp() ?? 'unknown';
     if (!$this->flood->isAllowed('brebo_customer_service.submit', 5, 3600, $identifier)) {
       $form_state->setErrorByName('message', $this->t('Er zijn te veel berichten verzonden. Probeer het later opnieuw of bel BREBO.'));
     }
   }
 
   public function submitForm(array &$form, FormStateInterface $form_state): void {
-    $request = $this->requestStack->getCurrentRequest();
+    $request = $this->customerServiceRequestStack->getCurrentRequest();
     $identifier = $request?->getClientIp() ?? 'unknown';
     $this->flood->register('brebo_customer_service.submit', 3600, $identifier);
 
