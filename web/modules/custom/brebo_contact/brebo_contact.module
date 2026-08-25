@@ -12,3 +12,19 @@ function brebo_contact_theme(): array {
     ],
   ];
 }
+
+/**
+ * Implements hook_mail().
+ */
+function brebo_contact_mail(string $key, array &$message, array $params): void {
+  if ($key !== 'website_contact_request') {
+    return;
+  }
+
+  $message['subject'] = $params['subject'];
+  $message['body'][] = $params['body'];
+
+  if (!empty($params['reply_to'])) {
+    $message['headers']['Reply-To'] = $params['reply_to'];
+  }
+}
