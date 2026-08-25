@@ -36,7 +36,7 @@ final class ContactMessageForm extends FormBase {
     $form['#attributes']['class'][] = 'brebo-contact-message';
 
     $request = $this->contactRequestStack->getCurrentRequest();
-    $tracking = trim((string) ($request?->query->get('kenmerk') ?? $form_state->get('brebo_contact_tracking') ?? ''));
+    $tracking = trim((string) ($request?->query->get('kenmerk') ?? ''));
     if ($tracking !== '') {
       $safe_tracking = htmlspecialchars($tracking, ENT_QUOTES, 'UTF-8');
       $form['#attributes']['class'][] = 'brebo-contact-message--confirmation';
@@ -163,8 +163,7 @@ final class ContactMessageForm extends FormBase {
 
     if (!empty($result['result'])) {
       $form_state->clearErrors();
-      $form_state->set('brebo_contact_tracking', $tracking);
-      $form_state->setRebuild(TRUE);
+      $form_state->setRedirect('brebo_contact.message', [], ['query' => ['kenmerk' => $tracking]]);
       return;
     }
 
