@@ -94,13 +94,8 @@ final class CustomerServiceForm extends FormBase {
     ];
 
     $form['company_website'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Website'),
-      '#attributes' => [
-        'autocomplete' => 'off',
-        'tabindex' => '-1',
-      ],
-      '#wrapper_attributes' => ['class' => ['brebo-customer-service__trap']],
+      '#type' => 'hidden',
+      '#value' => '',
     ];
 
     $form['actions'] = ['#type' => 'actions'];
