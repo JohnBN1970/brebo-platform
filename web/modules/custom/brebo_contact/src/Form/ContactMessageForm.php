@@ -35,12 +35,29 @@ final class ContactMessageForm extends FormBase {
     $form['#attached']['library'][] = 'brebo_contact/contact';
     $form['#attributes']['class'][] = 'brebo-contact-message';
 
+    $request = $this->contactRequestStack->getCurrentRequest();
+    $tracking = trim((string) ($request?->query->get('kenmerk') ?? ''));
+    if ($tracking !== '') {
+      $form['confirmation'] = [
+        '#type' => 'container',
+        '#attributes' => ['class' => ['brebo-contact-message__confirmation']],
+        'eyebrow' => ['#markup' => '<p class="brebo-contact__eyebrow">Bericht ontvangen</p>'],
+        'title' => ['#markup' => '<h2>Bedankt. Uw bericht is ontvangen.</h2>'],
+        'lead' => ['#markup' => '<p>We bekijken eerst wat er speelt en nemen van daaruit contact met u op. Als aanvullende informatie nuttig is, vragen we daar gericht om.</p>'],
+        'reference' => ['#markup' => '<p class="brebo-contact-message__reference">Kenmerk: <strong>' . htmlspecialchars($tracking, ENT_QUOTES, 'UTF-8') . '</strong></p>'],
+        'actions' => [
+          '#markup' => '<p class="brebo-contact-message__confirmation-actions"><a href="/">Terug naar de website</a> <span aria-hidden="true">·</span> <a href="tel:+31855003838">Bel BREBO: 085-5003838</a></p>',
+        ],
+      ];
+      return $form;
+    }
+
     $form['intro'] = [
       '#type' => 'container',
       '#attributes' => ['class' => ['brebo-contact-message__intro']],
       'eyebrow' => ['#markup' => '<p class="brebo-contact__eyebrow">Contact</p>'],
-      'title' => ['#markup' => '<h2>Stuur ons een bericht.</h2>'],
-      'lead' => ['#markup' => '<p>Vertel kort wat er speelt of wat u wilt bereiken. Meer hoeft voor een eerste contact niet.</p>'],
+      'title' => ['#markup' => '<h2>Vertel kort wat er speelt.</h2>'],
+      'lead' => ['#markup' => '<p>Meer hoeft voor een eerste contact niet. We luisteren eerst naar uw vraag en bepalen van daaruit wat een logische volgende stap is.</p>'],
     ];
 
     $form['name'] = [
@@ -142,8 +159,7 @@ final class ContactMessageForm extends FormBase {
     );
 
     if (!empty($result['result'])) {
-      $this->messenger()->addStatus($this->t('Bedankt. We hebben uw bericht ontvangen. We gebruiken uw toelichting om de vraag eerst goed te begrijpen en bepalen daarna welke aanvullende informatie eventueel nodig is. Kenmerk: @tracking', ['@tracking' => $tracking]));
-      $form_state->setRedirect('brebo_contact.message');
+      $form_state->setRedirect('brebo_contact.message', [], ['query' => ['kenmerk' => $tracking]]);
       return;
     }
 
