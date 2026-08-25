@@ -1,7 +1,15 @@
-brebo_customer_service.form:
+brebo_customer_service.knowledge:
   path: '/klantenservice'
   defaults:
-    _form: '\Drupal\brebo_customer_service\Form\CustomerServiceForm'
+    _controller: '\Drupal\brebo_customer_service\Controller\KnowledgeLibraryController::page'
     _title: 'Klantenservice'
+  requirements:
+    _access: 'TRUE'
+
+brebo_customer_service.form:
+  path: '/klantenservice/projectvraag'
+  defaults:
+    _form: '\Drupal\brebo_customer_service\Form\CustomerServiceForm'
+    _title: 'Projectservice'
   requirements:
     _access: 'TRUE'
