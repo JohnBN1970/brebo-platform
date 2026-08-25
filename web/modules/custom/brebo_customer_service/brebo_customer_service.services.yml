@@ -1,0 +1,7 @@
+services:
+  brebo_customer_service.form:
+    class: Drupal\brebo_customer_service\Form\CustomerServiceForm
+    arguments:
+      - '@plugin.manager.mail'
+      - '@flood'
+      - '@request_stack'
