@@ -183,7 +183,7 @@ final class CustomerServiceForm extends FormBase {
 
     if (!empty($result['result'])) {
       $this->messenger()->addStatus($this->t('Dank u. Uw projectvraag is verzonden. Kenmerk: @tracking', ['@tracking' => $tracking]));
-      $form_state->setRedirect('<current>');
+      $form_state->setRedirect('brebo_customer_service.form');
       return;
     }
 
