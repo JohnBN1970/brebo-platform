@@ -11,6 +11,8 @@
 function brebo_theme_preprocess_page(array &$variables): void {
   $route_name = \Drupal::routeMatch()->getRouteName();
   $variables['is_not_found_page'] = $route_name === 'system.404';
+  $request = \Drupal::requestStack()->getCurrentRequest();
+  $variables['is_contact_confirmation'] = $route_name === 'brebo_contact.message' && trim((string) ($request?->query->get('kenmerk') ?? '')) !== '';
 }
 
 /**
