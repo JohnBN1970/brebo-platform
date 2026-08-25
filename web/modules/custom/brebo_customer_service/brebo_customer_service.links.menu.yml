@@ -1,0 +1,6 @@
+brebo_customer_service.main:
+  title: 'Klantenservice'
+  description: 'Service voor lopende BREBO-projecten.'
+  route_name: brebo_customer_service.form
+  menu_name: main
+  weight: 40
