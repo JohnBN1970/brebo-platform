@@ -40,20 +40,7 @@ final class ContactMessageForm extends FormBase {
       '#attributes' => ['class' => ['brebo-contact-message__intro']],
       'eyebrow' => ['#markup' => '<p class="brebo-contact__eyebrow">Contact</p>'],
       'title' => ['#markup' => '<h2>Stuur ons een bericht.</h2>'],
-      'lead' => ['#markup' => '<p>Vertel kort wat er speelt of wat u wilt bereiken. U hoeft de oplossing nog niet te kennen.</p>'],
-    ];
-
-    $form['category'] = [
-      '#type' => 'select',
-      '#title' => $this->t('Waar gaat uw vraag over?'),
-      '#required' => TRUE,
-      '#options' => [
-        'issue' => $this->t('Er speelt nu iets'),
-        'planning' => $this->t('Ik wil vooruitkijken'),
-        'plans' => $this->t('Er zijn plannen'),
-        'consult' => $this->t('Ik wil eerst overleggen'),
-        'other' => $this->t('Anders'),
-      ],
+      'lead' => ['#markup' => '<p>Vertel kort wat er speelt of wat u wilt bereiken. Meer hoeft voor een eerste contact niet.</p>'],
     ];
 
     $form['name'] = [
@@ -61,64 +48,41 @@ final class ContactMessageForm extends FormBase {
       '#title' => $this->t('Naam'),
       '#required' => TRUE,
       '#maxlength' => 120,
+      '#autocomplete_route_name' => FALSE,
     ];
 
-    $form['organisation'] = [
+    $form['contact'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('Organisatie'),
-      '#required' => FALSE,
-      '#maxlength' => 160,
-    ];
-
-    $form['email'] = [
-      '#type' => 'email',
-      '#title' => $this->t('E-mailadres'),
+      '#title' => $this->t('E-mail of telefoon'),
+      '#description' => $this->t('Vul in hoe we u het makkelijkst kunnen bereiken.'),
       '#required' => TRUE,
       '#maxlength' => 160,
-    ];
-
-    $form['phone'] = [
-      '#type' => 'tel',
-      '#title' => $this->t('Telefoonnummer'),
-      '#required' => FALSE,
-      '#maxlength' => 40,
-    ];
-
-    $form['location'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Locatie of adres'),
-      '#description' => $this->t('Optioneel, maar vaak handig om uw vraag sneller te plaatsen.'),
-      '#required' => FALSE,
-      '#maxlength' => 180,
     ];
 
     $form['message'] = [
       '#type' => 'textarea',
       '#title' => $this->t('Uw bericht'),
       '#required' => TRUE,
-      '#rows' => 8,
+      '#rows' => 7,
       '#maxlength' => 5000,
     ];
 
     $form['company_website'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Website'),
-      '#attributes' => [
-        'autocomplete' => 'off',
-        'tabindex' => '-1',
-      ],
+      '#attributes' => ['autocomplete' => 'off', 'tabindex' => '-1'],
       '#wrapper_attributes' => ['class' => ['brebo-contact-message__trap']],
     ];
 
     $form['actions'] = ['#type' => 'actions'];
     $form['actions']['submit'] = [
       '#type' => 'submit',
-      '#value' => $this->t('Verstuur bericht'),
+      '#value' => $this->t('Stuur mijn bericht'),
       '#button_type' => 'primary',
     ];
 
-    $form['note'] = [
-      '#markup' => '<p class="brebo-contact-message__note">Heeft u al een lopend project bij BREBO? Gebruik dan de <a href="/klantenservice">Klantenservice</a>.</p>',
+    $form['aftercare'] = [
+      '#markup' => '<p class="brebo-contact-message__note">Na uw eerste bericht kunnen we gericht aangeven welke aanvullende informatie eventueel nuttig is. Heeft u al een lopend project bij BREBO? Gebruik dan de <a href="/klantenservice">Klantenservice</a>.</p>',
     ];
 
     return $form;
@@ -127,6 +91,11 @@ final class ContactMessageForm extends FormBase {
   public function validateForm(array &$form, FormStateInterface $form_state): void {
     if (trim((string) $form_state->getValue('company_website')) !== '') {
       $form_state->setErrorByName('message', $this->t('Uw bericht kon niet worden verzonden.'));
+    }
+
+    $contact = trim((string) $form_state->getValue('contact'));
+    if ($contact === '') {
+      $form_state->setErrorByName('contact', $this->t('Vul uw e-mailadres of telefoonnummer in.'));
     }
 
     $identifier = $this->contactRequestStack->getCurrentRequest()?->getClientIp() ?? 'unknown';
@@ -142,41 +111,26 @@ final class ContactMessageForm extends FormBase {
 
     $reference = strtoupper(substr(hash('sha256', microtime(TRUE) . random_int(1000, 999999)), 0, 10));
     $tracking = 'BREBO-WEB-' . date('Ymd') . '-' . $reference;
-
-    $categories = [
-      'issue' => 'Er speelt nu iets',
-      'planning' => 'Vooruitkijken',
-      'plans' => 'Er zijn plannen',
-      'consult' => 'Eerst overleggen',
-      'other' => 'Andere vraag',
-    ];
-
-    $categoryKey = (string) $form_state->getValue('category');
-    $category = $categories[$categoryKey] ?? 'Contactvraag';
     $name = trim((string) $form_state->getValue('name'));
-    $organisation = trim((string) $form_state->getValue('organisation'));
-    $email = trim((string) $form_state->getValue('email'));
-    $phone = trim((string) $form_state->getValue('phone'));
-    $location = trim((string) $form_state->getValue('location'));
+    $contact = trim((string) $form_state->getValue('contact'));
     $text = trim((string) $form_state->getValue('message'));
     $sourcePath = $request?->getPathInfo() ?? '/contact/bericht';
     $referer = $request?->headers->get('referer') ?? '-';
+    $replyTo = filter_var($contact, FILTER_VALIDATE_EMAIL) ? $contact : NULL;
 
-    $subject = sprintf('[BREBO-WEB][Contact][%s] %s – %s', $tracking, $category, $name);
+    $subject = sprintf('[BREBO-WEB][Contact][%s] Eerste contact – %s', $tracking, $name);
     $body = implode("\n", [
-      'Bron: BREBO website / contact',
+      'Bron: BREBO website / eerste contact',
       'Kenmerk: ' . $tracking,
       'Route: ' . $sourcePath,
       'Verwijzer: ' . $referer,
-      'Categorie: ' . $category,
       'Naam: ' . $name,
-      'Organisatie: ' . ($organisation !== '' ? $organisation : '-'),
-      'E-mail: ' . $email,
-      'Telefoon: ' . ($phone !== '' ? $phone : '-'),
-      'Locatie/adres: ' . ($location !== '' ? $location : '-'),
+      'Bereikbaar via: ' . $contact,
       '',
       'Bericht:',
       $text,
+      '',
+      'Vervolgprincipe: eerste contact ontvangen; aanvullende scope/informatie pas gericht uitvragen in fase 2.',
     ]);
 
     $result = $this->mailManager->mail(
@@ -184,17 +138,13 @@ final class ContactMessageForm extends FormBase {
       'website_contact_request',
       'info@brebobv.nl',
       'nl',
-      [
-        'subject' => $subject,
-        'body' => $body,
-        'reply_to' => $email,
-      ],
+      ['subject' => $subject, 'body' => $body, 'reply_to' => $replyTo],
       NULL,
       TRUE,
     );
 
     if (!empty($result['result'])) {
-      $this->messenger()->addStatus($this->t('Dank u. Uw bericht is verzonden. Kenmerk: @tracking', ['@tracking' => $tracking]));
+      $this->messenger()->addStatus($this->t('Bedankt. We hebben uw bericht ontvangen. We gebruiken uw toelichting om de vraag eerst goed te begrijpen en bepalen daarna welke aanvullende informatie eventueel nodig is. Kenmerk: @tracking', ['@tracking' => $tracking]));
       $form_state->setRedirect('brebo_contact.message');
       return;
     }
