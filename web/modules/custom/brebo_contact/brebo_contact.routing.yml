@@ -5,3 +5,11 @@ brebo_contact.message:
     _title: 'Stuur een bericht'
   requirements:
     _access: 'TRUE'
+
+brebo_contact.confirmation:
+  path: '/contact/bericht/bedankt'
+  defaults:
+    _form: '\Drupal\brebo_contact\Form\ContactMessageForm'
+    _title: 'Bericht ontvangen'
+  requirements:
+    _access: 'TRUE'
