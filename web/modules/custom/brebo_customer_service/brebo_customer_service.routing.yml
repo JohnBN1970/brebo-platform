@@ -1,0 +1,7 @@
+brebo_customer_service.form:
+  path: '/klantenservice'
+  defaults:
+    _form: '\Drupal\brebo_customer_service\Form\CustomerServiceForm'
+    _title: 'Klantenservice'
+  requirements:
+    _access: 'TRUE'
