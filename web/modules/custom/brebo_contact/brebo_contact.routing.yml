@@ -1,0 +1,7 @@
+brebo_contact.message:
+  path: '/contact/bericht'
+  defaults:
+    _form: '\Drupal\brebo_contact\Form\ContactMessageForm'
+    _title: 'Stuur een bericht'
+  requirements:
+    _access: 'TRUE'
