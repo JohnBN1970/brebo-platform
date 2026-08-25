@@ -162,6 +162,7 @@ final class ContactMessageForm extends FormBase {
     );
 
     if (!empty($result['result'])) {
+      $form_state->clearErrors();
       $form_state->set('brebo_contact_tracking', $tracking);
       $form_state->setRebuild(TRUE);
       return;
