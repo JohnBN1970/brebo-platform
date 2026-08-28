@@ -9,7 +9,7 @@ brebo_customer_service.knowledge:
 brebo_customer_service.knowledge_topic:
   path: '/klantenservice/kennis/{topic}'
   defaults:
-    _controller: '\Drupal\brebo_customer_service\Controller\KnowledgeLibraryController::topic'
+    _controller: '\Drupal\brebo_customer_service\Controller\KnowledgeCatalogController::topic'
     _title: 'BREBO Kennis'
   requirements:
     _access: 'TRUE'
@@ -18,7 +18,7 @@ brebo_customer_service.knowledge_topic:
 brebo_customer_service.knowledge_question:
   path: '/klantenservice/kennis/vraag/{question}'
   defaults:
-    _controller: '\Drupal\brebo_customer_service\Controller\KnowledgeLibraryController::question'
+    _controller: '\Drupal\brebo_customer_service\Controller\KnowledgeCatalogController::question'
     _title: 'BREBO Kennis'
   requirements:
     _access: 'TRUE'
