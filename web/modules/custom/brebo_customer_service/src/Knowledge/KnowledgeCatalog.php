@@ -5,7 +5,11 @@ declare(strict_types=1);
 namespace Drupal\brebo_customer_service\Knowledge;
 
 /**
- * Curated public knowledge seed. Items remain editorial until validated.
+ * Curated public knowledge seed.
+ *
+ * Public presentation and AI authority are deliberately separate. Every item
+ * starts as editorial knowledge and requires explicit source validation and
+ * human approval before KnowledgeApproval can expose it to BREBO AI.
  */
 final class KnowledgeCatalog {
 
@@ -61,13 +65,34 @@ final class KnowledgeCatalog {
     return NULL;
   }
 
+  public static function aiItems(): array {
+    $approved = [];
+    foreach (self::items() as $topic => $items) {
+      foreach ($items as $item) {
+        $item += ['topic' => $topic];
+        if (KnowledgeApproval::isAiApproved($item)) {
+          $approved[] = $item;
+        }
+      }
+    }
+    return $approved;
+  }
+
   private static function item(string $slug, string $title, string $summary): array {
     return [
       'slug' => $slug,
       'title' => $title,
       'summary' => $summary,
-      'status' => 'editorial',
+      'public' => TRUE,
+      'status' => KnowledgeApproval::STATUS_EDITORIAL,
       'ai_approved' => FALSE,
+      'reviewed_by' => NULL,
+      'reviewed_at' => NULL,
+      'basis' => [
+        'sources' => [],
+        'validity_checked_at' => NULL,
+        'notes' => 'Nog te voorzien van aantoonbare bron, geldigheidscontrole en deskundige beoordeling.',
+      ],
     ];
   }
 
