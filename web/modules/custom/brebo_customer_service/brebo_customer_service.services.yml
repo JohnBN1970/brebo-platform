@@ -5,3 +5,9 @@ services:
       - '@plugin.manager.mail'
       - '@flood'
       - '@request_stack'
+
+  brebo_customer_service.knowledge_item_seed_importer:
+    class: Drupal\brebo_customer_service\Knowledge\KnowledgeItemSeedImporter
+    arguments:
+      - '@entity_type.manager'
+      - '@entity_field.manager'
