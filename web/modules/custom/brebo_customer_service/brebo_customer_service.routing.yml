@@ -6,6 +6,24 @@ brebo_customer_service.knowledge:
   requirements:
     _access: 'TRUE'
 
+brebo_customer_service.knowledge_topic:
+  path: '/klantenservice/kennis/{topic}'
+  defaults:
+    _controller: '\Drupal\brebo_customer_service\Controller\KnowledgeLibraryController::topic'
+    _title: 'BREBO Kennis'
+  requirements:
+    _access: 'TRUE'
+    topic: '[a-z0-9-]+'
+
+brebo_customer_service.knowledge_question:
+  path: '/klantenservice/kennis/vraag/{question}'
+  defaults:
+    _controller: '\Drupal\brebo_customer_service\Controller\KnowledgeLibraryController::question'
+    _title: 'BREBO Kennis'
+  requirements:
+    _access: 'TRUE'
+    question: '[a-z0-9-]+'
+
 brebo_customer_service.form:
   path: '/klantenservice/projectvraag'
   defaults:
