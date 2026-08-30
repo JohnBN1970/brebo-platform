@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\brebo_customer_service\Controller;
 
+use Drupal\brebo_customer_service\Knowledge\KnowledgeApproval;
 use Drupal\brebo_customer_service\Knowledge\KnowledgeItemRepository;
 use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -16,9 +17,7 @@ final class KnowledgeCatalogController extends ControllerBase {
   ) {}
 
   public static function create(ContainerInterface $container): static {
-    return new static(
-      $container->get('brebo_customer_service.knowledge_item_repository'),
-    );
+    return new static($container->get('brebo_customer_service.knowledge_item_repository'));
   }
 
   public function topic(string $topic): array {
@@ -55,6 +54,8 @@ final class KnowledgeCatalogController extends ControllerBase {
     if ($topic === NULL) {
       throw new NotFoundHttpException();
     }
+    $status = KnowledgeApproval::statusLabel($item);
+    $ai = KnowledgeApproval::aiReason($item);
     return [
       '#attached' => ['library' => ['brebo_customer_service/service']],
       '#markup' => '<article class="brebo-knowledge-article">'
@@ -63,7 +64,7 @@ final class KnowledgeCatalogController extends ControllerBase {
         . '<div class="brebo-knowledge-article__body">'
         . $this->guidance($question)
         . '<aside><strong>Wat BREBO hiervoor wil weten</strong><p>' . $this->needed($item['topic']) . '</p></aside>'
-        . '<aside class="brebo-knowledge-article__quality"><strong>Kennisstatus</strong><p>Dit kennisitem staat in het canonieke BREBO-kennismodel en is nog niet vrijgegeven als gevalideerde bron voor BREBO AI. Bronverwijzingen en deskundige beoordeling worden afzonderlijk toegevoegd.</p></aside>'
+        . '<aside class="brebo-knowledge-article__quality"><strong>Kennisstatus: ' . $status . '</strong><p>' . $ai . '</p></aside>'
         . '</div></article>',
     ];
   }
