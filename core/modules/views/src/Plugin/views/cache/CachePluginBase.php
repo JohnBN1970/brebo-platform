@@ -45,12 +45,19 @@ abstract class CachePluginBase extends PluginBase {
   /**
    * Stores the cache ID used for the results cache.
    *
+   * The cache ID is stored in generateResultsKey() got executed.
+   *
    * @var string
+   *
+   * @see \Drupal\views\Plugin\views\cache\CachePluginBase::generateResultsKey()
    */
   protected $resultsKey;
 
   /**
    * Returns the resultsKey property.
+   *
+   * @return string
+   *   The resultsKey property.
    */
   public function getResultsKey() {
     return $this->resultsKey;
@@ -66,7 +73,15 @@ abstract class CachePluginBase extends PluginBase {
   /**
    * Determine the expiration time of the cache type, or NULL if no expire.
    *
-   * @deprecated in drupal:11.4.0 and is removed from drupal:13.0.0.
+   * Plugins must override this to implement expiration.
+   *
+   * @param string $type
+   *   The cache type, either 'query', 'result'.
+   *
+   * @deprecated in drupal:11.4.0 and is removed from drupal:13.0.0. No
+   *   replacement is provided.
+   *
+   * @see https://www.drupal.org/node/3576855
    */
   protected function cacheExpire($type) {
     @trigger_error(__METHOD__ . '() is deprecated in drupal:11.4.0 and is removed from drupal:13.0.0. There is no replacement. See https://www.drupal.org/node/3576855', E_USER_DEPRECATED);
@@ -74,6 +89,16 @@ abstract class CachePluginBase extends PluginBase {
 
   /**
    * Determines cache expiration time based on its type.
+   *
+   * Plugins must override this to implement expiration in the cache table.
+   *
+   * @param string $type
+   *   The cache type.
+   *
+   * @return int
+   *   Either an offset from the request time to indicate when the cache
+   *   expires, or \Drupal\Core\Cache\Cache::PERMANENT to indicate that the
+   *   cache does not expire. Defaults to \Drupal\Core\Cache\Cache::PERMANENT.
    */
   protected function cacheSetMaxAge($type) {
     return Cache::PERMANENT;
@@ -81,10 +106,16 @@ abstract class CachePluginBase extends PluginBase {
 
   /**
    * Save data to the cache.
+   *
+   * A plugin should override this to provide specialized caching behavior.
+   *
+   * @param string $type
+   *   The cache type, either 'query', 'result'.
    */
   public function cacheSet($type) {
     switch ($type) {
       case 'query':
+        // Not supported currently, but this is certainly where we'd put it.
         break;
 
       case 'results':
@@ -101,15 +132,27 @@ abstract class CachePluginBase extends PluginBase {
 
   /**
    * Retrieve data from the cache.
+   *
+   * A plugin should override this to provide specialized caching behavior.
+   *
+   * @param string $type
+   *   The cache type, either 'query', 'result'.
+   *
+   * @return bool
+   *   TRUE if data has been taken from the cache, otherwise FALSE.
    */
   public function cacheGet($type) {
     switch ($type) {
       case 'query':
+        // Not supported currently, but this is certainly where we'd put it.
         return FALSE;
 
       case 'results':
+        // Values to set: $view->result, $view->total_rows, $view->execute_time,
+        // $view->current_page.
         if ($cache = \Drupal::cache($this->resultsBin)->get($this->generateResultsKey())) {
           $this->view->result = $cache->data['result'];
+          // Load entities for each result.
           $this->view->query->loadEntities($this->view->result);
           $this->view->total_rows = $cache->data['total_rows'];
           $this->view->setCurrentPage($cache->data['current_page']);
@@ -129,17 +172,42 @@ abstract class CachePluginBase extends PluginBase {
 
   /**
    * Post process any rendered data.
+   *
+   * This can be valuable to be able to cache a view and still have some level
+   * of dynamic output. In an ideal world, the actual output will include HTML
+   * comment based tokens, and then the post process can replace those tokens.
+   *
+   * Example usage. If it is known that the view is a node view and that the
+   * primary field will be a nid, you can do something like this:
+   * @code
+   *   <!--post-FIELD-NID-->
+   * @endcode
+   *
+   * And then in the post render, create an array with the text that should go
+   * there:
+   *
+   * @code
+   *   strtr($output, ['<!--post-FIELD-1-->', 'output for FIELD of nid 1']);
+   * @endcode
+   *
+   * All of the cached result data will be available in $view->result, as well,
+   * so all ids used in the query should be discoverable.
    */
   public function postRender(&$output) {}
 
   /**
    * Calculates and sets a cache ID used for the result cache.
+   *
+   * @return string
+   *   The generated cache ID.
    */
   public function generateResultsKey() {
     if (!isset($this->resultsKey)) {
       $build_info = $this->view->build_info;
 
       foreach (['query', 'count_query'] as $index) {
+        // If the default query back-end is used generate SQL query strings from
+        // the query objects.
         if ($build_info[$index] instanceof SelectInterface) {
           $query = clone $build_info[$index];
           $query->preExecute();
@@ -150,7 +218,11 @@ abstract class CachePluginBase extends PluginBase {
         }
       }
 
-      $key_data = ['build_info' => $build_info];
+      $key_data = [
+        'build_info' => $build_info,
+      ];
+      // @todo https://www.drupal.org/node/2433591 might solve it to not require
+      //   the pager information here.
       $key_data['pager'] = [
         'page' => $this->view->getCurrentPage(),
         'items_per_page' => $this->view->getItemsPerPage(),
@@ -166,23 +238,33 @@ abstract class CachePluginBase extends PluginBase {
 
   /**
    * Gets an array of cache tags for the current view.
+   *
+   * @return string[]
+   *   An array of cache tags based on the current view.
    */
   public function getCacheTags() {
     $tags = $this->view->storage->getCacheTags();
+
+    // The list cache tags for the entity types listed in this view.
     $entity_information = $this->view->getQuery()->getEntityTableInfo();
 
     if (!empty($entity_information)) {
+      // Add the list cache tags for each entity type used in this view.
       foreach ($entity_information as $metadata) {
         $tags = Cache::mergeTags($tags, \Drupal::entityTypeManager()->getDefinition($metadata['entity_type'])->getListCacheTags());
       }
     }
 
     $tags = Cache::mergeTags($tags, $this->view->getQuery()->getCacheTags());
+
     return $tags;
   }
 
   /**
    * Gets the max age for the current view.
+   *
+   * @return int
+   *   The maximum age for the current view's cache.
    */
   public function getCacheMaxAge() {
     $max_age = $this->getDefaultCacheMaxAge();
@@ -194,45 +276,75 @@ abstract class CachePluginBase extends PluginBase {
    * Returns the default cache max age.
    */
   protected function getDefaultCacheMaxAge() {
+    // The default cache backend is not caching anything.
     return 0;
   }
 
   /**
    * Prepares the view result before putting it into cache.
+   *
+   * @param \Drupal\views\ResultRow[] $result
+   *   The result containing loaded entities.
+   *
+   * @return \Drupal\views\ResultRow[]
+   *   The result without loaded entities.
    */
   protected function prepareViewResult(array $result) {
     $return = [];
+
+    // Clone each row object and remove any loaded entities, to keep the
+    // original result rows intact.
     foreach ($result as $key => $row) {
       $clone = clone $row;
       $clone->resetEntityData();
       $return[$key] = $clone;
     }
+
     return $return;
   }
 
   /**
    * Alters the cache metadata of a display upon saving a view.
+   *
+   * @param \Drupal\Core\Cache\CacheableMetadata $cache_metadata
+   *   The cache metadata.
    */
   public function alterCacheMetadata(CacheableMetadata $cache_metadata) {
   }
 
   /**
    * Returns the row cache tags.
+   *
+   * @param \Drupal\views\ResultRow $row
+   *   A result row.
+   *
+   * @return string[]
+   *   The row cache tags.
    */
   public function getRowCacheTags(ResultRow $row) {
     $tags = !empty($row->_entity) ? $row->_entity->getCacheTags() : [];
+
     if (!empty($row->_relationship_entities)) {
       foreach ($row->_relationship_entities as $entity) {
         $tags = Cache::mergeTags($tags, $entity->getCacheTags());
       }
     }
+
     return $tags;
   }
 
   /**
    * Returns the row cache keys.
    *
-   * @deprecated in drupal:11.4.0 and is removed from drupal:13.0.0.
+   * @param \Drupal\views\ResultRow $row
+   *   A result row.
+   *
+   * @return string[]
+   *   The row cache keys.
+   *
+   * @deprecated in drupal:11.4.0 and is removed from drupal:13.0.0. There
+   * is no replacement.
+   * @see https://www.drupal.org/node/3564958
    */
   public function getRowCacheKeys(ResultRow $row) {
     @trigger_error(__METHOD__ . '() is deprecated in drupal:11.4.0 and is removed from drupal:13.0.0. There is no replacement. See https://www.drupal.org/node/3564958', E_USER_DEPRECATED);
@@ -248,13 +360,33 @@ abstract class CachePluginBase extends PluginBase {
   /**
    * Returns a unique identifier for the specified row.
    *
-   * @deprecated in drupal:11.4.0 and is removed from drupal:13.0.0.
+   * @param \Drupal\views\ResultRow $row
+   *   The result row.
+   *
+   * @return string
+   *   The row identifier.
+   *
+   * @deprecated in drupal:11.4.0 and is removed from drupal:13.0.0. There
+   * is no replacement.
+   * @see https://www.drupal.org/node/3564958
    */
   public function getRowId(ResultRow $row) {
     @trigger_error(__METHOD__ . '() is deprecated in drupal:11.4.0 and is removed from drupal:13.0.0. There is no replacement. See https://www.drupal.org/node/3564958', E_USER_DEPRECATED);
+    // Here we compute a unique identifier for the row by computing the hash of
+    // its data. We exclude the current index, since the same row could have a
+    // different result index depending on the user permissions. We exclude also
+    // entity data, since serializing entity objects is very expensive. Instead
+    // we include entity cache tags, which are enough to identify all the
+    // entities associated with the row.
     $row_data = array_diff_key((array) $row, array_flip(['index', '_entity', '_relationship_entities'])) + $this->getRowCacheTags($row);
+
+    // This ensures that we get a unique identifier taking field handler access
+    // into account: users having access to different sets of fields will get
+    // different row identifiers.
     $field_ids = array_keys($this->view->field);
     $row_data += array_flip($field_ids);
+
+    // Finally we compute the hash of row data and return it as row identifier.
     return hash('sha256', serialize($row_data));
   }
 
