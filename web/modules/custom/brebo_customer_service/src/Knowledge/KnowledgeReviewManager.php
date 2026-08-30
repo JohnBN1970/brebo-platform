@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\brebo_customer_service\Knowledge;
 
-use Drupal\Core\Datetime\TimeInterface;
+use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\node\NodeInterface;
