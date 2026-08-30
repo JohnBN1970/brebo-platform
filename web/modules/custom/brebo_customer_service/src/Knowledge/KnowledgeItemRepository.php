@@ -70,7 +70,7 @@ final class KnowledgeItemRepository {
   private function project(NodeInterface $node): ?array {
     $basis = (string) $node->get('field_knowledge_basis')->value;
     $slug = $this->lineValue($basis, self::SEED_PREFIX);
-    $topic = $this->lineValue($basis, 'Topic:');
+    $topic = $this->lineValue($basis, 'Onderwerp:');
 
     if ($slug === NULL || $topic === NULL) {
       return NULL;
