@@ -183,8 +183,8 @@ abstract class CachePluginBase extends PluginBase {
    *   <!--post-FIELD-NID-->
    * @endcode
    *
-   * And then in the post render, create an array with the text that should go
-   * there:
+   * And then in the post render, create an array with the text that should
+   * go there:
    *
    * @code
    *   strtr($output, ['<!--post-FIELD-1-->', 'output for FIELD of nid 1']);
@@ -249,7 +249,7 @@ abstract class CachePluginBase extends PluginBase {
     $entity_information = $this->view->getQuery()->getEntityTableInfo();
 
     if (!empty($entity_information)) {
-      // Add the list cache tags for each entity type used in this view.
+      // Add the list cache tags for each entity type used by this view.
       foreach ($entity_information as $metadata) {
         $tags = Cache::mergeTags($tags, \Drupal::entityTypeManager()->getDefinition($metadata['entity_type'])->getListCacheTags());
       }
@@ -361,7 +361,7 @@ abstract class CachePluginBase extends PluginBase {
    * Returns a unique identifier for the specified row.
    *
    * @param \Drupal\views\ResultRow $row
-   *   The result row.
+   *   A result row.
    *
    * @return string
    *   The row identifier.
@@ -386,7 +386,7 @@ abstract class CachePluginBase extends PluginBase {
     $field_ids = array_keys($this->view->field);
     $row_data += array_flip($field_ids);
 
-    // Finally we compute the hash of row data and return it as row identifier.
+    // Finally we compute a hash of row data and return it as row identifier.
     return hash('sha256', serialize($row_data));
   }
 

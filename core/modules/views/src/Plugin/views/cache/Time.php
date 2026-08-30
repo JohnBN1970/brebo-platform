@@ -35,6 +35,17 @@ class Time extends CachePluginBase {
 
   /**
    * Constructs a Time cache plugin object.
+   *
+   * @param array $configuration
+   *   A configuration array containing information about the plugin instance.
+   * @param string $plugin_id
+   *   The plugin ID for the plugin instance.
+   * @param mixed $plugin_definition
+   *   The plugin implementation definition.
+   * @param \Drupal\Core\Datetime\DateFormatterInterface $date_formatter
+   *   The date formatter service.
+   * @param \Drupal\Component\Datetime\TimeInterface $time
+   *   The time service.
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition, DateFormatterInterface $date_formatter, protected TimeInterface $time) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
@@ -50,6 +61,7 @@ class Time extends CachePluginBase {
     $options['results_lifespan_custom'] = ['default' => 0];
     $options['output_lifespan'] = ['default' => 3600];
     $options['output_lifespan_custom'] = ['default' => 0];
+
     return $options;
   }
 
@@ -130,7 +142,8 @@ class Time extends CachePluginBase {
    * Gets the value for the lifespan of the given type.
    */
   protected function getLifespan($type) {
-    return $this->options[$type . '_lifespan'] == 'custom' ? $this->options[$type . '_lifespan_custom'] : $this->options[$type . '_lifespan'];
+    $lifespan = $this->options[$type . '_lifespan'] == 'custom' ? $this->options[$type . '_lifespan_custom'] : $this->options[$type . '_lifespan'];
+    return $lifespan;
   }
 
   /**
@@ -140,9 +153,12 @@ class Time extends CachePluginBase {
     @trigger_error(__METHOD__ . '() is deprecated in drupal:11.4.0 and is removed from drupal:13.0.0. There is no replacement. See https://www.drupal.org/node/3576855', E_USER_DEPRECATED);
     $lifespan = $this->getLifespan($type);
     if ($lifespan) {
-      return $this->time->getRequestTime() - $lifespan;
+      $cutoff = $this->time->getRequestTime() - $lifespan;
+      return $cutoff;
     }
-    return FALSE;
+    else {
+      return FALSE;
+    }
   }
 
   /**
@@ -150,13 +166,20 @@ class Time extends CachePluginBase {
    */
   protected function cacheSetMaxAge($type) {
     $lifespan = $this->getLifespan($type);
-    return $lifespan ?: Cache::PERMANENT;
+    if ($lifespan) {
+      return $lifespan;
+    }
+    else {
+      return Cache::PERMANENT;
+    }
   }
 
   /**
    * {@inheritdoc}
    */
   protected function getDefaultCacheMaxAge() {
+    // The max age, unless overridden by some other piece of the rendered code
+    // is determined by the output time setting.
     return (int) $this->cacheSetMaxAge('output');
   }
 
