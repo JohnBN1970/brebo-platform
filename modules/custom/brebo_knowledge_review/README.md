@@ -32,15 +32,31 @@ Een KnowledgeItem kan inhoudelijk technisch correct zijn zonder dat dezelfde maa
 
 Voorbeeld: condens of blijvende waas tussen glasbladen kan op een defecte randafdichting wijzen. Dat betekent niet automatisch dat onmiddellijke vervanging op uitsluitend thermische gronden noodzakelijk is. Blijvende waas kan echter het doorzicht en de esthetische kwaliteit aantasten en daarmee vervanging praktisch of esthetisch wel passend maken. Vervanging van de isolatieglaseenheid betekent niet automatisch vervanging van het kozijn.
 
-## Eerste implementatiefase
+## Eerste runtime
 
-De eerste fase blijft bewust klein:
+De eerste runtime levert bewust alleen de redactionele correctiestap:
 
-- modulegrens en dependency vastleggen;
-- reviewroute en permission toevoegen;
-- één reviewformulier voor bestaande `brebo_knowledge_item` nodes;
-- zeven canonieke velden in hetzelfde formulier kunnen corrigeren;
-- reviewstatus en AI-vrijgave expliciet gescheiden modelleren;
-- functionele tests voor toegangscontrole, revisies en de scheiding tussen goedkeuring en AI-vrijgave.
+- restricted permission `review brebo knowledge items`;
+- route `/admin/content/brebo-knowledge/{node}/review`;
+- toegang uitsluitend voor `brebo_knowledge_item` nodes;
+- hetzelfde formulier bevat de zeven canonieke inhoudsvelden;
+- de vijf canoniek verplichte velden blijven verplicht;
+- het bestaande tekstformaat per veld blijft behouden;
+- iedere opslag wordt als nieuwe node-revisie vastgelegd;
+- een redactionele revisietoelichting is verplicht.
 
-Er worden in deze fase geen nieuwe canonieke KnowledgeItem-velden toegevoegd.
+Goedkeuringsstatus, bronmetadata en AI-vrijgave zijn in deze stap nog niet geïmplementeerd. Daarmee kan inhoudelijke correctie niet per ongeluk als goedkeuring of AI-vrijgave worden geïnterpreteerd.
+
+## Verificatie
+
+`KnowledgeReviewFormTest` bewijst functioneel:
+
+- zonder reviewpermission volgt HTTP 403;
+- een node van een ander contenttype kan niet via de reviewroute worden aangepast;
+- het reviewformulier is bereikbaar voor een bevoegde reviewer;
+- de zeven canonieke velden worden via het bestaande KnowledgeItem bijgewerkt;
+- opslaan creëert exact één extra revisie en bewaart de revisietoelichting.
+
+De aparte GitHub Actions-workflow controleert daarnaast Composer-metadata, diff-whitespace, Drupal coding standards, PHP-syntax en de functionele test.
+
+Er worden geen nieuwe canonieke KnowledgeItem-velden toegevoegd en geen bestanden onder `modules/custom/brebo_knowledge` gewijzigd.
