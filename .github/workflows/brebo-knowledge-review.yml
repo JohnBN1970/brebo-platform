@@ -1,0 +1,85 @@
+name: BREBO Knowledge review
+
+on:
+  pull_request:
+    branches:
+      - develop
+    paths:
+      - 'modules/custom/brebo_knowledge_review/**'
+      - '.github/workflows/brebo-knowledge-review.yml'
+      - 'composer.json'
+      - 'composer.lock'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: PHP syntax, standards and functional test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          show-progress: false
+          fetch-depth: 0
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, xml, dom, sqlite3, pdo_sqlite
+          coverage: none
+          tools: composer:v2
+
+      - name: Validate Composer metadata
+        run: composer validate --no-check-publish --quiet
+
+      - name: Install project dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress --quiet
+
+      - name: Install Drupal test dependencies
+        run: composer require --dev drupal/core-dev:^11.4 --with-all-dependencies --no-interaction --prefer-dist --no-progress --quiet
+
+      - name: Check repository diff
+        run: git diff --check "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}"
+
+      - name: Check Drupal coding standards
+        run: vendor/bin/phpcs --standard=Drupal,DrupalPractice modules/custom/brebo_knowledge_review
+
+      - name: Check PHP syntax
+        run: |
+          php -l modules/custom/brebo_knowledge_review/src/Form/KnowledgeReviewForm.php
+          php -l modules/custom/brebo_knowledge_review/tests/src/Functional/KnowledgeReviewFormTest.php
+
+      - name: Prepare SQLite test directory
+        run: mkdir -p sites/default/files
+
+      - name: Run Knowledge review functional test
+        id: phpunit
+        continue-on-error: true
+        env:
+          SIMPLETEST_DB: sqlite://localhost/sites/default/files/.ht.sqlite
+          SIMPLETEST_BASE_URL: http://localhost
+        run: |
+          vendor/bin/phpunit -c core --colors=never modules/custom/brebo_knowledge_review/tests/src/Functional/KnowledgeReviewFormTest.php > phpunit-review.log 2>&1
+
+      - name: Upload PHPUnit log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: brebo-knowledge-review-phpunit-log
+          path: phpunit-review.log
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Show PHPUnit result
+        if: always()
+        run: |
+          if [ -f phpunit-review.log ]; then
+            tail -n 100 phpunit-review.log
+          fi
+          test "${{ steps.phpunit.outcome }}" = "success"
