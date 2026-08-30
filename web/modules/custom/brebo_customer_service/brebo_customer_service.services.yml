@@ -16,3 +16,10 @@ services:
     class: Drupal\brebo_customer_service\Knowledge\KnowledgeItemRepository
     arguments:
       - '@entity_type.manager'
+
+  brebo_customer_service.knowledge_review_manager:
+    class: Drupal\brebo_customer_service\Knowledge\KnowledgeReviewManager
+    arguments:
+      - '@entity_type.manager'
+      - '@current_user'
+      - '@datetime.time'
