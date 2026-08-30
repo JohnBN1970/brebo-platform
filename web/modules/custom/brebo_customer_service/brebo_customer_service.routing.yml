@@ -24,6 +24,15 @@ brebo_customer_service.knowledge_question:
     _access: 'TRUE'
     question: '[a-z0-9-]+'
 
+brebo_customer_service.knowledge_review:
+  path: '/admin/content/brebo-kennis/beoordelen/{slug}'
+  defaults:
+    _form: '\Drupal\brebo_customer_service\Form\KnowledgeReviewForm'
+    _title: 'BREBO-kennis beoordelen'
+  requirements:
+    _permission: 'review BREBO knowledge'
+    slug: '[a-z0-9-]+'
+
 brebo_customer_service.form:
   path: '/klantenservice/projectvraag'
   defaults:
