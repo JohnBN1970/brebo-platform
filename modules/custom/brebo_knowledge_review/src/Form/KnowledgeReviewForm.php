@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Drupal\brebo_knowledge_review\Form;
 
-use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\node\NodeInterface;
@@ -95,12 +94,12 @@ final class KnowledgeReviewForm extends FormBase {
     $form['context']['title'] = [
       '#type' => 'item',
       '#title' => $this->t('KnowledgeItem'),
-      '#markup' => $node->label(),
+      '#plain_text' => (string) $node->label(),
     ];
     $form['context']['guidance'] = [
       '#type' => 'item',
       '#title' => $this->t('Beoordelingsregel'),
-      '#markup' => $this->t('Beoordeel waar relevant technische prestatie en comfort, functionele bruikbaarheid, esthetische kwaliteit, risico/urgentie en de passende volgende stap afzonderlijk. Goedkeuring en AI-vrijgave maken geen deel uit van deze eerste formulierstap.'),
+      '#plain_text' => $this->t('Beoordeel waar relevant technische prestatie en comfort, functionele bruikbaarheid, esthetische kwaliteit, risico/urgentie en de passende volgende stap afzonderlijk. Goedkeuring en AI-vrijgave maken geen deel uit van deze eerste formulierstap.'),
     ];
 
     foreach (self::FIELDS as $fieldName => $definition) {
