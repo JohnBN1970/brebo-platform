@@ -60,3 +60,12 @@ Goedkeuringsstatus, bronmetadata en AI-vrijgave zijn in deze stap nog niet geïm
 De aparte GitHub Actions-workflow controleert daarnaast Composer-metadata, diff-whitespace, Drupal coding standards, PHP-syntax en de functionele test.
 
 Er worden geen nieuwe canonieke KnowledgeItem-velden toegevoegd en geen bestanden onder `modules/custom/brebo_knowledge` gewijzigd.
+
+## Vervolg
+
+Na groene runtimevalidatie volgen in afzonderlijke stappen:
+
+1. redactionele reviewstatus;
+2. bronregistratie en bronbeoordeling;
+3. expliciete, afzonderlijke AI-vrijgave;
+4. eerste end-to-end KnowledgeItem `Condens tussen de glasbladen`.
