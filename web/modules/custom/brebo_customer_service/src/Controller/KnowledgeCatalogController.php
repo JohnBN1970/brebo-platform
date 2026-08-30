@@ -4,18 +4,29 @@ declare(strict_types=1);
 
 namespace Drupal\brebo_customer_service\Controller;
 
-use Drupal\brebo_customer_service\Knowledge\KnowledgeCatalog;
+use Drupal\brebo_customer_service\Knowledge\KnowledgeItemRepository;
 use Drupal\Core\Controller\ControllerBase;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final class KnowledgeCatalogController extends ControllerBase {
+
+  public function __construct(
+    private readonly KnowledgeItemRepository $knowledgeItems,
+  ) {}
+
+  public static function create(ContainerInterface $container): static {
+    return new static(
+      $container->get('brebo_customer_service.knowledge_item_repository'),
+    );
+  }
 
   public function topic(string $topic): array {
     $topics = $this->topics();
     if (!isset($topics[$topic])) {
       throw new NotFoundHttpException();
     }
-    $items = KnowledgeCatalog::items()[$topic] ?? [];
+    $items = $this->knowledgeItems->itemsByTopic()[$topic] ?? [];
     $cards = '';
     foreach ($items as $item) {
       $cards .= '<article class="brebo-knowledge-index__card">'
@@ -35,12 +46,15 @@ final class KnowledgeCatalogController extends ControllerBase {
   }
 
   public function question(string $question): array {
-    $item = KnowledgeCatalog::find($question);
+    $item = $this->knowledgeItems->find($question);
     if ($item === NULL) {
       throw new NotFoundHttpException();
     }
     $topics = $this->topics();
-    $topic = $topics[$item['topic']];
+    $topic = $topics[$item['topic']] ?? NULL;
+    if ($topic === NULL) {
+      throw new NotFoundHttpException();
+    }
     return [
       '#attached' => ['library' => ['brebo_customer_service/service']],
       '#markup' => '<article class="brebo-knowledge-article">'
@@ -49,7 +63,7 @@ final class KnowledgeCatalogController extends ControllerBase {
         . '<div class="brebo-knowledge-article__body">'
         . $this->guidance($question)
         . '<aside><strong>Wat BREBO hiervoor wil weten</strong><p>' . $this->needed($item['topic']) . '</p></aside>'
-        . '<aside class="brebo-knowledge-article__quality"><strong>Kennisstatus</strong><p>Dit kennisitem is redactioneel opgebouwd en nog niet vrijgegeven als gevalideerde bron voor BREBO AI. Bronverwijzingen en deskundige beoordeling worden afzonderlijk toegevoegd.</p></aside>'
+        . '<aside class="brebo-knowledge-article__quality"><strong>Kennisstatus</strong><p>Dit kennisitem staat in het canonieke BREBO-kennismodel en is nog niet vrijgegeven als gevalideerde bron voor BREBO AI. Bronverwijzingen en deskundige beoordeling worden afzonderlijk toegevoegd.</p></aside>'
         . '</div></article>',
     ];
   }
@@ -62,7 +76,7 @@ final class KnowledgeCatalogController extends ControllerBase {
       'onderhoud-of-renovatie' => ['Kijk naar herhaling en samenhang', 'Wanneer dezelfde reparaties terugkomen of meerdere bouwdelen elkaar beïnvloeden, wordt alleen incidentgericht herstellen steeds minder logisch.', 'Vergelijk scenario’s', 'Directe kosten zijn niet het enige criterium. Ook resterende levensduur, gevolgschade, bereikbaarheid, hinder en toekomstige onderhoudsbehoefte horen in de afweging.'],
     ];
     if (isset($specific[$slug])) {
-      [$h1,$p1,$h2,$p2] = $specific[$slug];
+      [$h1, $p1, $h2, $p2] = $specific[$slug];
     }
     else {
       $h1 = 'Begin bij wat u daadwerkelijk waarneemt';
@@ -95,4 +109,5 @@ final class KnowledgeCatalogController extends ControllerBase {
       'gebouwbeheer' => ['title' => 'Gebouwbeheer', 'intro' => 'Inspecties, onderhoudsplanning, risico, conditie en onderbouwde keuzes voor de komende jaren.'],
     ];
   }
+
 }
