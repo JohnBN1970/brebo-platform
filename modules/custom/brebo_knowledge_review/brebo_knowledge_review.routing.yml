@@ -1,0 +1,12 @@
+brebo_knowledge_review.review:
+  path: '/admin/content/brebo-knowledge/{node}/review'
+  defaults:
+    _form: '\Drupal\brebo_knowledge_review\Form\KnowledgeReviewForm'
+    _title: 'BREBO-kennis beoordelen'
+  requirements:
+    _permission: 'review brebo knowledge items'
+    node: '\d+'
+  options:
+    parameters:
+      node:
+        type: entity:node
