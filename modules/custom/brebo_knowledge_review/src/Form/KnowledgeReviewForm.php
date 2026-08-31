@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Drupal\brebo_knowledge_review\Form;
 
+use Drupal\brebo_knowledge_review\Review\ReviewStatusStorage;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\node\NodeInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
@@ -65,9 +67,37 @@ final class KnowledgeReviewForm extends FormBase {
   ];
 
   /**
+   * Human-readable editorial statuses.
+   *
+   * @var array<string, string>
+   */
+  private const STATUSES = [
+    'to_review' => 'Te beoordelen',
+    'in_review' => 'In beoordeling',
+    'approved' => 'Goedgekeurd',
+    'changes_required' => 'Herziening nodig',
+  ];
+
+  /**
    * The KnowledgeItem being reviewed.
    */
   private ?NodeInterface $knowledgeItem = NULL;
+
+  /**
+   * Creates the form.
+   */
+  public function __construct(
+    private readonly ReviewStatusStorage $statusStorage,
+  ) {}
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container): static {
+    return new static(
+      $container->get('brebo_knowledge_review.status_storage'),
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -85,6 +115,10 @@ final class KnowledgeReviewForm extends FormBase {
     }
 
     $this->knowledgeItem = $node;
+    $nodeId = (int) $node->id();
+    $revisionId = (int) $node->getRevisionId();
+    $storedDecision = $this->statusStorage->load($nodeId);
+    $effectiveStatus = $this->statusStorage->getEffectiveStatus($nodeId, $revisionId);
 
     $form['context'] = [
       '#type' => 'details',
@@ -99,8 +133,27 @@ final class KnowledgeReviewForm extends FormBase {
     $form['context']['guidance'] = [
       '#type' => 'item',
       '#title' => $this->t('Beoordelingsregel'),
-      '#plain_text' => $this->t('Beoordeel waar relevant technische prestatie en comfort, functionele bruikbaarheid, esthetische kwaliteit, risico/urgentie en de passende volgende stap afzonderlijk. Goedkeuring en AI-vrijgave maken geen deel uit van deze eerste formulierstap.'),
+      '#plain_text' => $this->t('Beoordeel waar relevant technische prestatie en comfort, functionele bruikbaarheid, esthetische kwaliteit, risico/urgentie en de passende volgende stap afzonderlijk. AI-vrijgave blijft een afzonderlijk besluit.'),
     ];
+    $form['context']['current_status'] = [
+      '#type' => 'item',
+      '#title' => $this->t('Huidige reviewstatus'),
+      '#plain_text' => self::STATUSES[$effectiveStatus] ?? self::STATUSES['to_review'],
+    ];
+
+    if ($storedDecision !== NULL) {
+      $form['context']['last_decision'] = [
+        '#type' => 'item',
+        '#title' => $this->t('Laatste reviewbesluit'),
+        '#plain_text' => sprintf(
+          '%s · revisie %d · gebruiker %d · %s',
+          self::STATUSES[$storedDecision['status']] ?? $storedDecision['status'],
+          $storedDecision['revision_id'],
+          $storedDecision['reviewer_uid'],
+          date('Y-m-d H:i', $storedDecision['changed']),
+        ),
+      ];
+    }
 
     foreach (self::FIELDS as $fieldName => $definition) {
       if (!$node->hasField($fieldName)) {
@@ -117,6 +170,25 @@ final class KnowledgeReviewForm extends FormBase {
       ];
     }
 
+    $form['review_decision'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Redactioneel besluit'),
+      '#open' => TRUE,
+    ];
+    $form['review_decision']['review_status'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Reviewstatus'),
+      '#options' => self::STATUSES,
+      '#default_value' => $effectiveStatus,
+      '#required' => TRUE,
+    ];
+    $form['review_decision']['review_note'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Toelichting reviewbesluit'),
+      '#default_value' => $storedDecision['note'] ?? '',
+      '#maxlength' => 255,
+    ];
+
     $form['revision_log'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Redactionele revisietoelichting'),
@@ -128,7 +200,7 @@ final class KnowledgeReviewForm extends FormBase {
     $form['actions'] = ['#type' => 'actions'];
     $form['actions']['submit'] = [
       '#type' => 'submit',
-      '#value' => $this->t('Correcties opslaan als nieuwe revisie'),
+      '#value' => $this->t('Correcties en reviewbesluit opslaan'),
       '#button_type' => 'primary',
     ];
 
@@ -159,7 +231,21 @@ final class KnowledgeReviewForm extends FormBase {
     $this->knowledgeItem->setRevisionUserId((int) $this->currentUser()->id());
     $this->knowledgeItem->save();
 
-    $this->messenger()->addStatus($this->t('De KnowledgeItem-correcties zijn als nieuwe revisie opgeslagen.'));
+    $status = (string) $form_state->getValue('review_status');
+    if (!isset(self::STATUSES[$status])) {
+      $status = 'to_review';
+    }
+
+    $this->statusStorage->save(
+      (int) $this->knowledgeItem->id(),
+      (int) $this->knowledgeItem->getRevisionId(),
+      $status,
+      (int) $this->currentUser()->id(),
+      time(),
+      (string) $form_state->getValue('review_note'),
+    );
+
+    $this->messenger()->addStatus($this->t('De KnowledgeItem-correcties en reviewstatus zijn opgeslagen.'));
     $form_state->setRedirect('brebo_knowledge_review.review', ['node' => $this->knowledgeItem->id()]);
   }
 
