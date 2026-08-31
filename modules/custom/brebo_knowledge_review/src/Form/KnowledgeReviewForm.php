@@ -6,7 +6,6 @@ namespace Drupal\brebo_knowledge_review\Form;
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\node\NodeInterface;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
@@ -110,8 +109,8 @@ final class KnowledgeReviewForm extends FormBase {
 
       $form[$fieldName] = [
         '#type' => 'textarea',
-        '#title' => new TranslatableMarkup($definition['title']),
-        '#description' => new TranslatableMarkup($definition['description']),
+        '#title' => $definition['title'],
+        '#description' => $definition['description'],
         '#default_value' => (string) ($node->get($fieldName)->value ?? ''),
         '#required' => $definition['required'],
         '#rows' => $definition['rows'],
