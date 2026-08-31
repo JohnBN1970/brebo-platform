@@ -1,0 +1,71 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * @file
+ * Install and update hooks for BREBO Knowledge Review.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function brebo_knowledge_review_schema(): array {
+  $schema['brebo_knowledge_review_status'] = [
+    'description' => 'Stores the current editorial review decision per KnowledgeItem.',
+    'fields' => [
+      'node_id' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ],
+      'revision_id' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ],
+      'status' => [
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => 'to_review',
+      ],
+      'reviewer_uid' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+      'changed' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+      'note' => [
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ],
+    ],
+    'primary key' => ['node_id'],
+    'indexes' => [
+      'revision_id' => ['revision_id'],
+      'status' => ['status'],
+    ],
+  ];
+
+  return $schema;
+}
+
+/**
+ * Adds lightweight editorial review status storage.
+ */
+function brebo_knowledge_review_update_11001(): void {
+  $schema = \Drupal::database()->schema();
+  if (!$schema->tableExists('brebo_knowledge_review_status')) {
+    $definitions = brebo_knowledge_review_schema();
+    $schema->createTable('brebo_knowledge_review_status', $definitions['brebo_knowledge_review_status']);
+  }
+}

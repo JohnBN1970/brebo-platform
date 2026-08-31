@@ -1,0 +1,5 @@
+services:
+  brebo_knowledge_review.status_storage:
+    class: Drupal\brebo_knowledge_review\Review\ReviewStatusStorage
+    arguments:
+      - '@database'

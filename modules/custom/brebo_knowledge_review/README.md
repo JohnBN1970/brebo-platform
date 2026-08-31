@@ -22,30 +22,35 @@ Deze module mag niet:
 
 ## Redactionele beslisregel
 
-Een KnowledgeItem kan inhoudelijk technisch correct zijn zonder dat dezelfde maatregel altijd noodzakelijk is. De beoordeling moet daarom waar relevant onderscheid maken tussen:
-
-1. technische prestatie en comfort;
-2. functionele bruikbaarheid, waaronder zicht en gebruik;
-3. esthetische kwaliteit;
-4. risico en urgentie;
-5. passende volgende stap.
+Een KnowledgeItem kan inhoudelijk technisch correct zijn zonder dat dezelfde maatregel altijd noodzakelijk is. De beoordeling maakt daarom waar relevant onderscheid tussen technische prestatie/comfort, functionele bruikbaarheid, esthetische kwaliteit, risico/urgentie en passende vervolgstap.
 
 Voorbeeld: condens of blijvende waas tussen glasbladen kan op een defecte randafdichting wijzen. Dat betekent niet automatisch dat onmiddellijke vervanging op uitsluitend thermische gronden noodzakelijk is. Blijvende waas kan echter het doorzicht en de esthetische kwaliteit aantasten en daarmee vervanging praktisch of esthetisch wel passend maken. Vervanging van de isolatieglaseenheid betekent niet automatisch vervanging van het kozijn.
 
-## Eerste runtime
+## Runtime
 
-De eerste runtime levert bewust alleen de redactionele correctiestap:
+De reviewroute is `/admin/content/brebo-knowledge/{node}/review` en vereist de restricted permission `review brebo knowledge items`.
 
-- restricted permission `review brebo knowledge items`;
-- route `/admin/content/brebo-knowledge/{node}/review`;
-- toegang uitsluitend voor `brebo_knowledge_item` nodes;
-- hetzelfde formulier bevat de zeven canonieke inhoudsvelden;
-- de vijf canoniek verplichte velden blijven verplicht;
-- het bestaande tekstformaat per veld blijft behouden;
-- iedere opslag wordt als nieuwe node-revisie vastgelegd;
-- een redactionele revisietoelichting is verplicht.
+Het formulier:
 
-Goedkeuringsstatus, bronmetadata en AI-vrijgave zijn in deze stap nog niet geïmplementeerd. Daarmee kan inhoudelijke correctie niet per ongeluk als goedkeuring of AI-vrijgave worden geïnterpreteerd.
+- bewerkt rechtstreeks de zeven canonieke KnowledgeItem-velden;
+- bewaart iedere inhoudelijke opslag als nieuwe node-revisie;
+- vereist een redactionele revisietoelichting;
+- registreert daarnaast een lichte reviewstatus in de reviewmodule zelf.
+
+De reviewstatus kent vier toestanden:
+
+- `Te beoordelen`;
+- `In beoordeling`;
+- `Goedgekeurd`;
+- `Herziening nodig`.
+
+Een reviewbesluit wordt gekoppeld aan de exacte KnowledgeItem-revisie, beoordelaar en het tijdstip van het besluit. Wanneer daarna een nieuwere node-revisie ontstaat, geldt de eerdere goedkeuring niet automatisch voor die nieuwe inhoud en wordt effectief `Herziening nodig` getoond.
+
+De reviewstatus is ondersteunende metadata en geen tweede bron van waarheid voor de kennisinhoud.
+
+## AI-vrijgave
+
+AI-vrijgave is nog niet geïmplementeerd en blijft bewust een afzonderlijk besluit. Een KnowledgeItem kan dus redactioneel goedgekeurd zijn zonder voor AI te zijn vrijgegeven.
 
 ## Verificatie
 
@@ -55,7 +60,9 @@ Goedkeuringsstatus, bronmetadata en AI-vrijgave zijn in deze stap nog niet geïm
 - een node van een ander contenttype kan niet via de reviewroute worden aangepast;
 - het reviewformulier is bereikbaar voor een bevoegde reviewer;
 - de zeven canonieke velden worden via het bestaande KnowledgeItem bijgewerkt;
-- opslaan creëert exact één extra revisie en bewaart de revisietoelichting.
+- opslaan creëert exact één extra revisie en bewaart de revisietoelichting;
+- een goedkeuring wordt aan de opgeslagen revisie gekoppeld;
+- een latere inhoudelijke revisie maakt die eerdere goedkeuring effectief `Herziening nodig`.
 
 De aparte GitHub Actions-workflow controleert daarnaast Composer-metadata, diff-whitespace, Drupal coding standards, PHP-syntax en de functionele test.
 
@@ -65,7 +72,6 @@ Er worden geen nieuwe canonieke KnowledgeItem-velden toegevoegd en geen bestande
 
 Na groene runtimevalidatie volgen in afzonderlijke stappen:
 
-1. redactionele reviewstatus;
-2. bronregistratie en bronbeoordeling;
-3. expliciete, afzonderlijke AI-vrijgave;
-4. eerste end-to-end KnowledgeItem `Condens tussen de glasbladen`.
+1. bronregistratie en bronbeoordeling;
+2. expliciete, afzonderlijke AI-vrijgave;
+3. gecontroleerde opschaling van de redactionele kennisitems.
