@@ -94,4 +94,10 @@ jobs:
           if [ -f phpunit-review.log ]; then
             tail -n 100 phpunit-review.log
           fi
+          if [ "${{ steps.phpunit.outcome }}" != "success" ]; then
+            echo '=== Drupal test server log ==='
+            tail -n 200 /tmp/brebo-drupal-test-server.log || true
+            echo '=== Browser output errors ==='
+            grep -R -n -E 'Error|Exception|TypeError|PDOException|SQLSTATE|LogicException' sites/simpletest/browser_output | tail -n 100 || true
+          fi
           test "${{ steps.phpunit.outcome }}" = "success"
