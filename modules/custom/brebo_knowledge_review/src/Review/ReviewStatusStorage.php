@@ -57,7 +57,7 @@ final class ReviewStatusStorage {
     string $note,
   ): void {
     $this->database->merge('brebo_knowledge_review_status')
-      ->key(['node_id' => $nodeId])
+      ->key('node_id', $nodeId)
       ->fields([
         'revision_id' => $revisionId,
         'status' => $status,
