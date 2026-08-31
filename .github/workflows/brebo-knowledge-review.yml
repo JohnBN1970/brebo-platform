@@ -55,15 +55,27 @@ jobs:
           php -l modules/custom/brebo_knowledge_review/src/Form/KnowledgeReviewForm.php
           php -l modules/custom/brebo_knowledge_review/tests/src/Functional/KnowledgeReviewFormTest.php
 
-      - name: Prepare SQLite test directory
-        run: mkdir -p sites/default/files
+      - name: Prepare functional test environment
+        run: |
+          mkdir -p sites/default/files sites/simpletest/browser_output
+          chmod -R u+rwX sites/default/files sites/simpletest
+          php -S 127.0.0.1:8080 .github/workflows/drupal-test-router.php > /tmp/brebo-drupal-test-server.log 2>&1 &
+          echo $! > /tmp/brebo-drupal-test-server.pid
+          for attempt in {1..20}; do
+            if curl --silent --fail http://127.0.0.1:8080/ >/dev/null 2>&1; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/brebo-drupal-test-server.log
+          exit 1
 
       - name: Run Knowledge review functional test
         id: phpunit
         continue-on-error: true
         env:
           SIMPLETEST_DB: sqlite://localhost/sites/default/files/.ht.sqlite
-          SIMPLETEST_BASE_URL: http://localhost
+          SIMPLETEST_BASE_URL: http://127.0.0.1:8080
         run: |
           vendor/bin/phpunit -c core --colors=never modules/custom/brebo_knowledge_review/tests/src/Functional/KnowledgeReviewFormTest.php > phpunit-review.log 2>&1
 
