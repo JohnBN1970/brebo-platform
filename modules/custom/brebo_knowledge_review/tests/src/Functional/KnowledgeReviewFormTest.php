@@ -7,12 +7,14 @@ namespace Drupal\Tests\brebo_knowledge_review\Functional;
 use Drupal\Tests\BrowserTestBase;
 use Drupal\node\Entity\Node;
 use Drupal\node\Entity\NodeType;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Tests the bounded BREBO Knowledge review form.
  *
  * @group brebo_knowledge_review
  */
+#[RunTestsInSeparateProcesses]
 final class KnowledgeReviewFormTest extends BrowserTestBase {
 
   /**
