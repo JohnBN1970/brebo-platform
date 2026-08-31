@@ -33,7 +33,7 @@ final class KnowledgeReviewFormTest extends BrowserTestBase {
   protected $defaultTheme = 'stark';
 
   /**
-   * Proves access control, bundle scoping and revisioned saves.
+   * Proves access, revisioned saves and revision-bound review status.
    */
   public function testReviewFormIsBoundedAndRevisioned(): void {
     $knowledgeItem = Node::create([
@@ -58,6 +58,7 @@ final class KnowledgeReviewFormTest extends BrowserTestBase {
     $this->drupalGet($path);
     $this->assertSession()->statusCodeEquals(200);
     $this->assertSession()->pageTextContains('Condens tussen de glasbladen');
+    $this->assertSession()->pageTextContains('Te beoordelen');
 
     NodeType::create([
       'type' => 'review_test_page',
@@ -83,11 +84,14 @@ final class KnowledgeReviewFormTest extends BrowserTestBase {
       'field_knowledge_basis' => 'Gebaseerd op technische bronnen; deskundige controle blijft nodig voor projectspecifieke maatregelkeuze.',
       'field_knowledge_regie' => 'Prioriteer op impact en gebruiksfunctie, niet alleen op de aanwezigheid van het gebrek.',
       'field_knowledge_realization' => 'Behoud waar verantwoord of vervang de isolatieglaseenheid vanwege techniek, zicht of esthetiek; kozijnvervanging volgt niet automatisch.',
+      'review_status' => 'approved',
+      'review_note' => 'Inhoud gecontroleerd en bruikbaar als referentie-item.',
       'revision_log' => 'Nuance techniek, doorzicht en esthetiek toegevoegd.',
-    ], 'Correcties opslaan als nieuwe revisie');
+    ], 'Correcties en reviewbesluit opslaan');
 
     $this->assertSession()->statusCodeEquals(200);
-    $this->assertSession()->pageTextContains('De KnowledgeItem-correcties zijn als nieuwe revisie opgeslagen.');
+    $this->assertSession()->pageTextContains('De KnowledgeItem-correcties en reviewstatus zijn opgeslagen.');
+    $this->assertSession()->pageTextContains('Goedgekeurd');
 
     $storage->resetCache([$knowledgeItem->id()]);
     $reloaded = $storage->load($knowledgeItem->id());
@@ -103,6 +107,19 @@ final class KnowledgeReviewFormTest extends BrowserTestBase {
       'Nuance techniek, doorzicht en esthetiek toegevoegd.',
       $reloaded->getRevisionLogMessage(),
     );
+
+    $decision = $this->container->get('brebo_knowledge_review.status_storage')->load((int) $reloaded->id());
+    $this->assertNotNull($decision);
+    $this->assertSame('approved', $decision['status']);
+    $this->assertSame((int) $reloaded->getRevisionId(), $decision['revision_id']);
+
+    $reloaded->set('field_knowledge_observation', 'Latere inhoudelijke wijziging.');
+    $reloaded->setNewRevision(TRUE);
+    $reloaded->save();
+
+    $this->drupalGet($path);
+    $this->assertSession()->statusCodeEquals(200);
+    $this->assertSession()->pageTextContains('Herziening nodig');
   }
 
 }
