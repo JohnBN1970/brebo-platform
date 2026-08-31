@@ -87,7 +87,7 @@ final class KnowledgeReviewForm extends FormBase {
    * Creates the form.
    */
   public function __construct(
-    private readonly ReviewStatusStorage $statusStorage,
+    private ReviewStatusStorage $statusStorage,
   ) {}
 
   /**
