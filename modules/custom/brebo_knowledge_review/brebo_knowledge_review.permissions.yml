@@ -1,0 +1,4 @@
+review brebo knowledge items:
+  title: 'BREBO-kennis beoordelen'
+  description: 'Bestaande BREBO KnowledgeItems inhoudelijk beoordelen en via een nieuwe revisie corrigeren.'
+  restrict access: true

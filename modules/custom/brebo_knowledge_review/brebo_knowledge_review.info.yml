@@ -1,0 +1,7 @@
+name: 'BREBO Knowledge Review'
+type: module
+description: 'Redactionele beoordelingslaag voor BREBO KnowledgeItems, gescheiden van de canonieke kennisconfiguratie.'
+package: BREBO
+core_version_requirement: ^11
+dependencies:
+  - brebo_knowledge:brebo_knowledge
