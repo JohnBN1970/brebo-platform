@@ -1,0 +1,18 @@
+<?php
+
+/**
+ * @file
+ * Theme hooks for the BREBO Bouwbegeleiding module.
+ */
+
+/**
+ * Implements hook_theme().
+ */
+function brebo_build_supervision_theme($existing, $type, $theme, $path): array {
+  return [
+    'brebo_build_supervision' => [
+      'variables' => [],
+      'template' => 'brebo-build-supervision',
+    ],
+  ];
+}

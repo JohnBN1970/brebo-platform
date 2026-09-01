@@ -1,0 +1,5 @@
+name: 'BREBO Bouwbegeleiding'
+type: module
+description: 'Websiteblok voor de klantreis rond onafhankelijke bouwbegeleiding.'
+package: BREBO
+core_version_requirement: ^10 || ^11
