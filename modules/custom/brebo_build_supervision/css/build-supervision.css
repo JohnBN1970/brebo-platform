@@ -8,18 +8,6 @@
   margin-inline: auto;
 }
 
-.build-supervision__hero {
-  padding: 118px 0 104px;
-  color: #fff;
-  background:
-    radial-gradient(circle at top right, rgba(116, 64, 166, .26), transparent 36%),
-    #132238;
-}
-
-.build-supervision__hero .build-supervision__inner {
-  max-width: 980px;
-}
-
 .build-supervision__eyebrow {
   margin: 0 0 16px;
   color: #7440a6;
@@ -29,32 +17,14 @@
   text-transform: uppercase;
 }
 
-.build-supervision__hero .build-supervision__eyebrow,
 .build-supervision__cta .build-supervision__eyebrow {
   color: rgba(255, 255, 255, .62);
 }
 
-.build-supervision h1,
 .build-supervision h2,
 .build-supervision h3,
 .build-supervision p {
   margin-top: 0;
-}
-
-.build-supervision h1 {
-  max-width: 980px;
-  margin-bottom: 28px;
-  font-size: clamp(3rem, 6vw, 5.6rem);
-  line-height: .98;
-  letter-spacing: -.045em;
-}
-
-.build-supervision__lead {
-  max-width: 760px;
-  margin-bottom: 34px;
-  color: rgba(255, 255, 255, .86);
-  font-size: clamp(1.16rem, 1.7vw, 1.42rem);
-  line-height: 1.65;
 }
 
 .build-supervision__button {
@@ -265,10 +235,6 @@
 @media (max-width: 720px) {
   .build-supervision__inner {
     width: min(100% - 32px, 1200px);
-  }
-
-  .build-supervision__hero {
-    padding: 82px 0 70px;
   }
 
   .build-supervision__content {
