@@ -27,7 +27,7 @@
     <div class="service-detail__hero-overlay" aria-hidden="true"></div>
 
     <div class="service-detail__hero-inner">
-      <p class="service-detail__eyebrow">{{ 'Dienst'|t }}</p>
+      <p class="service-detail__eyebrow">{{ 'Uw situatie'|t }}</p>
 
       <h1 class="service-detail__title">{{ node.label }}</h1>
 
@@ -52,11 +52,11 @@
       <section class="service-detail__key-points" aria-labelledby="dienst-kernpunten">
         <div class="service-detail__section-heading">
           <p class="service-detail__section-eyebrow">
-            {{ 'Wat u van BREBO mag verwachten'|t }}
+            {{ 'Wat heeft u nu nodig?'|t }}
           </p>
 
           <h2 id="dienst-kernpunten">
-            {{ 'Onze aanpak in het kort'|t }}
+            {{ 'Zo helpt BREBO u verder'|t }}
           </h2>
         </div>
 
@@ -65,6 +65,36 @@
         </div>
       </section>
     {% endif %}
+
+    <section class="service-detail__journey" aria-labelledby="dienst-klantreis">
+      <div class="service-detail__section-heading">
+        <p class="service-detail__section-eyebrow">
+          {{ 'Uw gebouw. Uw moment.'|t }}
+        </p>
+
+        <h2 id="dienst-klantreis">
+          {{ 'U kunt instappen waar u ons nodig heeft'|t }}
+        </h2>
+
+        <p>
+          {{ 'Niet ieder project begint bij BREBO. Misschien wilt u eerst weten wat er speelt, heeft u de aanpak al bepaald of is het werk zelfs al gestart. We sluiten aan op uw situatie en nemen alleen de rol die nodig is.'|t }}
+        </p>
+      </div>
+
+      <ol class="service-detail__journey-steps">
+        <li><span>01</span><strong>{{ 'Begrijpen'|t }}</strong><small>{{ 'Wat speelt er aan uw gebouw?'|t }}</small></li>
+        <li><span>02</span><strong>{{ 'Bepalen'|t }}</strong><small>{{ 'Welke aanpak past bij de opgave?'|t }}</small></li>
+        <li><span>03</span><strong>{{ 'Voorbereiden'|t }}</strong><small>{{ 'Zijn afspraken, stukken en kosten helder?'|t }}</small></li>
+        <li><span>04</span><strong>{{ 'Uitvoeren'|t }}</strong><small>{{ 'Het werk gaat van start.'|t }}</small></li>
+        <li class="service-detail__journey-step--accent"><span>05</span><strong>{{ 'Begeleiden'|t }}</strong><small>{{ 'Wie bewaakt tijdens het werk uw belang?'|t }}</small></li>
+        <li><span>06</span><strong>{{ 'Opleveren'|t }}</strong><small>{{ 'Is uitgevoerd wat is afgesproken?'|t }}</small></li>
+        <li><span>07</span><strong>{{ 'Beheren'|t }}</strong><small>{{ 'Wat vraagt het gebouw daarna?'|t }}</small></li>
+      </ol>
+
+      <p class="service-detail__journey-note">
+        {{ 'Loopt uw project al? Ook dan kunt u rechtstreeks bij BREBO instappen voor onafhankelijke begeleiding, controle of oplevering.'|t }}
+      </p>
+    </section>
 
     <section class="service-detail__lens" aria-labelledby="dienst-lens">
       <div class="service-detail__lens-intro">
@@ -77,7 +107,7 @@
         </h2>
 
         <p>
-          {{ 'Wij bekijken niet alleen de afzonderlijke werkzaamheden, maar de complete buitenzijde van het gebouw. Zo ontstaat één samenhangend plan met één aanspreekpunt en één planning.'|t }}
+          {{ 'We kijken naar uw gebouw, de opgave en de fase waarin u zich bevindt. Zo ontstaat een aanpak die past bij wat er werkelijk nodig is, zonder dat u meer diensten hoeft af te nemen dan nodig.'|t }}
         </p>
       </div>
 
@@ -87,7 +117,7 @@
           <span class="service-detail__lens-number">01</span>
           <div>
             <h3>{{ 'Inzicht'|t }}</h3>
-            <p>{{ 'We brengen de technische staat, aandachtspunten en samenhang van het gebouw in beeld.'|t }}</p>
+            <p>{{ 'We maken helder wat er speelt, welke risico’s er zijn en welke informatie nodig is om een goede keuze te maken.'|t }}</p>
           </div>
         </div>
 
@@ -95,7 +125,7 @@
           <span class="service-detail__lens-number">02</span>
           <div>
             <h3>{{ 'Regie'|t }}</h3>
-            <p>{{ 'We vertalen het inzicht naar een duidelijke aanpak, planning en afstemming tussen disciplines.'|t }}</p>
+            <p>{{ 'We brengen keuzes, afspraken, partijen, planning en kosten samen en bewaken de samenhang.'|t }}</p>
           </div>
         </div>
 
@@ -103,7 +133,7 @@
           <span class="service-detail__lens-number">03</span>
           <div>
             <h3>{{ 'Realisatie'|t }}</h3>
-            <p>{{ 'We bewaken uitvoering, kwaliteit en voortgang tot en met de oplevering.'|t }}</p>
+            <p>{{ 'Als uitvoering aan de orde is, kan BREBO die organiseren, begeleiden of onafhankelijk controleren — passend bij uw opdracht.'|t }}</p>
           </div>
         </div>
 
@@ -134,16 +164,16 @@
     <div class="service-detail__cta-inner">
       <div class="service-detail__cta-copy">
         <p class="service-detail__cta-eyebrow">
-          {{ 'Uw gebouw centraal'|t }}
+          {{ 'Uw situatie bespreken'|t }}
         </p>
 
         <h2>
-          {{ 'Wilt u weten wat BREBO voor uw gebouw kan betekenen?'|t }}
+          {{ 'Waar staat u nu met uw gebouw of project?'|t }}
         </h2>
       </div>
 
       <a class="service-detail__cta-button" href="/offerte-aanvragen">
-        <span>{{ 'Offerte aanvragen'|t }}</span>
+        <span>{{ 'Bespreek uw situatie'|t }}</span>
         <span class="service-detail__cta-arrow" aria-hidden="true">→</span>
       </a>
     </div>
