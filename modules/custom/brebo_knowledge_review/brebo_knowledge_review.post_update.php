@@ -1,11 +1,11 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * @file
  * Post-update hooks for BREBO Knowledge Review.
  */
+
+declare(strict_types=1);
 
 /**
  * Reconciles status storage for modules enabled before schema introduction.
