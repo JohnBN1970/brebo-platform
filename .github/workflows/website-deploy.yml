@@ -153,9 +153,39 @@ jobs:
           echo "===== RUNTIME CHECK ====="
           "${drush[@]}" php:eval 'print "DRUPAL_BOOTSTRAP_OK=1\n"; print "SITE_NAME=" . \Drupal::config("system.site")->get("name") . "\n";'
 
+          echo "===== FRONTEND ASSET CHECK ====="
+          lens_css_rel="modules/custom/brebo_lens/css/brebo-lens.css"
+          lens_js_rel="modules/custom/brebo_lens/js/brebo-lens.js"
+          for asset in "$lens_css_rel" "$lens_js_rel"; do
+            [[ -s "$public_root/$asset" ]] || {
+              echo "::error::Published frontend asset is missing or empty: $asset"
+              exit 1
+            }
+          done
+
+          source_css_sha="$(sha256sum "$target/$lens_css_rel" | awk '{print $1}')"
+          public_css_sha="$(sha256sum "$public_root/$lens_css_rel" | awk '{print $1}')"
+          source_js_sha="$(sha256sum "$target/$lens_js_rel" | awk '{print $1}')"
+          public_js_sha="$(sha256sum "$public_root/$lens_js_rel" | awk '{print $1}')"
+          [[ "$source_css_sha" == "$public_css_sha" ]] || { echo "::error::Lens CSS differs between source and public webroot."; exit 1; }
+          [[ "$source_js_sha" == "$public_js_sha" ]] || { echo "::error::Lens JS differs between source and public webroot."; exit 1; }
+
+          asset_token="$(git rev-parse --short=12 HEAD)"
+          lens_css_url="${public_url}${lens_css_rel}?v=${asset_token}"
+          lens_js_url="${public_url}${lens_js_rel}?v=${asset_token}"
+          lens_css_result="$(curl -L -sS -o /tmp/brebo-lens.css --max-time 20 -w '%{http_code} %{content_type}' "$lens_css_url")"
+          lens_js_result="$(curl -L -sS -o /tmp/brebo-lens.js --max-time 20 -w '%{http_code} %{content_type}' "$lens_js_url")"
+          public_http_css_sha="$(sha256sum /tmp/brebo-lens.css | awk '{print $1}')"
+          public_http_js_sha="$(sha256sum /tmp/brebo-lens.js | awk '{print $1}')"
+          [[ "$public_http_css_sha" == "$source_css_sha" ]] || { echo "::error::Public Lens CSS is stale or differs from deployed source."; exit 1; }
+          [[ "$public_http_js_sha" == "$source_js_sha" ]] || { echo "::error::Public Lens JS is stale or differs from deployed source."; exit 1; }
+          echo "LENS_CSS_RESULT=$lens_css_result"
+          echo "LENS_JS_RESULT=$lens_js_result"
+          echo "LENS_ASSETS_CURRENT=1"
+
           echo "===== PUBLIC SMOKE TESTS ====="
-          homepage_code="$(curl -L -sS -o /dev/null --max-time 20 -w '%{http_code}' "$public_url")"
-          logo_url="${public_url}themes/custom/brebo_theme/logo.svg"
+          homepage_code="$(curl -L -sS -o /dev/null --max-time 20 -w '%{http_code}' "${public_url}?v=${asset_token}")"
+          logo_url="${public_url}themes/custom/brebo_theme/logo.svg?v=${asset_token}"
           logo_result="$(curl -L -sS -o /dev/null --max-time 20 -w '%{http_code} %{content_type}' "$logo_url")"
 
           echo "PUBLIC_URL=$public_url"
