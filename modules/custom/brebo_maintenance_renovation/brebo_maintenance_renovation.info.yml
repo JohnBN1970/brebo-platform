@@ -1,0 +1,5 @@
+name: 'BREBO Onderhoud & renovatie'
+type: module
+description: 'Websiteblok voor de klantreis rond onderhoud, herstel en renovatie.'
+package: BREBO
+core_version_requirement: ^10 || ^11
