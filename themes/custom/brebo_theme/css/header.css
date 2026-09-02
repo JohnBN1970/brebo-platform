@@ -34,45 +34,34 @@
   gap: clamp(1.25rem, 2.6vw, 2.5rem);
 }
 
-/* Drupal Site Branding block */
-.region-header [id*="site-branding"],
-.region-header .block-system-branding-block {
-  flex: 0 0 auto;
-  margin: 0 auto 0 0;
-  line-height: 1;
-}
-
-.region-header [id*="site-branding"] > div,
-.region-header .block-system-branding-block > div {
-  display: flex;
-  align-items: center;
-}
-
-.region-header [id*="site-branding"] a[rel="home"],
-.region-header .block-system-branding-block a[rel="home"] {
+.site-header__brand {
+  flex: 0 0 220px;
   display: inline-flex;
   align-items: center;
+  margin-right: auto;
   line-height: 1;
   text-decoration: none;
 }
 
-.region-header [id*="site-branding"] img,
-.region-header .block-system-branding-block img {
+.site-header__brand-logo {
   display: block;
-  width: 220px !important;
-  height: auto !important;
-  max-width: 220px !important;
-  max-height: 72px !important;
+  width: 220px;
+  height: auto;
+  max-width: 100%;
+  max-height: 72px;
   object-fit: contain;
-  transition:
-    width var(--brebo-transition),
-    max-width var(--brebo-transition);
+  object-position: left center;
+  transition: width var(--brebo-transition), max-width var(--brebo-transition);
 }
 
-.site-header.is-scrolled .region-header [id*="site-branding"] img,
-.site-header.is-scrolled .region-header .block-system-branding-block img {
-  width: 196px !important;
-  max-width: 196px !important;
+.site-header.is-scrolled .site-header__brand-logo {
+  width: 196px;
+}
+
+/* Drupal Site Branding may remain configured, but the theme owns the visible brand. */
+.region-header [id*="site-branding"],
+.region-header .block-system-branding-block {
+  display: none !important;
 }
 
 .region-header .site-name,
@@ -171,13 +160,15 @@
     gap: 0;
   }
 
-  .region-header [id*="site-branding"] img,
-  .region-header .block-system-branding-block img,
-  .site-header.is-scrolled .region-header [id*="site-branding"] img,
-  .site-header.is-scrolled .region-header .block-system-branding-block img {
-    width: 160px !important;
-    max-width: 160px !important;
-    max-height: 50px !important;
+  .site-header__brand {
+    flex-basis: 160px;
+    width: 160px;
+  }
+
+  .site-header__brand-logo,
+  .site-header.is-scrolled .site-header__brand-logo {
+    width: 160px;
+    max-height: 50px;
   }
 
   .site-header__cta {
@@ -186,30 +177,5 @@
 
   .site-header__toggle {
     display: inline-flex;
-  }
-}
-
-/* Release 5.1: sterkere BREBO-signatuur zonder de navigatie te verschuiven. */
-.region-header [id*="site-branding"],
-.region-header .block-system-branding-block {
-  width: 220px;
-  overflow: visible;
-}
-
-.region-header [id*="site-branding"] img,
-.region-header .block-system-branding-block img {
-  transform: scale(1.18);
-  transform-origin: left center;
-}
-
-@media (max-width: 1023px) {
-  .region-header [id*="site-branding"],
-  .region-header .block-system-branding-block {
-    width: 160px;
-  }
-
-  .region-header [id*="site-branding"] img,
-  .region-header .block-system-branding-block img {
-    transform: scale(1.12);
   }
 }
