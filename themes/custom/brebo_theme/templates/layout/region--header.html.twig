@@ -2,6 +2,10 @@
   <header class="site-header" role="banner">
     <div class="site-container site-header__inner">
       <div{{ attributes.addClass('region', 'region-header') }}>
+        <a class="site-header__brand" href="/" rel="home" aria-label="{{ 'BREBO home'|t }}">
+          <img class="site-header__brand-logo" src="/themes/custom/brebo_theme/logo.svg" alt="BREBO Bouw en Advies BV">
+        </a>
+
         {{ content }}
 
         <a class="site-header__cta button button--header" href="/contact">
