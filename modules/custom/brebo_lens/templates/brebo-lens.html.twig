@@ -1,4 +1,4 @@
-<section class="brebo-lens" data-brebo-lens style="--lens-rotation: 0deg;">
+<section id="brebo-lens" class="brebo-lens" data-brebo-lens>
   <div class="brebo-lens__backdrop" aria-hidden="true">
     <img class="brebo-lens__backdrop-image brebo-lens__backdrop-image--current" src="{{ initial_image_url }}" alt="" data-lens-backdrop-current>
     <img class="brebo-lens__backdrop-image brebo-lens__backdrop-image--next" src="{{ initial_image_url }}" alt="" data-lens-backdrop-next>
@@ -8,71 +8,52 @@
   <div class="brebo-lens__container">
     <header class="brebo-lens__intro">
       <p class="brebo-lens__eyebrow">De BREBO Lens</p>
-      <h2 class="brebo-lens__title">Wij kijken anders<br>naar gebouwen.</h2>
-      <p class="brebo-lens__lead">Van inzicht in wat er werkelijk speelt, via regie op de juiste aanpak, naar realisatie die ook op de lange termijn klopt.</p>
+      <h2 class="brebo-lens__title">Van gebouwvraag<br>naar onderbouwde keuze.</h2>
+      <p class="brebo-lens__lead">Inzicht, Regie en Realisatie vormen samen één aanpak. Niet de oplossing staat vooraf vast, maar het gebouw staat steeds centraal.</p>
     </header>
 
     <div class="brebo-lens__layout">
-      <div class="brebo-lens__visual">
-        <div class="brebo-lens__orbit" aria-label="De drie fasen van de BREBO Lens">
-          <div class="brebo-lens__orbit-ring" aria-hidden="true">
-            <span class="brebo-lens__orbit-marker"></span>
-          </div>
-
-          {% for step in steps %}
-            <button
-              class="brebo-lens__node brebo-lens__node--{{ loop.index }}{{ loop.first ? ' is-active' : '' }}"
-              type="button"
-              data-lens-step="{{ loop.index0 }}"
-              data-lens-image="{{ step.image }}"
-              aria-pressed="{{ loop.first ? 'true' : 'false' }}">
-              <span class="brebo-lens__node-icon" aria-hidden="true">
-                {% if step.icon == 'listen' %}
-                  <svg viewBox="0 0 24 24"><path d="M12 3a5 5 0 1 0 0 10 5 5 0 0 0 0-10Zm-8 18c.6-4 3.2-6 8-6s7.4 2 8 6"/></svg>
-                {% elseif step.icon == 'search' %}
+      <div class="brebo-lens__visual" aria-label="De BREBO Lens: Inzicht, Regie en Realisatie">
+        <div class="brebo-lens__venn">
+          {% for phase in phases %}
+            <button class="brebo-lens__phase brebo-lens__phase--{{ loop.index }}{{ loop.first ? ' is-active' : '' }}" type="button" data-lens-step="{{ loop.index0 }}" data-lens-image="{{ phase.image }}" aria-pressed="{{ loop.first ? 'true' : 'false' }}">
+              <span class="brebo-lens__phase-number">0{{ loop.index }}</span>
+              <span class="brebo-lens__phase-icon" aria-hidden="true">
+                {% if loop.index == 1 %}
                   <svg viewBox="0 0 24 24"><circle cx="10" cy="10" r="6"/><path d="m14.5 14.5 5 5"/></svg>
-                {% elseif step.icon == 'idea' %}
-                  <svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M8.3 14.5A7 7 0 1 1 15.7 14.5C14.8 15.3 14.5 16 14.5 17h-5c0-1-.3-1.7-1.2-2.5Z"/></svg>
-                {% elseif step.icon == 'organize' %}
+                {% elseif loop.index == 2 %}
                   <svg viewBox="0 0 24 24"><circle cx="8" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M2.5 20c.4-4 2.3-6 5.5-6s5.1 2 5.5 6M14 15c3.6-.5 6 .9 7 4"/></svg>
-                {% elseif step.icon == 'build' %}
-                  <svg viewBox="0 0 24 24"><path d="m14 5 5 5M4 20l7.5-7.5M7 4l3 3-2.5 2.5-3-3L7 4Zm10 9 3 3-4 4-3-3 4-4Z"/></svg>
                 {% else %}
-                  <svg viewBox="0 0 24 24"><path d="M12 3 19 6v5c0 4.6-2.7 7.8-7 10-4.3-2.2-7-5.4-7-10V6l7-3Z"/><path d="m9 12 2 2 4-4"/></svg>
+                  <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="m8.5 12 2.2 2.2 4.8-5"/></svg>
                 {% endif %}
               </span>
-              <span class="brebo-lens__node-content">
-                <span class="brebo-lens__node-heading">
-                  <span class="brebo-lens__node-number">{{ step.number }}</span>
-                  <strong>{{ step.title }}</strong>
-                </span>
-                <small>{{ step.short }}</small>
-              </span>
+              <strong>{{ phase.title }}</strong>
+              <small>{{ phase.subtitle }}</small>
             </button>
           {% endfor %}
 
-          <div class="brebo-lens__glass" aria-hidden="true">
-            <div class="brebo-lens__glass-photos">
+          <div class="brebo-lens__core" aria-hidden="true">
+            <div class="brebo-lens__core-photo">
               <img class="brebo-lens__glass-photo brebo-lens__glass-photo--current" src="{{ initial_image_url }}" alt="" data-lens-photo-current>
               <img class="brebo-lens__glass-photo brebo-lens__glass-photo--next" src="{{ initial_image_url }}" alt="" data-lens-photo-next>
             </div>
-            <div class="brebo-lens__glass-shine"></div>
-            <div class="brebo-lens__glass-rim"></div>
+            <div class="brebo-lens__motto"><span>Het gebouw</span><strong>staat centraal.</strong></div>
           </div>
         </div>
+
+        <p class="brebo-lens__hint" style="margin-top:2.75rem;"><span aria-hidden="true">☝</span>Klik op een fase om te zien hoe we samen stap voor stap werken aan de beste oplossing voor uw gebouw.</p>
       </div>
 
       <aside class="brebo-lens__panel" aria-live="polite" aria-atomic="true">
         <div class="brebo-lens__panel-content">
-          {% for step in steps %}
+          {% for phase in phases %}
             <article class="brebo-lens__panel-step{{ loop.first ? ' is-active' : '' }}" data-lens-panel="{{ loop.index0 }}" {% if not loop.first %}hidden{% endif %}>
-              <p class="brebo-lens__panel-number">{{ step.number }}</p>
-              <h3>{{ step.title }}</h3>
+              <p class="brebo-lens__panel-number">{{ phase.number }}</p>
+              <h3>{{ phase.title }}</h3>
+              <p class="brebo-lens__panel-subtitle">{{ phase.subtitle }}</p>
               <span class="brebo-lens__panel-accent" aria-hidden="true"></span>
-              <p class="brebo-lens__panel-text">{{ step.text }}</p>
-              <ul>
-                {% for point in step.points %}<li>{{ point }}</li>{% endfor %}
-              </ul>
+              <p class="brebo-lens__panel-text">{{ phase.text }}</p>
+              <ul>{% for point in phase.points %}<li>{{ point }}</li>{% endfor %}</ul>
             </article>
           {% endfor %}
         </div>
@@ -80,6 +61,7 @@
           <button type="button" class="brebo-lens__nav brebo-lens__nav--prev" aria-label="Vorige fase">←</button>
           <button type="button" class="brebo-lens__nav brebo-lens__nav--next" aria-label="Volgende fase">→</button>
         </div>
+        <div class="brebo-lens__dots" aria-hidden="true"><span class="is-active"></span><span></span><span></span></div>
       </aside>
     </div>
   </div>

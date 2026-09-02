@@ -22,72 +22,50 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 )]
 final class BreboLensBlock extends BlockBase implements ContainerFactoryPluginInterface {
 
-  public function __construct(
-    array $configuration,
-    $plugin_id,
-    $plugin_definition,
-    private readonly ModuleExtensionList $moduleExtensionList,
-  ) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, private readonly ModuleExtensionList $moduleExtensionList) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
   }
 
-  public static function create(
-    ContainerInterface $container,
-    array $configuration,
-    $plugin_id,
-    $plugin_definition,
-  ): self {
-    return new self(
-      $configuration,
-      $plugin_id,
-      $plugin_definition,
-      $container->get('extension.list.module'),
-    );
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): self {
+    return new self($configuration, $plugin_id, $plugin_definition, $container->get('extension.list.module'));
   }
 
   public function build(): array {
     $module_path = $this->moduleExtensionList->getPath('brebo_lens');
 
-    $steps = [
+    $phases = [
       [
         'number' => '01',
         'title' => 'Inzicht',
-        'short' => 'We begrijpen het gebouw, onderzoeken de situatie en maken keuzes onderbouwd.',
-        'text' => 'Goed gebouwbeheer begint met inzicht. We brengen uw vraag, de historie, de technische staat, risico’s en kansen samen tot één helder beeld waarop u kunt beslissen.',
-        'points' => ['Gebouw en vraag in beeld', 'Technische staat en oorzaken onderzocht', 'Risico’s en kansen benoemd', 'Keuzes en prioriteiten onderbouwd'],
-        'icon' => 'search',
-        'image' => Url::fromUri('base:' . $module_path . '/images/lens/02-analyseren.webp')->toString(),
+        'subtitle' => 'Begrijpen + Analyseren',
+        'text' => 'We beginnen bij het gebouw. We luisteren, onderzoeken de historie en technische staat en verbinden feiten, oorzaken, risico’s en kansen tot één helder beeld.',
+        'points' => ['Vraag, doel en context begrijpen', 'Technische staat en historie analyseren', 'Oorzaken en risico’s zichtbaar maken', 'Scenario’s en prioriteiten onderbouwen'],
+        'image' => Url::fromUri('base:' . $module_path . '/images/lens/01-begrijpen.webp')->toString(),
       ],
       [
         'number' => '02',
         'title' => 'Regie',
-        'short' => 'We vertalen inzicht naar een haalbare aanpak en bewaken het proces namens u.',
-        'text' => 'Van advies tot voorbereiding en bouwbegeleiding: BREBO organiseert de samenhang. Afspraken, kosten, planning, kwaliteit en betrokken partijen worden vanuit één proces bewaakt.',
-        'points' => ['Aanpak en voorbereiding georganiseerd', 'Partijen en disciplines afgestemd', 'Kosten en planning bewaakt', 'Kwaliteit en voortgang gecontroleerd'],
-        'icon' => 'organize',
-        'image' => Url::fromUri('base:' . $module_path . '/images/lens/04-organiseren.webp')->toString(),
+        'subtitle' => 'Adviseren + Organiseren',
+        'text' => 'Inzicht wordt vertaald naar een onderbouwde koers. We maken keuzes inzichtelijk en organiseren mensen, disciplines, planning, communicatie en kwaliteit als één samenhangend proces.',
+        'points' => ['Oplossingsrichtingen en gevolgen afwegen', 'Kosten en lange termijn meenemen', 'Verantwoordelijkheden en disciplines afstemmen', 'Planning, communicatie en kwaliteit organiseren'],
+        'image' => Url::fromUri('base:' . $module_path . '/images/lens/03-adviseren.webp')->toString(),
       ],
       [
         'number' => '03',
         'title' => 'Realisatie',
-        'short' => 'De gekozen aanpak wordt uitgevoerd, opgeleverd en duurzaam geborgd.',
-        'text' => 'Wanneer uitvoering nodig is, zorgen we dat de juiste werkzaamheden op het juiste moment plaatsvinden. Daarna controleren we het resultaat en leggen we de basis voor voorspelbaar beheer.',
-        'points' => ['Juiste werkzaamheden uitgevoerd', 'Kwaliteit en veiligheid bewaakt', 'Oplevering en restpunten gecontroleerd', 'Resultaat en vervolg geborgd'],
-        'icon' => 'build',
+        'subtitle' => 'Realiseren + Borgen',
+        'text' => 'Pas wanneer duidelijk is wat nodig is, volgt de uitvoering. We bewaken kwaliteit en veiligheid, controleren het resultaat en leggen keuzes vast voor duurzaam en voorspelbaar gebouwbeheer.',
+        'points' => ['Juiste werkzaamheden en specialisten inzetten', 'Kwaliteit, veiligheid en afstemming bewaken', 'Resultaat controleren en vastleggen', 'Onderhoud en continuïteit borgen'],
         'image' => Url::fromUri('base:' . $module_path . '/images/lens/05-realiseren.webp')->toString(),
       ],
     ];
 
     return [
       '#theme' => 'brebo_lens',
-      '#image_url' => Url::fromUri('base:' . $module_path . '/images/hero-home-desktop.webp')->toString(),
-      '#initial_image_url' => $steps[0]['image'],
-      '#steps' => $steps,
-      '#attached' => [
-        'library' => ['brebo_lens/lens'],
-      ],
+      '#initial_image_url' => $phases[0]['image'],
+      '#phases' => $phases,
+      '#attached' => ['library' => ['brebo_lens/lens']],
       '#cache' => ['max-age' => -1],
     ];
   }
-
 }
