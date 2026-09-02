@@ -71,7 +71,7 @@ jobs:
             sleep $((attempt * 2))
           done
 
-      - name: Deploy develop and verify website
+      - name: Deploy develop publish assets and verify website
         shell: bash
         run: |
           set -euo pipefail
@@ -87,11 +87,17 @@ jobs:
           export NO_COLOR=1 TERM=dumb
 
           target="$HOME/domains/brebobv.nl/public_html/platform"
+          public_root="$target/web"
           branch="develop"
           public_url="https://platform.brebobv.nl/"
 
           [[ -d "$target/.git" ]] || {
             echo "::error::Target is not a Git repository: $target"
+            exit 1
+          }
+
+          [[ -d "$public_root" && -f "$public_root/index.php" ]] || {
+            echo "::error::Expected public webroot is missing: $public_root"
             exit 1
           }
 
@@ -105,6 +111,20 @@ jobs:
 
           git fetch origin "$branch"
           git pull --ff-only origin "$branch"
+
+          echo "===== PUBLISH PUBLIC CUSTOM EXTENSIONS ====="
+          rm -rf "$public_root/modules/custom" "$public_root/themes/custom"
+          mkdir -p "$public_root/modules" "$public_root/themes"
+          cp -a "$target/modules/custom" "$public_root/modules/custom"
+          cp -a "$target/themes/custom" "$public_root/themes/custom"
+
+          [[ -f "$public_root/themes/custom/brebo_theme/logo.svg" ]] || {
+            echo "::error::BREBO logo was not published to the public webroot."
+            exit 1
+          }
+
+          echo "PUBLIC_MODULES=$(find "$public_root/modules/custom" -mindepth 1 -maxdepth 1 -type d | wc -l)"
+          echo "PUBLIC_THEMES=$(find "$public_root/themes/custom" -mindepth 1 -maxdepth 1 -type d | wc -l)"
 
           if [[ -x /opt/alt/php83/usr/bin/php ]]; then
             php_bin=/opt/alt/php83/usr/bin/php
@@ -133,21 +153,36 @@ jobs:
           echo "===== RUNTIME CHECK ====="
           "${drush[@]}" php:eval 'print "DRUPAL_BOOTSTRAP_OK=1\n"; print "SITE_NAME=" . \Drupal::config("system.site")->get("name") . "\n";'
 
-          echo "===== PUBLIC SMOKE TEST ====="
-          http_code="$(curl -L -sS -o /dev/null --max-time 20 -w '%{http_code}' "$public_url")"
-          echo "PUBLIC_URL=$public_url"
-          echo "HTTP_CODE=$http_code"
+          echo "===== PUBLIC SMOKE TESTS ====="
+          homepage_code="$(curl -L -sS -o /dev/null --max-time 20 -w '%{http_code}' "$public_url")"
+          logo_url="${public_url}themes/custom/brebo_theme/logo.svg"
+          logo_result="$(curl -L -sS -o /dev/null --max-time 20 -w '%{http_code} %{content_type}' "$logo_url")"
 
-          case "$http_code" in
+          echo "PUBLIC_URL=$public_url"
+          echo "HOMEPAGE_HTTP_CODE=$homepage_code"
+          echo "LOGO_URL=$logo_url"
+          echo "LOGO_RESULT=$logo_result"
+
+          case "$homepage_code" in
             200|301|302) ;;
             *)
-              echo "::error::Unexpected HTTP status from $public_url: $http_code"
+              echo "::error::Unexpected HTTP status from $public_url: $homepage_code"
+              exit 1
+              ;;
+          esac
+
+          case "$logo_result" in
+            200\ image/svg+xml*) ;;
+            *)
+              echo "::error::BREBO logo is not publicly available as SVG: $logo_result"
               exit 1
               ;;
           esac
 
           deployed_sha="$(git rev-parse HEAD)"
           echo "DEPLOY_OK=1"
+          echo "PUBLIC_ASSETS_OK=1"
           echo "DEPLOYED_SHA=$deployed_sha"
           echo "TARGET=$target"
+          echo "PUBLIC_ROOT=$public_root"
           REMOTE
