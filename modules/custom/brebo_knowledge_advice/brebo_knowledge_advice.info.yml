@@ -1,0 +1,5 @@
+name: 'BREBO Kennis & advies'
+type: module
+description: 'Websiteblok voor technische kennis en advies rond gebouwbeheer.'
+package: BREBO
+core_version_requirement: ^10 || ^11
