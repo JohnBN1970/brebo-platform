@@ -1,0 +1,5 @@
+name: 'BREBO Uw gebouw'
+type: module
+description: 'Websiteblok dat de klantreis start vanuit het gebouw en de vraag die daar speelt.'
+package: BREBO
+core_version_requirement: ^10 || ^11
