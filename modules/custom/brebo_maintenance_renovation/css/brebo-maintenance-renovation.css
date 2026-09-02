@@ -1,0 +1,74 @@
+.brebo-maintenance {
+  padding: clamp(4rem, 7vw, 7rem) 1.5rem;
+  background: #f7f8fa;
+  color: #14201d;
+}
+
+.brebo-maintenance * { box-sizing: border-box; }
+.brebo-maintenance__inner { width: min(1180px, 100%); margin-inline: auto; }
+.brebo-maintenance__hero { max-width: 860px; margin-bottom: clamp(4rem, 7vw, 7rem); }
+.brebo-maintenance__eyebrow { margin: 0 0 .9rem; color: #7a3fb1; font-size: .78rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+.brebo-maintenance h1,
+.brebo-maintenance h2,
+.brebo-maintenance h3 { margin-top: 0; color: #14201d; }
+.brebo-maintenance h1 { margin-bottom: 1.4rem; font-size: clamp(2.8rem, 5.5vw, 5rem); line-height: .98; letter-spacing: -.045em; }
+.brebo-maintenance h2 { margin-bottom: 1rem; font-size: clamp(2rem, 3.6vw, 3.2rem); line-height: 1.05; letter-spacing: -.035em; }
+.brebo-maintenance h3 { margin-bottom: .7rem; font-size: 1.2rem; }
+.brebo-maintenance p { color: #5b6562; line-height: 1.75; }
+.brebo-maintenance__lead { max-width: 760px; margin: 0; font-size: clamp(1.05rem, 1.5vw, 1.25rem); }
+
+.brebo-maintenance__journey { margin-bottom: clamp(4rem, 7vw, 7rem); }
+.brebo-maintenance__intro { max-width: 720px; margin-bottom: 2rem; }
+.brebo-maintenance__steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+.brebo-maintenance__steps article,
+.brebo-maintenance__cards article {
+  padding: 1.5rem;
+  border: 1px solid rgba(20,32,29,.08);
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 10px 28px rgba(20,32,29,.05);
+}
+.brebo-maintenance__steps span { display: inline-grid; place-items: center; min-width: 34px; height: 34px; margin-bottom: 1rem; border-radius: 999px; background: linear-gradient(135deg, #168bff, #7a3fb1); color: #fff; font-size: .75rem; font-weight: 800; }
+.brebo-maintenance__steps p,
+.brebo-maintenance__cards p { margin-bottom: 0; }
+
+.brebo-maintenance__choice,
+.brebo-maintenance__regie {
+  display: grid;
+  grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+  gap: clamp(2rem, 5vw, 5rem);
+  align-items: start;
+  margin-bottom: clamp(4rem, 7vw, 7rem);
+  padding: clamp(2rem, 4vw, 3.5rem);
+  border-radius: 20px;
+  background: #fff;
+}
+.brebo-maintenance__copy p:first-child { margin-top: 0; }
+.brebo-maintenance__copy p:last-of-type { margin-bottom: 0; }
+
+.brebo-maintenance__cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: clamp(4rem, 7vw, 7rem); }
+.brebo-maintenance__link { display: inline-flex; gap: .45rem; margin-top: 1.25rem; color: #6f37a8; font-weight: 800; text-decoration: none; }
+.brebo-maintenance__link:hover { text-decoration: underline; }
+
+.brebo-maintenance__cta {
+  max-width: 900px;
+  padding: clamp(2.5rem, 5vw, 4.5rem);
+  border-radius: 22px;
+  background: #17211f;
+}
+.brebo-maintenance__cta h2 { color: #fff; }
+.brebo-maintenance__cta p:not(.brebo-maintenance__eyebrow) { max-width: 680px; color: rgba(255,255,255,.74); }
+.brebo-maintenance__button { display: inline-flex; margin-top: 1rem; padding: .9rem 1.3rem; border-radius: 8px; background: linear-gradient(135deg, #168bff, #7a3fb1); color: #fff; font-weight: 800; text-decoration: none; }
+.brebo-maintenance__button:hover { filter: brightness(1.05); }
+
+@media (max-width: 900px) {
+  .brebo-maintenance__steps { grid-template-columns: repeat(2, 1fr); }
+  .brebo-maintenance__choice,
+  .brebo-maintenance__regie { grid-template-columns: 1fr; gap: 1rem; }
+}
+
+@media (max-width: 620px) {
+  .brebo-maintenance { padding-inline: 1rem; }
+  .brebo-maintenance__steps,
+  .brebo-maintenance__cards { grid-template-columns: 1fr; }
+}
