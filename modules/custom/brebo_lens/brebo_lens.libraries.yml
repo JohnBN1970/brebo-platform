@@ -1,9 +1,8 @@
 lens:
-  version: 3.1.0
+  version: 3.0.0
   css:
     theme:
       css/brebo-lens.css: {}
-      css/brebo-lens-three-overlap.css: {}
   js:
     js/brebo-lens.js: {}
   dependencies:
