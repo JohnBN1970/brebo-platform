@@ -21,11 +21,11 @@ jobs:
     env:
       DEPLOY_HOST: 77.37.34.160
       DEPLOY_PORT: '65002'
+      DEPLOY_USER: u213420663
 
     steps:
       - name: Validate deployment settings
         env:
-          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
           DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
         shell: bash
         run: |
@@ -39,7 +39,6 @@ jobs:
 
       - name: Configure SSH
         env:
-          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
           DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
         shell: bash
         run: |
@@ -73,8 +72,6 @@ jobs:
           done
 
       - name: Deploy develop and verify website
-        env:
-          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
         shell: bash
         run: |
           set -euo pipefail
