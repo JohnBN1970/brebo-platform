@@ -1,0 +1,18 @@
+<?php
+
+/**
+ * @file
+ * Theme hooks for the BREBO Contact module.
+ */
+
+/**
+ * Implements hook_theme().
+ */
+function brebo_contact_theme($existing, $type, $theme, $path): array {
+  return [
+    'brebo_contact' => [
+      'variables' => [],
+      'template' => 'brebo-contact',
+    ],
+  ];
+}
