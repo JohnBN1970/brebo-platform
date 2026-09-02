@@ -1,0 +1,156 @@
+name: BREBO Website deploy
+
+on:
+  push:
+    branches:
+      - develop
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: brebo-website-deploy-develop
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy platform.brebobv.nl
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      DEPLOY_HOST: 77.37.34.160
+      DEPLOY_PORT: '65002'
+
+    steps:
+      - name: Validate deployment settings
+        env:
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          for name in DEPLOY_HOST DEPLOY_PORT DEPLOY_USER DEPLOY_SSH_KEY; do
+            if [[ -z "${!name}" ]]; then
+              echo "::error::Required deployment setting $name is missing."
+              exit 1
+            fi
+          done
+
+      - name: Configure SSH
+        env:
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          : > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+          for attempt in 1 2 3 4 5; do
+            if timeout 20 ssh \
+              -o BatchMode=yes \
+              -o ConnectTimeout=15 \
+              -o ServerAliveInterval=5 \
+              -o ServerAliveCountMax=2 \
+              -o StrictHostKeyChecking=accept-new \
+              -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
+              -i ~/.ssh/deploy_key \
+              -p "$DEPLOY_PORT" \
+              "$DEPLOY_USER@$DEPLOY_HOST" 'true'; then
+              break
+            fi
+
+            if [[ "$attempt" -eq 5 ]]; then
+              echo "::error::Unable to establish authenticated SSH connection."
+              exit 1
+            fi
+
+            sleep $((attempt * 2))
+          done
+
+      - name: Deploy develop and verify website
+        env:
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          ssh \
+            -o ConnectTimeout=15 \
+            -o ServerAliveInterval=10 \
+            -o ServerAliveCountMax=3 \
+            -i ~/.ssh/deploy_key \
+            -p "$DEPLOY_PORT" \
+            "$DEPLOY_USER@$DEPLOY_HOST" 'bash -se' <<'REMOTE'
+          set -eEuo pipefail
+          export NO_COLOR=1 TERM=dumb
+
+          target="$HOME/domains/brebobv.nl/public_html/platform"
+          branch="develop"
+          public_url="https://platform.brebobv.nl/"
+
+          [[ -d "$target/.git" ]] || {
+            echo "::error::Target is not a Git repository: $target"
+            exit 1
+          }
+
+          cd "$target"
+
+          current_branch="$(git branch --show-current)"
+          [[ "$current_branch" == "$branch" ]] || {
+            echo "::error::Expected branch $branch, found $current_branch"
+            exit 1
+          }
+
+          git fetch origin "$branch"
+          git pull --ff-only origin "$branch"
+
+          if [[ -x /opt/alt/php83/usr/bin/php ]]; then
+            php_bin=/opt/alt/php83/usr/bin/php
+          else
+            php_bin="$(command -v php)"
+          fi
+
+          [[ -n "$php_bin" && -x "$php_bin" ]] || {
+            echo "::error::No usable PHP binary found."
+            exit 1
+          }
+
+          [[ -f vendor/drush/drush/drush.php ]] || {
+            echo "::error::Drush entry point is missing."
+            exit 1
+          }
+
+          drush=("$php_bin" -d memory_limit=512M vendor/drush/drush/drush.php --no-ansi)
+
+          echo "===== DRUPAL PRECHECK ====="
+          "${drush[@]}" status --fields=bootstrap,root,uri --format=list
+
+          echo "===== CACHE REBUILD ====="
+          "${drush[@]}" cr
+
+          echo "===== RUNTIME CHECK ====="
+          "${drush[@]}" php:eval 'print "DRUPAL_BOOTSTRAP_OK=1\n"; print "SITE_NAME=" . \Drupal::config("system.site")->get("name") . "\n";'
+
+          echo "===== PUBLIC SMOKE TEST ====="
+          http_code="$(curl -L -sS -o /dev/null --max-time 20 -w '%{http_code}' "$public_url")"
+          echo "PUBLIC_URL=$public_url"
+          echo "HTTP_CODE=$http_code"
+
+          case "$http_code" in
+            200|301|302) ;;
+            *)
+              echo "::error::Unexpected HTTP status from $public_url: $http_code"
+              exit 1
+              ;;
+          esac
+
+          deployed_sha="$(git rev-parse HEAD)"
+          echo "DEPLOY_OK=1"
+          echo "DEPLOYED_SHA=$deployed_sha"
+          echo "TARGET=$target"
+          REMOTE
