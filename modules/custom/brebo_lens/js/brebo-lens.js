@@ -3,7 +3,7 @@
 
   Drupal.behaviors.breboLens = {
     attach(context) {
-      once('brebo-lens-v3', '[data-brebo-lens]', context).forEach((root) => {
+      once('brebo-lens-v4', '[data-brebo-lens]', context).forEach((root) => {
         const nodes = Array.from(root.querySelectorAll('[data-lens-step]'));
         const panels = Array.from(root.querySelectorAll('[data-lens-panel]'));
         const currentPhoto = root.querySelector('[data-lens-photo-current]');
@@ -59,7 +59,8 @@
           if (newIndex === active && root.dataset.lensReady === 'true') return;
 
           const delta = normaliseDelta(active, newIndex);
-          rotation += delta * 60;
+          const degreesPerPhase = 360 / Math.max(nodes.length, 1);
+          rotation += delta * degreesPerPhase;
           active = newIndex;
           transitionToken += 1;
           const token = transitionToken;
