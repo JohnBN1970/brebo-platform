@@ -1,0 +1,5 @@
+name: 'BREBO Contact'
+type: module
+description: 'Uitgebreide contactpagina als afsluiting van de publieke klantreis.'
+package: BREBO
+core_version_requirement: ^10 || ^11
