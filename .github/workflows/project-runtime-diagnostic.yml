@@ -9,6 +9,7 @@ on:
       - 'modules/custom/brebo_projects/**'
       - 'modules/custom/brebo_projects_demo/**'
       - '.github/workflows/project-runtime-diagnostic.yml'
+      - '.github/workflows/website-deploy.yml'
 
 permissions:
   contents: read
@@ -58,32 +59,32 @@ jobs:
             sleep $((attempt * 2))
           done
 
-      - name: Wait for triggering commit to be deployed
+      - name: Wait for successful deployment of triggering commit
         if: github.event_name == 'push'
         shell: bash
         run: |
           set -euo pipefail
           expected_sha="$GITHUB_SHA"
-          target='$HOME/domains/brebobv.nl/public_html/platform'
+          marker='$HOME/domains/brebobv.nl/public_html/platform/.brebo-deploy-ok-sha'
 
-          for attempt in $(seq 1 30); do
-            remote_sha="$(ssh \
+          for attempt in $(seq 1 45); do
+            deployed_sha="$(ssh \
               -o ConnectTimeout=15 \
               -o ServerAliveInterval=10 \
               -o ServerAliveCountMax=3 \
               -i ~/.ssh/deploy_key \
               -p "$DEPLOY_PORT" \
-              "$DEPLOY_USER@$DEPLOY_HOST" "cd $target && git rev-parse HEAD")"
+              "$DEPLOY_USER@$DEPLOY_HOST" "if [[ -f $marker ]]; then cat $marker; fi")"
 
-            echo "DEPLOY_WAIT_ATTEMPT=$attempt REMOTE_SHA=$remote_sha EXPECTED_SHA=$expected_sha"
-            if [[ "$remote_sha" == "$expected_sha" ]]; then
-              echo "DEPLOYED_SHA_CONFIRMED=$remote_sha"
+            echo "DEPLOY_WAIT_ATTEMPT=$attempt MARKER_SHA=${deployed_sha:-ONTBREEKT} EXPECTED_SHA=$expected_sha"
+            if [[ "$deployed_sha" == "$expected_sha" ]]; then
+              echo "DEPLOY_COMPLETION_CONFIRMED=$deployed_sha"
               exit 0
             fi
             sleep 10
           done
 
-          echo "::error::Runtime diagnostic refused: deployed SHA did not reach triggering commit."
+          echo "::error::Runtime diagnostic refused: successful deployment marker did not reach triggering commit."
           exit 1
 
       - name: Inspect Drupal project state
