@@ -1,0 +1,92 @@
+name: BREBO Project node diagnostic
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - develop
+    paths:
+      - '.github/workflows/project-node-diagnostic.yml'
+      - 'modules/custom/brebo_projects/**'
+      - 'modules/custom/brebo_projects_demo/**'
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      DEPLOY_HOST: 77.37.34.160
+      DEPLOY_PORT: '65002'
+      DEPLOY_USER: u213420663
+
+    steps:
+      - name: Configure SSH
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$DEPLOY_SSH_KEY"
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          : > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+          ssh -o BatchMode=yes -o ConnectTimeout=15 -o StrictHostKeyChecking=accept-new -o UserKnownHostsFile="$HOME/.ssh/known_hosts" -i ~/.ssh/deploy_key -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" true
+
+      - name: Wait for completed deploy
+        if: github.event_name == 'push'
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected_sha="$GITHUB_SHA"
+          marker='$HOME/domains/brebobv.nl/public_html/platform/.brebo-deploy-ok-sha'
+          for attempt in $(seq 1 45); do
+            deployed_sha="$(ssh -o ConnectTimeout=15 -i ~/.ssh/deploy_key -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "if [[ -f $marker ]]; then cat $marker; fi")"
+            echo "ATTEMPT=$attempt MARKER_SHA=${deployed_sha:-ONTBREEKT} EXPECTED_SHA=$expected_sha"
+            if [[ "$deployed_sha" == "$expected_sha" ]]; then exit 0; fi
+            sleep 10
+          done
+          echo "::error::Completed deployment marker did not reach triggering commit."
+          exit 1
+
+      - name: Inspect project nodes read-only
+        shell: bash
+        run: |
+          set -euo pipefail
+          ssh -o ConnectTimeout=15 -i ~/.ssh/deploy_key -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" 'bash -se' <<'REMOTE'
+          set -euo pipefail
+          target="$HOME/domains/brebobv.nl/public_html/platform"
+          cd "$target"
+          if [[ -x /opt/alt/php83/usr/bin/php ]]; then php_bin=/opt/alt/php83/usr/bin/php; else php_bin="$(command -v php)"; fi
+          drush=("$php_bin" -d memory_limit=512M vendor/drush/drush/drush.php --no-ansi)
+          "${drush[@]}" php:eval '
+          $storage = \Drupal::entityTypeManager()->getStorage("node");
+          $ids = $storage->getQuery()->accessCheck(FALSE)->condition("type", "project")->sort("nid")->execute();
+          foreach ($storage->loadMultiple($ids) as $node) {
+            print "===== PROJECT " . $node->id() . " =====\n";
+            print "NID=" . $node->id() . "\n";
+            print "TITLE=" . $node->label() . "\n";
+            print "PUBLISHED=" . ($node->isPublished() ? "JA" : "NEE") . "\n";
+            foreach (["field_featured","field_client_question","field_brebo_approach","field_project_results","field_project_image","field_pillar_insight","field_pillar_regie","field_pillar_realisation","field_sort_order"] as $field) {
+              if (!$node->hasField($field)) { print strtoupper($field) . "=ONTBREEKT\n"; continue; }
+              $items = $node->get($field);
+              if ($items->isEmpty()) { print strtoupper($field) . "=LEEG\n"; continue; }
+              if ($field === "field_project_image") {
+                $item = $items->first();
+                $file = $item?->entity;
+                print "FIELD_PROJECT_IMAGE_FID=" . ($file ? $file->id() : "GEEN") . "\n";
+                print "FIELD_PROJECT_IMAGE_URI=" . ($file ? $file->getFileUri() : "GEEN") . "\n";
+                continue;
+              }
+              $vals = [];
+              foreach ($items as $item) { $vals[] = (string) ($item->value ?? $item->target_id ?? ""); }
+              print strtoupper($field) . "=" . implode(" | ", $vals) . "\n";
+            }
+          }
+          print "BREBO_PROJECTS_DEMO_ENABLED=" . (\Drupal::moduleHandler()->moduleExists("brebo_projects_demo") ? "JA" : "NEE") . "\n";
+          '
+          REMOTE
