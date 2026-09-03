@@ -17,7 +17,7 @@ jobs:
   inspect:
     name: Inspect live project runtime
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     env:
       DEPLOY_HOST: 77.37.34.160
       DEPLOY_PORT: '65002'
@@ -57,6 +57,34 @@ jobs:
             fi
             sleep $((attempt * 2))
           done
+
+      - name: Wait for triggering commit to be deployed
+        if: github.event_name == 'push'
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected_sha="$GITHUB_SHA"
+          target='$HOME/domains/brebobv.nl/public_html/platform'
+
+          for attempt in $(seq 1 30); do
+            remote_sha="$(ssh \
+              -o ConnectTimeout=15 \
+              -o ServerAliveInterval=10 \
+              -o ServerAliveCountMax=3 \
+              -i ~/.ssh/deploy_key \
+              -p "$DEPLOY_PORT" \
+              "$DEPLOY_USER@$DEPLOY_HOST" "cd $target && git rev-parse HEAD")"
+
+            echo "DEPLOY_WAIT_ATTEMPT=$attempt REMOTE_SHA=$remote_sha EXPECTED_SHA=$expected_sha"
+            if [[ "$remote_sha" == "$expected_sha" ]]; then
+              echo "DEPLOYED_SHA_CONFIRMED=$remote_sha"
+              exit 0
+            fi
+            sleep 10
+          done
+
+          echo "::error::Runtime diagnostic refused: deployed SHA did not reach triggering commit."
+          exit 1
 
       - name: Inspect Drupal project state
         shell: bash
