@@ -90,6 +90,7 @@ jobs:
           public_root="$target/web"
           branch="develop"
           public_url="https://platform.brebobv.nl/"
+          deploy_marker="$target/.brebo-deploy-ok-sha"
 
           [[ -d "$target/.git" ]] || {
             echo "::error::Target is not a Git repository: $target"
@@ -102,6 +103,7 @@ jobs:
           }
 
           cd "$target"
+          rm -f "$deploy_marker"
 
           current_branch="$(git branch --show-current)"
           [[ "$current_branch" == "$branch" ]] || {
@@ -210,9 +212,11 @@ jobs:
           esac
 
           deployed_sha="$(git rev-parse HEAD)"
+          printf '%s\n' "$deployed_sha" > "$deploy_marker"
           echo "DEPLOY_OK=1"
           echo "PUBLIC_ASSETS_OK=1"
           echo "DEPLOYED_SHA=$deployed_sha"
+          echo "DEPLOY_MARKER=$deploy_marker"
           echo "TARGET=$target"
           echo "PUBLIC_ROOT=$public_root"
           REMOTE
