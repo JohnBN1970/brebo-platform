@@ -1,0 +1,111 @@
+name: Remove BREBO project demo
+
+on:
+  push:
+    branches:
+      - develop
+    paths:
+      - '.github/workflows/remove-project-demo.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  cleanup:
+    name: Remove verified project demo content
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      DEPLOY_HOST: 77.37.34.160
+      DEPLOY_PORT: '65002'
+      DEPLOY_USER: u213420663
+
+    steps:
+      - name: Configure SSH
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$DEPLOY_SSH_KEY"
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          : > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+          ssh -o BatchMode=yes -o ConnectTimeout=15 -o StrictHostKeyChecking=accept-new -o UserKnownHostsFile="$HOME/.ssh/known_hosts" -i ~/.ssh/deploy_key -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" true
+
+      - name: Wait for completed deploy
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected_sha="$GITHUB_SHA"
+          marker='$HOME/domains/brebobv.nl/public_html/platform/.brebo-deploy-ok-sha'
+          for attempt in $(seq 1 45); do
+            deployed_sha="$(ssh -o ConnectTimeout=15 -i ~/.ssh/deploy_key -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "if [[ -f $marker ]]; then cat $marker; fi")"
+            echo "ATTEMPT=$attempt MARKER_SHA=${deployed_sha:-ONTBREEKT} EXPECTED_SHA=$expected_sha"
+            if [[ "$deployed_sha" == "$expected_sha" ]]; then exit 0; fi
+            sleep 10
+          done
+          echo "::error::Completed deployment marker did not reach triggering commit."
+          exit 1
+
+      - name: Verify exact demo-only precondition and uninstall
+        shell: bash
+        run: |
+          set -euo pipefail
+          ssh -o ConnectTimeout=15 -i ~/.ssh/deploy_key -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" 'bash -se' <<'REMOTE'
+          set -euo pipefail
+          target="$HOME/domains/brebobv.nl/public_html/platform"
+          cd "$target"
+          if [[ -x /opt/alt/php83/usr/bin/php ]]; then php_bin=/opt/alt/php83/usr/bin/php; else php_bin="$(command -v php)"; fi
+          drush=("$php_bin" -d memory_limit=512M vendor/drush/drush/drush.php --no-ansi)
+
+          "${drush[@]}" php:eval '
+          if (!\Drupal::moduleHandler()->moduleExists("brebo_projects_demo")) {
+            throw new \RuntimeException("brebo_projects_demo is niet actief; cleanup wordt niet uitgevoerd.");
+          }
+          $storage = \Drupal::entityTypeManager()->getStorage("node");
+          $ids = $storage->getQuery()->accessCheck(FALSE)->condition("type", "project")->sort("nid")->execute();
+          if (count($ids) !== 3) {
+            throw new \RuntimeException("Precondition mislukt: verwacht exact 3 projectnodes, gevonden " . count($ids) . ".");
+          }
+          $expected = [
+            "Gevelherstel appartementencomplex" => "public://brebo-projecten-demo/project-1.webp",
+            "Integrale aanpak voor een VvE-complex" => "public://brebo-projecten-demo/project-2.webp",
+            "Verduurzaming kantoorgebouw" => "public://brebo-projecten-demo/project-3.webp",
+          ];
+          foreach ($storage->loadMultiple($ids) as $node) {
+            $title = $node->label();
+            if (!isset($expected[$title])) {
+              throw new \RuntimeException("Precondition mislukt: onverwachte projectnode " . $title . ".");
+            }
+            $image = $node->get("field_project_image")->entity;
+            if (!$image || $image->getFileUri() !== $expected[$title]) {
+              throw new \RuntimeException("Precondition mislukt: project " . $title . " heeft niet het verwachte demo-afbeeldingspad.");
+            }
+          }
+          print "PRECONDITION=GOED\n";
+          '
+
+          "${drush[@]}" pm:uninstall brebo_projects_demo -y
+          "${drush[@]}" cr
+
+          "${drush[@]}" php:eval '
+          print "BREBO_PROJECTS_DEMO_ENABLED=" . (\Drupal::moduleHandler()->moduleExists("brebo_projects_demo") ? "JA" : "NEE") . "\n";
+          $storage = \Drupal::entityTypeManager()->getStorage("node");
+          $count = $storage->getQuery()->accessCheck(FALSE)->condition("type", "project")->count()->execute();
+          print "PROJECT_NODES_TOTAL=" . $count . "\n";
+          if (\Drupal::moduleHandler()->moduleExists("brebo_projects_demo") || (int) $count !== 0) {
+            throw new \RuntimeException("Postcondition mislukt na demo-uninstall.");
+          }
+          '
+
+          for path in / /projecten; do
+            code="$(curl -L -sS -o /dev/null --max-time 20 -w '%{http_code}' "https://platform.brebobv.nl${path}")"
+            echo "HTTP_${path//\//_}=$code"
+            if [[ "$code" != "200" ]]; then
+              exit 1
+            fi
+          done
+          REMOTE
