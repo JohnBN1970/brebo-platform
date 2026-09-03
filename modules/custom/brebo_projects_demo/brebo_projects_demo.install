@@ -162,15 +162,26 @@ function brebo_projects_demo_uninstall(): void {
       ->condition('field_brebo_approach', $project['approach'])
       ->condition('field_sort_order', $project['sort_order'])
       ->condition('field_featured', 1)
+      ->condition('field_pillar_insight', 1)
+      ->condition('field_pillar_regie', 1)
+      ->condition('field_pillar_realisation', 1)
+      ->condition('status', 1)
       ->execute();
 
     foreach ($storage->loadMultiple($ids) as $node) {
       $expected_results = $project['results'];
       $actual_results = array_column($node->get('field_project_results')->getValue(), 'value');
-      $image = $node->get('field_project_image')->entity;
+      $image_item = $node->get('field_project_image')->first();
+      $image = $image_item?->entity;
       $expected_uri = 'public://brebo-projecten-demo/' . $project['image'];
+      $actual_alt = (string) ($image_item?->get('alt')->getValue() ?? '');
 
-      if ($actual_results !== $expected_results || !$image instanceof FileInterface || $image->getFileUri() !== $expected_uri) {
+      if (
+        $actual_results !== $expected_results ||
+        !$image instanceof FileInterface ||
+        $image->getFileUri() !== $expected_uri ||
+        $actual_alt !== $project['alt']
+      ) {
         continue;
       }
 
