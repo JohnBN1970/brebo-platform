@@ -1,0 +1,19 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * Implements hook_mail().
+ */
+function brebo_customer_service_mail(string $key, array &$message, array $params): void {
+  if ($key !== 'project_service_request') {
+    return;
+  }
+
+  $message['subject'] = $params['subject'];
+  $message['body'][] = $params['body'];
+
+  if (!empty($params['reply_to'])) {
+    $message['headers']['Reply-To'] = $params['reply_to'];
+  }
+}

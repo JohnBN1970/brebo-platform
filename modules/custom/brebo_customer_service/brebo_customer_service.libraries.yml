@@ -1,0 +1,4 @@
+service:
+  css:
+    theme:
+      css/brebo-customer-service.css: {}

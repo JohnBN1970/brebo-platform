@@ -1,0 +1,42 @@
+brebo_customer_service.knowledge:
+  path: '/klantenservice'
+  defaults:
+    _controller: '\Drupal\brebo_customer_service\Controller\KnowledgeLibraryController::page'
+    _title: 'Klantenservice'
+  requirements:
+    _access: 'TRUE'
+
+brebo_customer_service.knowledge_topic:
+  path: '/klantenservice/kennis/{topic}'
+  defaults:
+    _controller: '\Drupal\brebo_customer_service\Controller\KnowledgeCatalogController::topic'
+    _title: 'BREBO Kennis'
+  requirements:
+    _access: 'TRUE'
+    topic: '[a-z0-9-]+'
+
+brebo_customer_service.knowledge_question:
+  path: '/klantenservice/kennis/vraag/{question}'
+  defaults:
+    _controller: '\Drupal\brebo_customer_service\Controller\KnowledgeCatalogController::question'
+    _title: 'BREBO Kennis'
+  requirements:
+    _access: 'TRUE'
+    question: '[a-z0-9-]+'
+
+brebo_customer_service.knowledge_review:
+  path: '/admin/content/brebo-kennis/beoordelen/{slug}'
+  defaults:
+    _form: '\Drupal\brebo_customer_service\Form\KnowledgeReviewForm'
+    _title: 'BREBO-kennis beoordelen'
+  requirements:
+    _permission: 'review BREBO knowledge'
+    slug: '[a-z0-9-]+'
+
+brebo_customer_service.form:
+  path: '/klantenservice/projectvraag'
+  defaults:
+    _form: '\Drupal\brebo_customer_service\Form\CustomerServiceForm'
+    _title: 'Projectservice'
+  requirements:
+    _access: 'TRUE'
