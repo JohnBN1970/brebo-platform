@@ -1,170 +1,187 @@
-\
-    <?php
+<?php
 
-    declare(strict_types=1);
+declare(strict_types=1);
 
-    use Drupal\Core\File\FileExists;
-    use Drupal\Core\File\FileSystemInterface;
-    use Drupal\file\FileInterface;
-    use Drupal\node\Entity\Node;
+use Drupal\Core\File\FileExists;
+use Drupal\Core\File\FileSystemInterface;
+use Drupal\file\FileInterface;
+use Drupal\node\Entity\Node;
 
-    /**
-     * @file
-     * Installatiehooks voor BREBO Projecten Demo.
-     */
+/**
+ * @file
+ * Installatiehooks voor BREBO Projecten Demo.
+ */
 
-    /**
-     * Implements hook_install().
-     */
-    function brebo_projects_demo_install(): void {
-      $required_fields = [
-        'field_project_image',
-        'field_client_question',
-        'field_brebo_approach',
-        'field_project_results',
-        'field_pillar_insight',
-        'field_pillar_regie',
-        'field_pillar_realisation',
-        'field_featured',
-        'field_sort_order',
-      ];
+/**
+ * Returns the canonical demo project definitions.
+ */
+function _brebo_projects_demo_definitions(): array {
+  return [
+    [
+      'title' => 'Gevelherstel appartementencomplex',
+      'question' => 'Voorkomen van doorslaand vocht bij een appartementencomplex.',
+      'approach' => 'De oorzaken zijn eerst zorgvuldig in kaart gebracht. Daarna zijn herstelwerk, planning en communicatie samengebracht in één overzichtelijke aanpak.',
+      'results' => [
+        'Schade hersteld en verdere achteruitgang gestopt.',
+        'Onderhoud voorspelbaar en beheersbaar.',
+        'Bewoners konden in het gebouw blijven.',
+      ],
+      'sort_order' => 1,
+      'image' => 'project-1.webp',
+      'alt' => 'Modern appartementencomplex na gevelherstel',
+    ],
+    [
+      'title' => 'Integrale aanpak voor een VvE-complex',
+      'question' => 'Verouderde gevel en een hoge onderhoudslast bij een VvE-complex.',
+      'approach' => 'Voor gevel, kozijnen, voegwerk en schilderwerk is één totaalplan opgesteld. Heldere communicatie met de VvE en bewoners stond gedurende het hele traject centraal.',
+      'results' => [
+        'Gevel weer toekomstbestendig.',
+        'Onderhoudskosten structureel verlaagd.',
+        'Waarde en uitstraling van het complex verbeterd.',
+      ],
+      'sort_order' => 2,
+      'image' => 'project-2.webp',
+      'alt' => 'Appartementengebouw met vernieuwde gevel en kozijnen',
+    ],
+    [
+      'title' => 'Verduurzaming kantoorgebouw',
+      'question' => 'Snelle verduurzaming en verbetering van het comfort in een kantoorgebouw.',
+      'approach' => 'De prestaties van de buitenzijde zijn geanalyseerd en vertaald naar maatregelen die direct effect hebben op comfort, energiegebruik en uitstraling.',
+      'results' => [
+        'Energiegebruik aantoonbaar verlaagd.',
+        'Comfort voor gebruikers verbeterd.',
+        'Modern en representatief aanzicht.',
+      ],
+      'sort_order' => 3,
+      'image' => 'project-3.webp',
+      'alt' => 'Modern kantoorgebouw na verduurzaming',
+    ],
+  ];
+}
 
-      $field_manager = \Drupal::service('entity_field.manager');
-      $field_definitions = $field_manager->getFieldDefinitions('node', 'project');
+/**
+ * Implements hook_install().
+ */
+function brebo_projects_demo_install(): void {
+  $required_fields = [
+    'field_project_image',
+    'field_client_question',
+    'field_brebo_approach',
+    'field_project_results',
+    'field_pillar_insight',
+    'field_pillar_regie',
+    'field_pillar_realisation',
+    'field_featured',
+    'field_sort_order',
+  ];
 
-      foreach ($required_fields as $field_name) {
-        if (!isset($field_definitions[$field_name])) {
-          throw new \RuntimeException(sprintf(
-            'Het verplichte projectveld "%s" ontbreekt. Controleer eerst de installatie van BREBO Projecten.',
-            $field_name
-          ));
-        }
+  $field_manager = \Drupal::service('entity_field.manager');
+  $field_definitions = $field_manager->getFieldDefinitions('node', 'project');
+
+  foreach ($required_fields as $field_name) {
+    if (!isset($field_definitions[$field_name])) {
+      throw new \RuntimeException(sprintf(
+        'Het verplichte projectveld "%s" ontbreekt. Controleer eerst de installatie van BREBO Projecten.',
+        $field_name
+      ));
+    }
+  }
+
+  $module_path = \Drupal::service('extension.list.module')->getPath('brebo_projects_demo');
+  $file_system = \Drupal::service('file_system');
+  $file_repository = \Drupal::service('file.repository');
+  $destination = 'public://brebo-projecten-demo';
+
+  $file_system->prepareDirectory(
+    $destination,
+    FileSystemInterface::CREATE_DIRECTORY | FileSystemInterface::MODIFY_PERMISSIONS
+  );
+
+  foreach (_brebo_projects_demo_definitions() as $project) {
+    $existing = \Drupal::entityQuery('node')
+      ->accessCheck(FALSE)
+      ->condition('type', 'project')
+      ->condition('title', $project['title'])
+      ->range(0, 1)
+      ->execute();
+
+    if ($existing) {
+      continue;
+    }
+
+    $source = DRUPAL_ROOT . '/' . $module_path . '/assets/' . $project['image'];
+    if (!is_readable($source)) {
+      throw new \RuntimeException(sprintf('De demo-afbeelding "%s" kon niet worden gelezen.', $project['image']));
+    }
+
+    $image_data = file_get_contents($source);
+    if ($image_data === FALSE) {
+      throw new \RuntimeException(sprintf('De demo-afbeelding "%s" kon niet worden ingelezen.', $project['image']));
+    }
+
+    $file = $file_repository->writeData($image_data, $destination . '/' . $project['image'], FileExists::Replace);
+    if (!$file instanceof FileInterface) {
+      throw new \RuntimeException(sprintf('De demo-afbeelding "%s" kon niet worden opgeslagen.', $project['image']));
+    }
+
+    $file->setPermanent();
+    $file->save();
+
+    Node::create([
+      'type' => 'project',
+      'title' => $project['title'],
+      'status' => 1,
+      'field_project_image' => ['target_id' => $file->id(), 'alt' => $project['alt']],
+      'field_client_question' => ['value' => $project['question']],
+      'field_brebo_approach' => ['value' => $project['approach']],
+      'field_project_results' => array_map(static fn(string $result): array => ['value' => $result], $project['results']),
+      'field_pillar_insight' => 1,
+      'field_pillar_regie' => 1,
+      'field_pillar_realisation' => 1,
+      'field_featured' => 1,
+      'field_sort_order' => $project['sort_order'],
+    ])->save();
+  }
+}
+
+/**
+ * Implements hook_uninstall().
+ *
+ * Removes only nodes that still match the complete canonical demo signature.
+ * A project edited into real content is deliberately preserved.
+ */
+function brebo_projects_demo_uninstall(): void {
+  $storage = \Drupal::entityTypeManager()->getStorage('node');
+
+  foreach (_brebo_projects_demo_definitions() as $project) {
+    $ids = $storage->getQuery()
+      ->accessCheck(FALSE)
+      ->condition('type', 'project')
+      ->condition('title', $project['title'])
+      ->condition('field_client_question', $project['question'])
+      ->condition('field_brebo_approach', $project['approach'])
+      ->condition('field_sort_order', $project['sort_order'])
+      ->condition('field_featured', 1)
+      ->execute();
+
+    foreach ($storage->loadMultiple($ids) as $node) {
+      $expected_results = $project['results'];
+      $actual_results = array_column($node->get('field_project_results')->getValue(), 'value');
+      $image = $node->get('field_project_image')->entity;
+      $expected_uri = 'public://brebo-projecten-demo/' . $project['image'];
+
+      if ($actual_results !== $expected_results || !$image instanceof FileInterface || $image->getFileUri() !== $expected_uri) {
+        continue;
       }
 
-      $module_path = \Drupal::service('extension.list.module')
-        ->getPath('brebo_projects_demo');
+      $node->delete();
 
-      $file_system = \Drupal::service('file_system');
-      $file_repository = \Drupal::service('file.repository');
-
-      $destination = 'public://brebo-projecten-demo';
-      $file_system->prepareDirectory(
-        $destination,
-        FileSystemInterface::CREATE_DIRECTORY | FileSystemInterface::MODIFY_PERMISSIONS
-      );
-
-      $projects = [
-        [
-          'title' => 'Gevelherstel appartementencomplex',
-          'question' => 'Voorkomen van doorslaand vocht bij een appartementencomplex.',
-          'approach' => 'De oorzaken zijn eerst zorgvuldig in kaart gebracht. Daarna zijn herstelwerk, planning en communicatie samengebracht in één overzichtelijke aanpak.',
-          'results' => [
-            'Schade hersteld en verdere achteruitgang gestopt.',
-            'Onderhoud voorspelbaar en beheersbaar.',
-            'Bewoners konden in het gebouw blijven.',
-          ],
-          'sort_order' => 1,
-          'image' => 'project-1.webp',
-          'alt' => 'Modern appartementencomplex na gevelherstel',
-        ],
-        [
-          'title' => 'Integrale aanpak voor een VvE-complex',
-          'question' => 'Verouderde gevel en een hoge onderhoudslast bij een VvE-complex.',
-          'approach' => 'Voor gevel, kozijnen, voegwerk en schilderwerk is één totaalplan opgesteld. Heldere communicatie met de VvE en bewoners stond gedurende het hele traject centraal.',
-          'results' => [
-            'Gevel weer toekomstbestendig.',
-            'Onderhoudskosten structureel verlaagd.',
-            'Waarde en uitstraling van het complex verbeterd.',
-          ],
-          'sort_order' => 2,
-          'image' => 'project-2.webp',
-          'alt' => 'Appartementengebouw met vernieuwde gevel en kozijnen',
-        ],
-        [
-          'title' => 'Verduurzaming kantoorgebouw',
-          'question' => 'Snelle verduurzaming en verbetering van het comfort in een kantoorgebouw.',
-          'approach' => 'De prestaties van de buitenzijde zijn geanalyseerd en vertaald naar maatregelen die direct effect hebben op comfort, energiegebruik en uitstraling.',
-          'results' => [
-            'Energiegebruik aantoonbaar verlaagd.',
-            'Comfort voor gebruikers verbeterd.',
-            'Modern en representatief aanzicht.',
-          ],
-          'sort_order' => 3,
-          'image' => 'project-3.webp',
-          'alt' => 'Modern kantoorgebouw na verduurzaming',
-        ],
-      ];
-
-      foreach ($projects as $project) {
-        // Voorkom dubbele demo-inhoud bij een herinstallatie.
-        $existing = \Drupal::entityQuery('node')
-          ->accessCheck(FALSE)
-          ->condition('type', 'project')
-          ->condition('title', $project['title'])
-          ->range(0, 1)
-          ->execute();
-
-        if ($existing) {
-          continue;
+      if (!$image->isTemporary()) {
+        $usage = \Drupal::service('file.usage')->listUsage($image);
+        if ($usage === []) {
+          $image->delete();
         }
-
-        $source = DRUPAL_ROOT . '/' . $module_path . '/assets/' . $project['image'];
-        if (!is_readable($source)) {
-          throw new \RuntimeException(sprintf(
-            'De demo-afbeelding "%s" kon niet worden gelezen.',
-            $project['image']
-          ));
-        }
-
-        $image_data = file_get_contents($source);
-        if ($image_data === FALSE) {
-          throw new \RuntimeException(sprintf(
-            'De demo-afbeelding "%s" kon niet worden ingelezen.',
-            $project['image']
-          ));
-        }
-
-        $file = $file_repository->writeData(
-          $image_data,
-          $destination . '/' . $project['image'],
-          FileExists::Replace
-        );
-
-        if (!$file instanceof FileInterface) {
-          throw new \RuntimeException(sprintf(
-            'De demo-afbeelding "%s" kon niet worden opgeslagen.',
-            $project['image']
-          ));
-        }
-
-        $file->setPermanent();
-        $file->save();
-
-        $node = Node::create([
-          'type' => 'project',
-          'title' => $project['title'],
-          'status' => 1,
-          'field_project_image' => [
-            'target_id' => $file->id(),
-            'alt' => $project['alt'],
-          ],
-          'field_client_question' => [
-            'value' => $project['question'],
-          ],
-          'field_brebo_approach' => [
-            'value' => $project['approach'],
-          ],
-          'field_project_results' => array_map(
-            static fn(string $result): array => ['value' => $result],
-            $project['results']
-          ),
-          'field_pillar_insight' => 1,
-          'field_pillar_regie' => 1,
-          'field_pillar_realisation' => 1,
-          'field_featured' => 1,
-          'field_sort_order' => $project['sort_order'],
-        ]);
-
-        $node->save();
       }
     }
+  }
+}
