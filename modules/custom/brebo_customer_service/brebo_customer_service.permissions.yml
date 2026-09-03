@@ -1,0 +1,4 @@
+review BREBO knowledge:
+  title: 'BREBO-kennis beoordelen'
+  description: 'Bronnen, geldigheid, deskundige beoordeling en AI-vrijgave van BREBO-kennis beheren.'
+  restrict access: true

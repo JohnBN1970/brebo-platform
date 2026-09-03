@@ -1,0 +1,25 @@
+services:
+  brebo_customer_service.form:
+    class: Drupal\brebo_customer_service\Form\CustomerServiceForm
+    arguments:
+      - '@plugin.manager.mail'
+      - '@flood'
+      - '@request_stack'
+
+  brebo_customer_service.knowledge_item_seed_importer:
+    class: Drupal\brebo_customer_service\Knowledge\KnowledgeItemSeedImporter
+    arguments:
+      - '@entity_type.manager'
+      - '@entity_field.manager'
+
+  brebo_customer_service.knowledge_item_repository:
+    class: Drupal\brebo_customer_service\Knowledge\KnowledgeItemRepository
+    arguments:
+      - '@entity_type.manager'
+
+  brebo_customer_service.knowledge_review_manager:
+    class: Drupal\brebo_customer_service\Knowledge\KnowledgeReviewManager
+    arguments:
+      - '@entity_type.manager'
+      - '@current_user'
+      - '@datetime.time'
