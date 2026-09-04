@@ -148,6 +148,21 @@
   background: rgba(17, 24, 39, 0.38);
 }
 
+@media (min-width: 1600px) {
+  .site-header__brand {
+    flex-basis: 360px;
+  }
+
+  .site-header__brand-logo {
+    width: 360px;
+    max-height: 92px;
+  }
+
+  .site-header.is-scrolled .site-header__brand-logo {
+    width: 310px;
+  }
+}
+
 @media (max-width: 1023px) {
   .site-header__inner,
   .site-header.is-scrolled .site-header__inner {
