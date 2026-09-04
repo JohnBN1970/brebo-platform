@@ -1,0 +1,75 @@
+<main class="brebo-projects brebo-projects--overview" aria-labelledby="brebo-projects-overview-title">
+  <div class="brebo-projects__inner">
+    <header class="brebo-projects__header brebo-projects__header--overview">
+      <p class="brebo-projects__eyebrow">Gebouwen in de praktijk</p>
+      <h1 class="brebo-projects__title" id="brebo-projects-overview-title">
+        De situatie aan het gebouw bepaalt de aanpak.
+      </h1>
+      <p class="brebo-projects__intro">
+        Geen portfolio om te laten zien wat wij hebben gemaakt. Wel praktijkvoorbeelden die laten zien wat er aan een gebouw speelde, welke afweging de opdrachtgever maakte en wat die keuze aantoonbaar opleverde.
+      </p>
+    </header>
+
+    {% if projects %}
+      <div class="brebo-projects__list">
+        {% for project in projects %}
+          <article class="brebo-project {{ loop.index is even ? 'brebo-project--reverse' : '' }}">
+            <a class="brebo-project__media" href="{{ project.url }}" aria-label="Bekijk praktijkvoorbeeld {{ project.title }}">
+              {% if project.image_url %}
+                <img src="{{ project.image_url }}" alt="{{ project.image_alt }}" loading="lazy">
+              {% else %}
+                <span class="brebo-project__image-placeholder" aria-hidden="true"></span>
+              {% endif %}
+            </a>
+
+            <div class="brebo-project__content">
+              <div class="brebo-project__pillars" aria-label="Rol van BREBO binnen dit project">
+                <span class="brebo-project__pillar {{ project.pillars.insight ? 'is-active' : '' }}"><span class="brebo-project__pillar-dot" aria-hidden="true">◉</span>Inzicht</span>
+                <span class="brebo-project__pillar {{ project.pillars.regie ? 'is-active' : '' }}"><span class="brebo-project__pillar-dot" aria-hidden="true">◉</span>Regie</span>
+                <span class="brebo-project__pillar {{ project.pillars.realisatie ? 'is-active' : '' }}"><span class="brebo-project__pillar-dot" aria-hidden="true">◉</span>Realisatie</span>
+              </div>
+
+              <div class="brebo-project__body">
+                <div class="brebo-project__question">
+                  <p class="brebo-project__label">Wat speelde er aan het gebouw?</p>
+                  <h2 class="brebo-project__heading">{{ project.question ?: project.title }}</h2>
+                </div>
+
+                <div class="brebo-project__columns">
+                  <div>
+                    <p class="brebo-project__label">Waarom deze keuze?</p>
+                    <p class="brebo-project__text">{{ project.approach }}</p>
+                  </div>
+
+                  {% if project.results %}
+                    <div>
+                      <p class="brebo-project__label">Wat leverde dat aantoonbaar op?</p>
+                      <ul class="brebo-project__results">
+                        {% for result in project.results %}
+                          <li>{{ result }}</li>
+                        {% endfor %}
+                      </ul>
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <a class="brebo-project__link" href="{{ project.url }}">
+                Bekijk de afweging en het resultaat
+                <span aria-hidden="true">→</span>
+              </a>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <section class="brebo-projects__empty" aria-labelledby="brebo-projects-empty-title">
+        <p class="brebo-projects__eyebrow">Praktijkvoorbeelden</p>
+        <h2 id="brebo-projects-empty-title">Hier komen alleen echte BREBO-projecten.</h2>
+        <p>
+          De eerdere demo-inhoud is bewust verwijderd. Nieuwe voorbeelden worden vanuit het projectobject toegevoegd zodra de projectsituatie, afweging en resultaten inhoudelijk zijn vastgelegd.
+        </p>
+      </section>
+    {% endif %}
+  </div>
+</main>
