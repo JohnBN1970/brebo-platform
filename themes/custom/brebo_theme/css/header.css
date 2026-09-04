@@ -1,12 +1,15 @@
-.site-header {
+.site-page__header {
   position: sticky;
   top: 0;
   z-index: 1000;
+}
+
+.site-header {
+  position: relative;
   width: 100%;
-  background: color-mix(in srgb, var(--brebo-surface) 96%, transparent);
+  background: var(--brebo-surface);
   border-bottom: 1px solid var(--brebo-border);
   box-shadow: 0 2px 12px rgba(17, 24, 39, 0.05);
-  backdrop-filter: blur(10px);
   transition:
     box-shadow var(--brebo-transition),
     background-color var(--brebo-transition);
