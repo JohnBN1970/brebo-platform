@@ -1,0 +1,7 @@
+brebo_projects.overview:
+  path: '/projecten'
+  defaults:
+    _controller: '\Drupal\brebo_projects\Controller\ProjectsOverviewController::build'
+    _title: 'Projecten'
+  requirements:
+    _permission: 'access content'

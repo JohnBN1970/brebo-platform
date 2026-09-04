@@ -17,5 +17,11 @@ function brebo_projects_theme($existing, $type, $theme, $path): array {
       ],
       'template' => 'brebo-projects-section',
     ],
+    'brebo_projects_overview' => [
+      'variables' => [
+        'projects' => [],
+      ],
+      'template' => 'brebo-projects-overview',
+    ],
   ];
 }
