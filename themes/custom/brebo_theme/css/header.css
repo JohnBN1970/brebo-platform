@@ -193,7 +193,7 @@
 }
 
 .brebo-back-to-top:hover {
-  background: var(--brebo-primary);
+  background: var(--brebo-purple);
   color: var(--brebo-surface);
 }
 
