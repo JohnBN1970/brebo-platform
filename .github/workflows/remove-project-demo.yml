@@ -65,26 +65,101 @@ jobs:
           if (!\Drupal::moduleHandler()->moduleExists("brebo_projects_demo")) {
             throw new \RuntimeException("brebo_projects_demo is niet actief; cleanup wordt niet uitgevoerd.");
           }
+
           $storage = \Drupal::entityTypeManager()->getStorage("node");
           $ids = $storage->getQuery()->accessCheck(FALSE)->condition("type", "project")->sort("nid")->execute();
           if (count($ids) !== 3) {
             throw new \RuntimeException("Precondition mislukt: verwacht exact 3 projectnodes, gevonden " . count($ids) . ".");
           }
+
           $expected = [
-            "Gevelherstel appartementencomplex" => "public://brebo-projecten-demo/project-1.webp",
-            "Integrale aanpak voor een VvE-complex" => "public://brebo-projecten-demo/project-2.webp",
-            "Verduurzaming kantoorgebouw" => "public://brebo-projecten-demo/project-3.webp",
+            "Gevelherstel appartementencomplex" => [
+              "question" => "Voorkomen van doorslaand vocht bij een appartementencomplex.",
+              "approach" => "De oorzaken zijn eerst zorgvuldig in kaart gebracht. Daarna zijn herstelwerk, planning en communicatie samengebracht in één overzichtelijke aanpak.",
+              "results" => [
+                "Schade hersteld en verdere achteruitgang gestopt.",
+                "Onderhoud voorspelbaar en beheersbaar.",
+                "Bewoners konden in het gebouw blijven.",
+              ],
+              "sort_order" => "1",
+              "image_uri" => "public://brebo-projecten-demo/project-1.webp",
+              "image_alt" => "Modern appartementencomplex na gevelherstel",
+            ],
+            "Integrale aanpak voor een VvE-complex" => [
+              "question" => "Verouderde gevel en een hoge onderhoudslast bij een VvE-complex.",
+              "approach" => "Voor gevel, kozijnen, voegwerk en schilderwerk is één totaalplan opgesteld. Heldere communicatie met de VvE en bewoners stond gedurende het hele traject centraal.",
+              "results" => [
+                "Gevel weer toekomstbestendig.",
+                "Onderhoudskosten structureel verlaagd.",
+                "Waarde en uitstraling van het complex verbeterd.",
+              ],
+              "sort_order" => "2",
+              "image_uri" => "public://brebo-projecten-demo/project-2.webp",
+              "image_alt" => "Appartementengebouw met vernieuwde gevel en kozijnen",
+            ],
+            "Verduurzaming kantoorgebouw" => [
+              "question" => "Snelle verduurzaming en verbetering van het comfort in een kantoorgebouw.",
+              "approach" => "De prestaties van de buitenzijde zijn geanalyseerd en vertaald naar maatregelen die direct effect hebben op comfort, energiegebruik en uitstraling.",
+              "results" => [
+                "Energiegebruik aantoonbaar verlaagd.",
+                "Comfort voor gebruikers verbeterd.",
+                "Modern en representatief aanzicht.",
+              ],
+              "sort_order" => "3",
+              "image_uri" => "public://brebo-projecten-demo/project-3.webp",
+              "image_alt" => "Modern kantoorgebouw na verduurzaming",
+            ],
           ];
+
           foreach ($storage->loadMultiple($ids) as $node) {
-            $title = $node->label();
+            $title = (string) $node->label();
             if (!isset($expected[$title])) {
               throw new \RuntimeException("Precondition mislukt: onverwachte projectnode " . $title . ".");
             }
-            $image = $node->get("field_project_image")->entity;
-            if (!$image || $image->getFileUri() !== $expected[$title]) {
+            $signature = $expected[$title];
+
+            if (!$node->isPublished()) {
+              throw new \RuntimeException("Precondition mislukt: project " . $title . " is niet meer gepubliceerd.");
+            }
+            foreach (["field_featured", "field_pillar_insight", "field_pillar_regie", "field_pillar_realisation"] as $field) {
+              if ((string) $node->get($field)->value !== "1") {
+                throw new \RuntimeException("Precondition mislukt: project " . $title . " wijkt af op " . $field . ".");
+              }
+            }
+            if ((string) $node->get("field_client_question")->value !== $signature["question"]) {
+              throw new \RuntimeException("Precondition mislukt: project " . $title . " wijkt af op klantvraag.");
+            }
+            if ((string) $node->get("field_brebo_approach")->value !== $signature["approach"]) {
+              throw new \RuntimeException("Precondition mislukt: project " . $title . " wijkt af op aanpak.");
+            }
+            if ((string) $node->get("field_sort_order")->value !== $signature["sort_order"]) {
+              throw new \RuntimeException("Precondition mislukt: project " . $title . " wijkt af op sortering.");
+            }
+
+            $actual_results = array_map(
+              static fn(array $item): string => (string) ($item["value"] ?? ""),
+              $node->get("field_project_results")->getValue()
+            );
+            if ($actual_results !== $signature["results"]) {
+              throw new \RuntimeException("Precondition mislukt: project " . $title . " wijkt af op resultaten.");
+            }
+
+            $image_item = $node->get("field_project_image")->first();
+            $image = $image_item?->entity;
+            if (!$image || $image->getFileUri() !== $signature["image_uri"]) {
               throw new \RuntimeException("Precondition mislukt: project " . $title . " heeft niet het verwachte demo-afbeeldingspad.");
             }
+            if ((string) ($image_item->alt ?? "") !== $signature["image_alt"]) {
+              throw new \RuntimeException("Precondition mislukt: project " . $title . " wijkt af op image-alt.");
+            }
+
+            unset($expected[$title]);
           }
+
+          if ($expected !== []) {
+            throw new \RuntimeException("Precondition mislukt: niet alle drie canonieke demo-projecten zijn exact aangetroffen.");
+          }
+
           print "PRECONDITION=GOED\n";
           '
 
