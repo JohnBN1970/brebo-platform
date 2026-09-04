@@ -43,6 +43,7 @@ final class ProjectsOverviewController extends ControllerBase {
         $image_item = $node->get('field_project_image')->first();
         $file = $image_item?->entity;
         if ($file instanceof FileInterface) {
+          $cacheability = $cacheability->merge(CacheableMetadata::createFromObject($file));
           $image_url = \Drupal::service('file_url_generator')->generateString($file->getFileUri());
           $image_alt = $image_item->get('alt')->getString() ?: $node->label();
         }
