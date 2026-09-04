@@ -61,6 +61,29 @@
         window.addEventListener('scroll', setScrollState, { passive: true });
         setScrollState();
       });
+
+      once('brebo-back-to-top', 'body', context).forEach((body) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'brebo-back-to-top';
+        button.setAttribute('aria-label', Drupal.t('Terug naar boven'));
+        button.setAttribute('title', Drupal.t('Terug naar boven'));
+        body.appendChild(button);
+
+        const setBackToTopState = () => {
+          button.classList.toggle('is-visible', window.scrollY > 500);
+        };
+
+        button.addEventListener('click', () => {
+          window.scrollTo({
+            top: 0,
+            behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'
+          });
+        });
+
+        window.addEventListener('scroll', setBackToTopState, { passive: true });
+        setBackToTopState();
+      });
     }
   };
 })(Drupal, once);
