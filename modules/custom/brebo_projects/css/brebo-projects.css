@@ -24,6 +24,10 @@
   margin-bottom: clamp(38px, 5vw, 64px);
 }
 
+.brebo-projects__header--overview {
+  max-width: 820px;
+}
+
 .brebo-projects__eyebrow,
 .brebo-project__label {
   margin: 0 0 12px;
@@ -43,12 +47,20 @@
   letter-spacing: -.045em;
 }
 
+.brebo-projects--overview .brebo-projects__title {
+  max-width: 900px;
+}
+
 .brebo-projects__intro {
   max-width: 650px;
   margin: 24px 0 0;
   color: var(--brebo-text);
   font-size: clamp(16px, 1.5vw, 19px);
   line-height: 1.7;
+}
+
+.brebo-projects--overview .brebo-projects__intro {
+  max-width: 760px;
 }
 
 .brebo-projects__list {
@@ -229,6 +241,31 @@
   text-decoration: none;
 }
 
+.brebo-projects__empty {
+  max-width: 760px;
+  padding: clamp(28px, 4vw, 48px);
+  background: var(--brebo-surface);
+  border: 1px solid var(--brebo-line);
+  border-radius: 14px;
+  box-shadow: 0 18px 50px rgba(16, 31, 37, .06);
+}
+
+.brebo-projects__empty h2 {
+  margin: 0;
+  color: var(--brebo-ink);
+  font-size: clamp(28px, 3vw, 42px);
+  line-height: 1.08;
+  letter-spacing: -.025em;
+}
+
+.brebo-projects__empty p:last-child {
+  max-width: 650px;
+  margin: 20px 0 0;
+  color: var(--brebo-text);
+  font-size: 16px;
+  line-height: 1.7;
+}
+
 @media (max-width: 900px) {
   .brebo-project,
   .brebo-project--reverse {
@@ -271,6 +308,11 @@
 
   .brebo-project__link {
     margin-inline: 20px;
+  }
+
+  .brebo-projects__empty {
+    padding: 26px 20px;
+    border-radius: 10px;
   }
 }
 
