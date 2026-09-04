@@ -176,7 +176,8 @@
     opacity var(--brebo-transition),
     transform var(--brebo-transition),
     visibility var(--brebo-transition),
-    background-color var(--brebo-transition);
+    background-color var(--brebo-transition),
+    color var(--brebo-transition);
 }
 
 .brebo-back-to-top::before {
@@ -193,6 +194,7 @@
 
 .brebo-back-to-top:hover {
   background: var(--brebo-primary);
+  color: var(--brebo-surface);
 }
 
 .brebo-back-to-top:focus-visible {
