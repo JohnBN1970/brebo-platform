@@ -1,4 +1,4 @@
-<main class="brebo-projects brebo-projects--overview" aria-labelledby="brebo-projects-overview-title">
+<section class="brebo-projects brebo-projects--overview" aria-labelledby="brebo-projects-overview-title">
   <div class="brebo-projects__inner">
     <header class="brebo-projects__header brebo-projects__header--overview">
       <p class="brebo-projects__eyebrow">Gebouwen in de praktijk</p>
@@ -38,7 +38,7 @@
                 <div class="brebo-project__columns">
                   <div>
                     <p class="brebo-project__label">Waarom deze keuze?</p>
-                    <p class="brebo-project__text">{{ project.approach }}</p>
+                    <div class="brebo-project__text">{{ project.approach }}</div>
                   </div>
 
                   {% if project.results %}
@@ -72,4 +72,4 @@
       </section>
     {% endif %}
   </div>
-</main>
+</section>
