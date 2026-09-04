@@ -56,13 +56,20 @@ final class ProjectsOverviewController extends ControllerBase {
         }
       }
 
+      $approach = [];
+      if (!$node->get('field_brebo_approach')->isEmpty()) {
+        $approach = $node->get('field_brebo_approach')->view([
+          'label' => 'hidden',
+        ]);
+      }
+
       $projects[] = [
         'title' => $node->label(),
         'url' => $node->toUrl()->toString(),
         'image_url' => $image_url,
         'image_alt' => $image_alt,
         'question' => (string) ($node->get('field_client_question')->value ?? ''),
-        'approach' => (string) ($node->get('field_brebo_approach')->value ?? ''),
+        'approach' => $approach,
         'results' => $results,
         'pillars' => [
           'insight' => (bool) ($node->get('field_pillar_insight')->value ?? FALSE),
@@ -80,13 +87,13 @@ final class ProjectsOverviewController extends ControllerBase {
           'brebo_projects/projects',
         ],
       ],
-      '#cache' => [
-        'contexts' => ['user.permissions'],
-        'tags' => ['node_list:project'],
-      ],
     ];
 
     $cacheability->applyTo($build);
+    $build['#cache']['contexts'][] = 'user.permissions';
+    $build['#cache']['tags'][] = 'node_list:project';
+    $build['#cache']['contexts'] = array_values(array_unique($build['#cache']['contexts']));
+    $build['#cache']['tags'] = array_values(array_unique($build['#cache']['tags']));
 
     return $build;
   }
