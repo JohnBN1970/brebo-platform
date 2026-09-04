@@ -16,14 +16,14 @@
 }
 
 .site-header__inner {
-  min-height: 104px;
+  min-height: 88px;
   display: flex;
   align-items: center;
   transition: min-height var(--brebo-transition);
 }
 
 .site-header.is-scrolled .site-header__inner {
-  min-height: 88px;
+  min-height: 76px;
 }
 
 .region-header {
@@ -35,7 +35,7 @@
 }
 
 .site-header__brand {
-  flex: 0 0 280px;
+  flex: 0 0 220px;
   display: inline-flex;
   align-items: center;
   margin-right: auto;
@@ -45,17 +45,17 @@
 
 .site-header__brand-logo {
   display: block;
-  width: 280px;
+  width: 220px;
   height: auto;
   max-width: 100%;
-  max-height: 84px;
+  max-height: 56px;
   object-fit: contain;
   object-position: left center;
   transition: width var(--brebo-transition), max-width var(--brebo-transition);
 }
 
 .site-header.is-scrolled .site-header__brand-logo {
-  width: 240px;
+  width: 200px;
 }
 
 /* Drupal Site Branding may remain configured, but the theme owns the visible brand. */
@@ -150,23 +150,23 @@
 
 @media (min-width: 1600px) {
   .site-header__brand {
-    flex-basis: 360px;
+    flex-basis: 250px;
   }
 
   .site-header__brand-logo {
-    width: 360px;
-    max-height: 92px;
+    width: 250px;
+    max-height: 62px;
   }
 
   .site-header.is-scrolled .site-header__brand-logo {
-    width: 310px;
+    width: 225px;
   }
 }
 
 @media (max-width: 1023px) {
   .site-header__inner,
   .site-header.is-scrolled .site-header__inner {
-    min-height: 76px;
+    min-height: 72px;
   }
 
   .region-header {
@@ -176,14 +176,14 @@
   }
 
   .site-header__brand {
-    flex-basis: 190px;
-    width: 190px;
+    flex-basis: 170px;
+    width: 170px;
   }
 
   .site-header__brand-logo,
   .site-header.is-scrolled .site-header__brand-logo {
-    width: 190px;
-    max-height: 58px;
+    width: 170px;
+    max-height: 44px;
   }
 
   .site-header__cta {
