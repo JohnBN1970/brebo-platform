@@ -12,9 +12,8 @@ function brebo_lens_theme($existing, $type, $theme, $path): array {
   return [
     'brebo_lens' => [
       'variables' => [
-        'image_url' => NULL,
         'initial_image_url' => NULL,
-        'steps' => [],
+        'phases' => [],
       ],
       'template' => 'brebo-lens',
     ],
