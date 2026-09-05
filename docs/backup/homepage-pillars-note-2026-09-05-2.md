@@ -1,1 +1,0 @@
-Finetune scope: copy-only wijziging aan homepageblok Inzicht → Regie → Realisatie. Bestaande componentstructuur en CSS blijven ongewijzigd. Historische agent/website-karkas-copy is als inhoudelijke referentie gebruikt; actuele BREBO-positionering maakt expliciet dat regie/bouwbegeleiding zelfstandig kan worden aangeboden en realisatie optioneel is.
