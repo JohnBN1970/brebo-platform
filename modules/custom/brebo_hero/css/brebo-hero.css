@@ -4,7 +4,8 @@
   --brebo-hero-max-width: 90rem;
 
   position: relative;
-  min-height: clamp(38rem, 72vh, 52rem);
+  min-height: calc(100vh - 88px);
+  min-height: calc(100svh - 88px);
   overflow: hidden;
   background: #fff;
   color: var(--brebo-hero-ink);
@@ -150,6 +151,13 @@
 
   .brebo-hero__content {
     width: min(36rem, 58%);
+  }
+}
+
+@media (min-width: 48rem) and (max-width: 63.9375rem) {
+  .brebo-hero {
+    min-height: calc(100vh - 72px);
+    min-height: calc(100svh - 72px);
   }
 }
 
