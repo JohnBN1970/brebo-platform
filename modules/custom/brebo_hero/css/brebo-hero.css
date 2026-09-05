@@ -154,6 +154,13 @@
   }
 }
 
+@media (min-width: 48rem) and (max-width: 63.9375rem) {
+  .brebo-hero {
+    min-height: calc(100vh - 72px);
+    min-height: calc(100svh - 72px);
+  }
+}
+
 @media (max-width: 47.99rem) {
   .brebo-hero {
     display: grid;
