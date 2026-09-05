@@ -1,15 +1,36 @@
-<section class="brebo-projects brebo-projects--overview" aria-labelledby="brebo-projects-overview-title">
-  <div class="brebo-projects__inner">
-    <header class="brebo-projects__header brebo-projects__header--overview">
+<section class="brebo-projects-hero" aria-labelledby="brebo-projects-overview-title">
+  <div class="brebo-projects-hero__inner">
+    <div class="brebo-projects-hero__content">
       <p class="brebo-projects__eyebrow">Gebouwen in de praktijk</p>
-      <h1 class="brebo-projects__title" id="brebo-projects-overview-title">
+      <h1 class="brebo-projects-hero__title" id="brebo-projects-overview-title">
         De situatie aan het gebouw bepaalt de aanpak.
       </h1>
-      <p class="brebo-projects__intro">
-        Geen portfolio om te laten zien wat wij hebben gemaakt. Wel praktijkvoorbeelden die laten zien wat er aan een gebouw speelde, welke afweging de opdrachtgever maakte en wat die keuze aantoonbaar opleverde.
+      <p class="brebo-projects-hero__intro">
+        Een goed project begint niet bij uitvoering, maar bij begrijpen wat er werkelijk aan het gebouw speelt. Deze praktijkvoorbeelden laten zien welke afweging voor de opdrachtgever doorslaggevend was en wat die keuze aantoonbaar opleverde.
       </p>
-    </header>
+      <a class="brebo-projects-hero__cta" href="#praktijkvoorbeelden">
+        Bekijk de praktijkvoorbeelden
+        <span aria-hidden="true">↓</span>
+      </a>
+    </div>
 
+    <div class="brebo-projects-hero__visual" aria-hidden="true">
+      <div class="brebo-projects-hero__frame">
+        <span class="brebo-projects-hero__line brebo-projects-hero__line--one"></span>
+        <span class="brebo-projects-hero__line brebo-projects-hero__line--two"></span>
+        <span class="brebo-projects-hero__line brebo-projects-hero__line--three"></span>
+        <div class="brebo-projects-hero__lens">
+          <span>Inzicht</span>
+          <span>Regie</span>
+          <span>Realisatie</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="brebo-projects brebo-projects--overview" id="praktijkvoorbeelden" aria-label="Praktijkvoorbeelden">
+  <div class="brebo-projects__inner">
     {% if projects %}
       <div class="brebo-projects__list">
         {% for project in projects %}
@@ -67,7 +88,7 @@
         <p class="brebo-projects__eyebrow">Praktijkvoorbeelden</p>
         <h2 id="brebo-projects-empty-title">Hier komen alleen echte BREBO-projecten.</h2>
         <p>
-          De eerdere demo-inhoud is bewust verwijderd. Nieuwe voorbeelden worden vanuit het projectobject toegevoegd zodra de projectsituatie, afweging en resultaten inhoudelijk zijn vastgelegd.
+          Projecten verschijnen hier pas nadat de projectsituatie, afweging, aantoonbare resultaten en vrijgegeven media vanuit BREBO Office voor publicatie zijn vrijgegeven.
         </p>
       </section>
     {% endif %}
