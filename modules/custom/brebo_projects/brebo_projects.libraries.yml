@@ -3,6 +3,7 @@ projects:
   css:
     theme:
       css/brebo-projects.css: {}
+      css/final-public-finish.css: {}
   js:
     js/brebo-projects.js: {}
   dependencies:
