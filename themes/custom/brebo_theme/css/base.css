@@ -18,6 +18,12 @@ body {
   line-height: 1.6;
 }
 
+/* De publieke pagina's hebben hun eigen inhoudelijke H1. De door Drupal
+ * toegevoegde page-title erboven is daarom visueel dubbel. */
+.site-page__main > .block-page-title-block {
+  display: none;
+}
+
 img,
 svg,
 video {
