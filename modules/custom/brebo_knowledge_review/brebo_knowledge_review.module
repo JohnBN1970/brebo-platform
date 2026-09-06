@@ -1,0 +1,29 @@
+<?php
+
+declare(strict_types=1);
+
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Url;
+use Drupal\node\NodeInterface;
+
+/**
+ * Implements hook_entity_operation().
+ */
+function brebo_knowledge_review_entity_operation(EntityInterface $entity): array {
+  if (!$entity instanceof NodeInterface || $entity->bundle() !== 'brebo_knowledge_item') {
+    return [];
+  }
+  if (!\Drupal::currentUser()->hasPermission('review brebo knowledge items')) {
+    return [];
+  }
+
+  return [
+    'brebo_knowledge_review' => [
+      'title' => t('Beoordelen'),
+      'weight' => 50,
+      'url' => Url::fromRoute('brebo_knowledge_review.review', [
+        'node' => $entity->id(),
+      ]),
+    ],
+  ];
+}
