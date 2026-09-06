@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Drupal\brebo_knowledge_review\Form;
 
 use Drupal\brebo_knowledge_review\Review\ReviewStatusStorage;
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\node\NodeInterface;
@@ -78,37 +79,22 @@ final class KnowledgeReviewForm extends FormBase {
     'changes_required' => 'Herziening nodig',
   ];
 
-  /**
-   * The KnowledgeItem being reviewed.
-   */
   private ?NodeInterface $knowledgeItem = NULL;
 
-  /**
-   * Creates the form.
-   */
   public function __construct(
     private ReviewStatusStorage $statusStorage,
   ) {}
 
-  /**
-   * {@inheritdoc}
-   */
   public static function create(ContainerInterface $container): static {
     return new static(
       $container->get('brebo_knowledge_review.status_storage'),
     );
   }
 
-  /**
-   * {@inheritdoc}
-   */
   public function getFormId(): string {
     return 'brebo_knowledge_review_form';
   }
 
-  /**
-   * Builds the review form.
-   */
   public function buildForm(array $form, FormStateInterface $form_state, ?NodeInterface $node = NULL): array {
     if (!$node instanceof NodeInterface || $node->bundle() !== 'brebo_knowledge_item') {
       throw new AccessDeniedHttpException('Alleen BREBO KnowledgeItems kunnen via deze route worden beoordeeld.');
@@ -207,9 +193,6 @@ final class KnowledgeReviewForm extends FormBase {
     return $form;
   }
 
-  /**
-   * {@inheritdoc}
-   */
   public function submitForm(array &$form, FormStateInterface $form_state): void {
     if (!$this->knowledgeItem instanceof NodeInterface || $this->knowledgeItem->bundle() !== 'brebo_knowledge_item') {
       throw new AccessDeniedHttpException('KnowledgeItem ontbreekt of is ongeldig.');
@@ -226,10 +209,18 @@ final class KnowledgeReviewForm extends FormBase {
       ]);
     }
 
+    // Iedere inhoudelijke revisie trekt eerdere vrijgave fail-closed in. Nieuwe
+    // publieke of AI-vrijgave moet daarna expliciet opnieuw worden besloten.
+    $basis = (string) $this->knowledgeItem->get('field_knowledge_basis')->value;
+    $basis = $this->setLine($basis, 'Publieke vrijgave:', 'nee');
+    $basis = $this->setLine($basis, 'AI-vrijgave:', 'nee');
+    $this->knowledgeItem->set('field_knowledge_basis', $basis);
+    $this->knowledgeItem->setUnpublished();
     $this->knowledgeItem->setNewRevision(TRUE);
     $this->knowledgeItem->setRevisionLogMessage((string) $form_state->getValue('revision_log'));
     $this->knowledgeItem->setRevisionUserId((int) $this->currentUser()->id());
     $this->knowledgeItem->save();
+    Cache::invalidateTags(['brebo_public_knowledge']);
 
     $status = (string) $form_state->getValue('review_status');
     if (!isset(self::STATUSES[$status])) {
@@ -245,8 +236,28 @@ final class KnowledgeReviewForm extends FormBase {
       (string) $form_state->getValue('review_note'),
     );
 
-    $this->messenger()->addStatus($this->t('De KnowledgeItem-correcties en reviewstatus zijn opgeslagen.'));
+    $this->messenger()->addStatus($this->t('De KnowledgeItem-correcties en reviewstatus zijn opgeslagen. Publieke en AI-vrijgave zijn ingetrokken tot een nieuw expliciet vrijgavebesluit.'));
     $form_state->setRedirect('brebo_knowledge_review.review', ['node' => $this->knowledgeItem->id()]);
+  }
+
+  private function setLine(string $text, string $prefix, string $value): string {
+    $lines = preg_split('/\R/', $text) ?: [];
+    $replacement = $prefix . ' ' . trim($value);
+    $found = FALSE;
+
+    foreach ($lines as &$line) {
+      if (str_starts_with(trim($line), $prefix)) {
+        $line = $replacement;
+        $found = TRUE;
+        break;
+      }
+    }
+    unset($line);
+
+    if (!$found) {
+      $lines[] = $replacement;
+    }
+    return implode("\n", $lines);
   }
 
 }
