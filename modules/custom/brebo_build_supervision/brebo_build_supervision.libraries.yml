@@ -2,3 +2,4 @@ page:
   css:
     theme:
       css/build-supervision.css: {}
+      css/harmonise.css: {}

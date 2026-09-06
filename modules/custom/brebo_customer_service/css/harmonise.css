@@ -1,0 +1,168 @@
+.brebo-knowledge-library {
+  --brebo-page-ink: #111827;
+  --brebo-page-muted: #667085;
+  --brebo-page-accent: #7137b5;
+  --brebo-page-soft: #f7f8fb;
+}
+
+.brebo-knowledge-library__hero {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: clamp(4.5rem, 8vw, 7rem) 1.25rem 0;
+}
+
+.brebo-knowledge-library__hero-inner {
+  grid-template-columns: minmax(0, 1.1fr) minmax(360px, .9fr);
+  gap: clamp(3rem, 7vw, 6rem);
+  align-items: start;
+  padding: 0 0 clamp(4rem, 7vw, 6rem);
+  border-top: 0;
+  background: #fff;
+}
+
+.brebo-knowledge-library__hero-copy h1 {
+  max-width: 10ch;
+  font-size: clamp(3.4rem, 5.5vw, 5.4rem);
+  line-height: .98;
+  letter-spacing: -.055em;
+  text-wrap: balance;
+}
+
+.brebo-knowledge-library__lead {
+  max-width: 40rem;
+  margin-top: 1.5rem;
+  color: var(--brebo-page-muted);
+  font-size: clamp(1.05rem, 1.25vw, 1.18rem);
+}
+
+.brebo-knowledge-library__ask {
+  margin-top: .45rem;
+  padding: 1.6rem;
+  border: 1px solid rgba(17, 24, 39, .11);
+  border-radius: 2px;
+  background: var(--brebo-page-soft);
+  color: var(--brebo-page-ink);
+  box-shadow: none;
+}
+
+.brebo-knowledge-library__ask-title > span {
+  background: #eee8f8;
+  color: var(--brebo-page-accent);
+}
+
+.brebo-knowledge-library__ask textarea {
+  min-height: 104px;
+  border-color: rgba(17, 24, 39, .11);
+  border-radius: 2px;
+  background: #fff;
+  color: var(--brebo-page-ink);
+}
+
+.brebo-knowledge-library__ask textarea:disabled {
+  -webkit-text-fill-color: #667085;
+}
+
+.brebo-knowledge-library__ask textarea::placeholder {
+  color: #7b8492;
+}
+
+.brebo-knowledge-library__ask button {
+  border-radius: 2px;
+  background: var(--brebo-page-accent);
+}
+
+.brebo-knowledge-library__assurance {
+  border-top-color: rgba(17, 24, 39, .12);
+  color: #667085 !important;
+}
+
+.brebo-knowledge-library__assurance > span {
+  color: var(--brebo-page-accent);
+}
+
+.brebo-knowledge-library__section {
+  padding-top: clamp(4.5rem, 7vw, 6.5rem);
+}
+
+.brebo-knowledge-library__section-head {
+  max-width: 760px;
+}
+
+.brebo-knowledge-library__section h2,
+.brebo-knowledge-library__questions h2,
+.brebo-knowledge-library__promise h2,
+.brebo-knowledge-library__routes h2 {
+  font-size: clamp(2.55rem, 4.1vw, 4rem);
+  line-height: 1;
+  letter-spacing: -.05em;
+}
+
+.brebo-knowledge-library__grid {
+  gap: 0;
+  margin-top: 2rem;
+  border-top: 2px solid transparent;
+  border-image: linear-gradient(90deg, #168bff, #7137b5) 1;
+}
+
+.brebo-knowledge-card {
+  min-height: 220px;
+  padding: 2rem 1.7rem;
+  border-top: 0;
+  background: #fff;
+}
+
+.brebo-knowledge-library__questions {
+  margin-top: clamp(4rem, 7vw, 6rem);
+  padding-top: clamp(3.5rem, 6vw, 5rem);
+  padding-bottom: clamp(3.5rem, 6vw, 5rem);
+  background: var(--brebo-page-soft);
+}
+
+.brebo-knowledge-library__promise {
+  margin-top: 0;
+  padding-top: clamp(3rem, 5vw, 4rem);
+  padding-bottom: clamp(3rem, 5vw, 4rem);
+  border-top: 0;
+  background: #fff;
+}
+
+.brebo-knowledge-library__promise-mark {
+  background: #111827;
+}
+
+.brebo-knowledge-library__routes {
+  gap: 1.5rem;
+  padding-top: 2.5rem;
+  padding-bottom: clamp(4.5rem, 7vw, 6.5rem);
+}
+
+.brebo-knowledge-library__routes article,
+.brebo-knowledge-library__routes article:nth-child(2) {
+  padding: clamp(2.3rem, 4vw, 3.4rem);
+  background: var(--brebo-page-soft);
+}
+
+@media (max-width: 900px) {
+  .brebo-knowledge-library__hero {
+    padding-top: 3.5rem;
+  }
+
+  .brebo-knowledge-library__hero-inner {
+    grid-template-columns: 1fr;
+    gap: 2.75rem;
+  }
+
+  .brebo-knowledge-library__hero-copy h1 {
+    max-width: 11ch;
+  }
+}
+
+@media (max-width: 640px) {
+  .brebo-knowledge-library__hero-copy h1 {
+    font-size: clamp(3rem, 14vw, 4.2rem);
+  }
+
+  .brebo-knowledge-library__hero-inner {
+    padding-bottom: 3.5rem;
+  }
+}
