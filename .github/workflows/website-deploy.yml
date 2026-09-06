@@ -152,6 +152,26 @@ jobs:
           echo "===== CACHE REBUILD ====="
           "${drush[@]}" cr
 
+          echo "===== KNOWLEDGE SEED IMPORT ====="
+          "${drush[@]}" php:eval '
+            $importer = \Drupal::service("brebo_customer_service.knowledge_item_seed_importer");
+            $result = $importer->import();
+            print "KNOWLEDGE_SEED_CREATED=" . count($result["created"]) . "\n";
+            print "KNOWLEDGE_SEED_EXISTING=" . count($result["existing"]) . "\n";
+            print "KNOWLEDGE_SEED_ERRORS=" . count($result["errors"]) . "\n";
+            if ($result["errors"] !== []) {
+              foreach ($result["errors"] as $error) {
+                print "KNOWLEDGE_SEED_ERROR=" . $error . "\n";
+              }
+              throw new \RuntimeException("Knowledge seed import contains errors.");
+            }
+            $total = count($result["created"]) + count($result["existing"]);
+            print "KNOWLEDGE_SEED_TOTAL=" . $total . "\n";
+            if ($total !== 48) {
+              throw new \RuntimeException("Expected exactly 48 canonical Knowledgebase seeds, found " . $total . ".");
+            }
+          '
+
           echo "===== RUNTIME CHECK ====="
           "${drush[@]}" php:eval 'print "DRUPAL_BOOTSTRAP_OK=1\n"; print "SITE_NAME=" . \Drupal::config("system.site")->get("name") . "\n";'
 
