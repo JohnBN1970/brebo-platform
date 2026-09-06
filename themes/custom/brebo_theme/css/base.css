@@ -18,6 +18,12 @@ body {
   line-height: 1.6;
 }
 
+/* Alleen publieke landingspagina's met een eigen inhoudelijke H1 verbergen
+ * de extra Drupal page-title. De contentregio bevat geneste wrappers. */
+.brebo-has-embedded-page-title .site-page__main .block-page-title-block {
+  display: none;
+}
+
 img,
 svg,
 video {
