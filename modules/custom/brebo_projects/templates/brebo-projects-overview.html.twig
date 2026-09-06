@@ -6,12 +6,14 @@
         De situatie aan het gebouw bepaalt de aanpak.
       </h1>
       <p class="brebo-projects-hero__intro">
-        Een goed project begint niet bij uitvoering, maar bij begrijpen wat er werkelijk aan het gebouw speelt. Deze praktijkvoorbeelden laten zien welke afweging voor de opdrachtgever doorslaggevend was en wat die keuze aantoonbaar opleverde.
+        Een goed project begint niet bij uitvoering, maar bij begrijpen wat er werkelijk aan het gebouw speelt. Hier laten we straks zien welke afweging voor de opdrachtgever doorslaggevend was en wat die keuze aantoonbaar opleverde.
       </p>
-      <a class="brebo-projects-hero__cta" href="#praktijkvoorbeelden">
-        Bekijk de praktijkvoorbeelden
-        <span aria-hidden="true">↓</span>
-      </a>
+      {% if projects %}
+        <a class="brebo-projects-hero__cta" href="#praktijkvoorbeelden">
+          Bekijk de praktijkvoorbeelden
+          <span aria-hidden="true">↓</span>
+        </a>
+      {% endif %}
     </div>
 
     <div class="brebo-projects-hero__visual" aria-hidden="true">
@@ -85,11 +87,12 @@
       </div>
     {% else %}
       <section class="brebo-projects__empty" aria-labelledby="brebo-projects-empty-title">
-        <p class="brebo-projects__eyebrow">Praktijkvoorbeelden</p>
-        <h2 id="brebo-projects-empty-title">Hier komen alleen echte BREBO-projecten.</h2>
+        <p class="brebo-projects__eyebrow">Werk in uitvoering</p>
+        <h2 id="brebo-projects-empty-title">Hier wordt aan gewerkt. Letterlijk.</h2>
         <p>
-          Projecten verschijnen hier pas nadat de projectsituatie, afweging, aantoonbare resultaten en vrijgegeven media vanuit BREBO Office voor publicatie zijn vrijgegeven.
+          Onze projecten krijgen binnenkort een eigen plek. Niet als verzameling mooie eindfoto’s, maar als inkijk in echte gebouwen, technische keuzes, onderhoudsvraagstukken en de weg van inzicht naar realisatie.
         </p>
+        <p><strong>Binnenkort: projecten in uitvoering en gerealiseerd werk.</strong></p>
       </section>
     {% endif %}
   </div>
