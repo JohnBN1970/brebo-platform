@@ -149,6 +149,20 @@ jobs:
           echo "===== DRUPAL PRECHECK ====="
           "${drush[@]}" status --fields=bootstrap,root,uri --format=list
 
+          echo "===== PROJECTS ROUTE GUARD ====="
+          "${drush[@]}" php:eval '
+            $storage = \Drupal::entityTypeManager()->getStorage("path_alias");
+            $ids = $storage->getQuery()
+              ->accessCheck(FALSE)
+              ->condition("alias", "/projecten")
+              ->execute();
+            print "PROJECTS_ALIAS_CONFLICTS=" . count($ids) . "\n";
+            if ($ids !== []) {
+              $storage->delete($storage->loadMultiple($ids));
+              print "PROJECTS_ALIAS_CONFLICTS_REMOVED=" . count($ids) . "\n";
+            }
+          '
+
           echo "===== CACHE REBUILD ====="
           "${drush[@]}" cr
 
@@ -203,6 +217,19 @@ jobs:
           [[ "$source_css_sha" == "$public_css_sha" ]] || { echo "::error::Lens CSS differs between source and public webroot."; exit 1; }
           [[ "$source_js_sha" == "$public_js_sha" ]] || { echo "::error::Lens JS differs between source and public webroot."; exit 1; }
 
+          projects_template_rel="modules/custom/brebo_projects/templates/brebo-projects-overview.html.twig"
+          [[ -s "$public_root/$projects_template_rel" ]] || {
+            echo "::error::Published projects overview template is missing or empty."
+            exit 1
+          }
+          source_projects_template_sha="$(sha256sum "$target/$projects_template_rel" | awk '{print $1}')"
+          public_projects_template_sha="$(sha256sum "$public_root/$projects_template_rel" | awk '{print $1}')"
+          [[ "$source_projects_template_sha" == "$public_projects_template_sha" ]] || {
+            echo "::error::Projects overview template differs between source and public webroot."
+            exit 1
+          }
+          echo "PROJECTS_TEMPLATE_CURRENT=1"
+
           asset_token="$(git rev-parse --short=12 HEAD)"
           lens_css_url="${public_url}${lens_css_rel}?v=${asset_token}"
           lens_js_url="${public_url}${lens_js_rel}?v=${asset_token}"
@@ -220,11 +247,15 @@ jobs:
           homepage_code="$(curl -L -sS -o /dev/null --max-time 20 -w '%{http_code}' "${public_url}?v=${asset_token}")"
           logo_url="${public_url}themes/custom/brebo_theme/logo.svg?v=${asset_token}"
           logo_result="$(curl -L -sS -o /dev/null --max-time 20 -w '%{http_code} %{content_type}' "$logo_url")"
+          projects_url="${public_url}projecten?v=${asset_token}"
+          projects_code="$(curl -L -sS -o /tmp/brebo-projecten.html --max-time 20 -w '%{http_code}' "$projects_url")"
 
           echo "PUBLIC_URL=$public_url"
           echo "HOMEPAGE_HTTP_CODE=$homepage_code"
           echo "LOGO_URL=$logo_url"
           echo "LOGO_RESULT=$logo_result"
+          echo "PROJECTS_URL=$projects_url"
+          echo "PROJECTS_HTTP_CODE=$projects_code"
 
           case "$homepage_code" in
             200|301|302) ;;
@@ -241,6 +272,20 @@ jobs:
               exit 1
               ;;
           esac
+
+          [[ "$projects_code" == "200" ]] || {
+            echo "::error::Unexpected HTTP status from public projects page: $projects_code"
+            exit 1
+          }
+          grep -Fq 'De situatie aan het gebouw bepaalt de aanpak.' /tmp/brebo-projecten.html || {
+            echo "::error::Public projects page does not render the BREBO projects hero."
+            exit 1
+          }
+          grep -Fq 'Hier wordt aan gewerkt. Letterlijk.' /tmp/brebo-projecten.html || {
+            echo "::error::Public projects page does not render the expected empty-state."
+            exit 1
+          }
+          echo "PROJECTS_PUBLIC_RENDER_OK=1"
 
           deployed_sha="$(git rev-parse HEAD)"
           printf '%s\n' "$deployed_sha" > "$deploy_marker"
