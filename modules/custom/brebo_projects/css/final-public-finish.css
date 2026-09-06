@@ -1,0 +1,14 @@
+.brebo-projects:has(.brebo-projects__empty) {
+  padding-block: clamp(36px, 4vw, 56px);
+}
+
+.brebo-projects:has(.brebo-projects__empty) .brebo-projects__inner {
+  display: flex;
+  justify-content: flex-start;
+}
+
+@media (max-width: 620px) {
+  .brebo-projects:has(.brebo-projects__empty) {
+    padding-block: 28px;
+  }
+}
