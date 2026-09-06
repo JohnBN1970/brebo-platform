@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Drupal\brebo_customer_service\Knowledge;
 
 use Drupal\Component\Datetime\TimeInterface;
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\node\NodeInterface;
@@ -28,6 +29,7 @@ final class KnowledgeReviewManager {
     string $status,
     array $sources,
     string $validityDate,
+    bool $publicApproved,
     bool $aiApproved,
   ): NodeInterface {
     if (!in_array($status, [
@@ -40,13 +42,21 @@ final class KnowledgeReviewManager {
     }
 
     $sources = array_values(array_unique(array_filter(array_map('trim', $sources))));
-    if ($status === KnowledgeApproval::STATUS_APPROVED && ($sources === [] || trim($validityDate) === '')) {
+    $hasValidation = $sources !== [] && trim($validityDate) !== '';
+
+    if ($status === KnowledgeApproval::STATUS_APPROVED && !$hasValidation) {
       throw new \InvalidArgumentException('Goedkeuring vereist minimaal één bron en een geldigheidscontrole.');
+    }
+    if ($publicApproved && $status !== KnowledgeApproval::STATUS_APPROVED) {
+      throw new \InvalidArgumentException('Publieke vrijgave is alleen mogelijk voor goedgekeurde kennis.');
+    }
+    if ($publicApproved && !$hasValidation) {
+      throw new \InvalidArgumentException('Publieke vrijgave vereist bron en geldigheidscontrole.');
     }
     if ($aiApproved && $status !== KnowledgeApproval::STATUS_APPROVED) {
       throw new \InvalidArgumentException('AI-vrijgave is alleen mogelijk voor goedgekeurde kennis.');
     }
-    if ($aiApproved && ($sources === [] || trim($validityDate) === '')) {
+    if ($aiApproved && !$hasValidation) {
       throw new \InvalidArgumentException('AI-vrijgave vereist bron en geldigheidscontrole.');
     }
 
@@ -63,12 +73,23 @@ final class KnowledgeReviewManager {
     $basis = $this->setLine($basis, 'Bronnen:', implode('; ', $sources));
     $basis = $this->setLine($basis, 'Geldigheid:', $validityDate);
     $basis = $this->setLine($basis, 'Deskundige controle:', $reviewer . ' | ' . $reviewedAt);
+    $basis = $this->setLine($basis, 'Publieke vrijgave:', $publicApproved ? 'ja' : 'nee');
     $basis = $this->setLine($basis, 'AI-vrijgave:', $aiApproved ? 'ja' : 'nee');
 
     $node->set('field_knowledge_basis', $basis);
+    $node->setPublished($publicApproved && $status === KnowledgeApproval::STATUS_APPROVED && $hasValidation);
     $node->setNewRevision(TRUE);
-    $node->setRevisionLogMessage(sprintf('Kennisbeoordeling: %s; AI-vrijgave: %s.', $status, $aiApproved ? 'ja' : 'nee'));
+    $node->setRevisionLogMessage(sprintf(
+      'Kennisbeoordeling: %s; publieke vrijgave: %s; AI-vrijgave: %s.',
+      $status,
+      $publicApproved ? 'ja' : 'nee',
+      $aiApproved ? 'ja' : 'nee',
+    ));
     $node->save();
+
+    // Public knowledge pages carry this tag, so publication changes become
+    // visible immediately and an unpublished revision cannot linger in cache.
+    Cache::invalidateTags(['brebo_public_knowledge']);
 
     return $node;
   }

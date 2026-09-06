@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Drupal\brebo_knowledge_review\Form;
 
 use Drupal\brebo_knowledge_review\Review\ReviewStatusStorage;
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\node\NodeInterface;
@@ -226,10 +227,18 @@ final class KnowledgeReviewForm extends FormBase {
       ]);
     }
 
+    // Iedere inhoudelijke revisie trekt eerdere vrijgave fail-closed in. Nieuwe
+    // publieke of AI-vrijgave moet daarna expliciet opnieuw worden besloten.
+    $basis = (string) $this->knowledgeItem->get('field_knowledge_basis')->value;
+    $basis = $this->setLine($basis, 'Publieke vrijgave:', 'nee');
+    $basis = $this->setLine($basis, 'AI-vrijgave:', 'nee');
+    $this->knowledgeItem->set('field_knowledge_basis', $basis);
+    $this->knowledgeItem->setUnpublished();
     $this->knowledgeItem->setNewRevision(TRUE);
     $this->knowledgeItem->setRevisionLogMessage((string) $form_state->getValue('revision_log'));
     $this->knowledgeItem->setRevisionUserId((int) $this->currentUser()->id());
     $this->knowledgeItem->save();
+    Cache::invalidateTags(['brebo_public_knowledge']);
 
     $status = (string) $form_state->getValue('review_status');
     if (!isset(self::STATUSES[$status])) {
@@ -245,8 +254,31 @@ final class KnowledgeReviewForm extends FormBase {
       (string) $form_state->getValue('review_note'),
     );
 
-    $this->messenger()->addStatus($this->t('De KnowledgeItem-correcties en reviewstatus zijn opgeslagen.'));
+    $this->messenger()->addStatus($this->t('De KnowledgeItem-correcties en reviewstatus zijn opgeslagen. Publieke en AI-vrijgave zijn ingetrokken tot een nieuw expliciet vrijgavebesluit.'));
     $form_state->setRedirect('brebo_knowledge_review.review', ['node' => $this->knowledgeItem->id()]);
+  }
+
+  /**
+   * Sets or appends a review metadata line.
+   */
+  private function setLine(string $text, string $prefix, string $value): string {
+    $lines = preg_split('/\R/', $text) ?: [];
+    $replacement = $prefix . ' ' . trim($value);
+    $found = FALSE;
+
+    foreach ($lines as &$line) {
+      if (str_starts_with(trim($line), $prefix)) {
+        $line = $replacement;
+        $found = TRUE;
+        break;
+      }
+    }
+    unset($line);
+
+    if (!$found) {
+      $lines[] = $replacement;
+    }
+    return implode("\n", $lines);
   }
 
 }

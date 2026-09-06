@@ -37,6 +37,7 @@ final class KnowledgeCatalogController extends ControllerBase {
     }
     return [
       '#attached' => ['library' => ['brebo_customer_service/service']],
+      '#cache' => ['tags' => ['brebo_public_knowledge']],
       '#markup' => '<main class="brebo-knowledge-index">'
         . '<a class="brebo-knowledge-article__back" href="/klantenservice">← Terug naar klantenservice</a>'
         . '<header><p class="brebo-knowledge-library__eyebrow">Kennisgebied</p><h1>' . $topics[$topic]['title'] . '</h1><p>' . $topics[$topic]['intro'] . '</p></header>'
@@ -58,6 +59,7 @@ final class KnowledgeCatalogController extends ControllerBase {
     $ai = KnowledgeApproval::aiReason($item);
     return [
       '#attached' => ['library' => ['brebo_customer_service/service']],
+      '#cache' => ['tags' => ['brebo_public_knowledge', 'node:' . $item['nid']]],
       '#markup' => '<article class="brebo-knowledge-article">'
         . '<a class="brebo-knowledge-article__back" href="/klantenservice/kennis/' . $item['topic'] . '">← Terug naar ' . $topic['title'] . '</a>'
         . '<header><p class="brebo-knowledge-library__eyebrow">' . $topic['title'] . '</p><h1>' . $item['title'] . '</h1><p class="brebo-knowledge-article__lead">' . $item['summary'] . '</p></header>'

@@ -33,17 +33,18 @@ final class KnowledgeReviewFormTest extends BrowserTestBase {
   protected $defaultTheme = 'stark';
 
   /**
-   * Proves access, revisioned saves and revision-bound review status.
+   * Proves access, revisioned saves, review status and fail-closed release.
    */
   public function testReviewFormIsBoundedAndRevisioned(): void {
     $knowledgeItem = Node::create([
       'type' => 'brebo_knowledge_item',
       'title' => 'Condens tussen de glasbladen',
+      'status' => 1,
       'field_knowledge_observation' => 'Bestaande waarneming.',
       'field_knowledge_meaning' => 'Bestaande betekenis.',
       'field_knowledge_risk' => 'Bestaand risico.',
       'field_knowledge_next_step' => 'Bestaande volgende stap.',
-      'field_knowledge_basis' => 'Bestaande basis.',
+      'field_knowledge_basis' => "Bestaande basis.\nPublieke vrijgave: ja\nAI-vrijgave: ja",
       'field_knowledge_regie' => '',
       'field_knowledge_realization' => '',
     ]);
@@ -60,14 +61,8 @@ final class KnowledgeReviewFormTest extends BrowserTestBase {
     $this->assertSession()->pageTextContains('Condens tussen de glasbladen');
     $this->assertSession()->pageTextContains('Te beoordelen');
 
-    NodeType::create([
-      'type' => 'review_test_page',
-      'name' => 'Review test page',
-    ])->save();
-    $otherNode = Node::create([
-      'type' => 'review_test_page',
-      'title' => 'Geen KnowledgeItem',
-    ]);
+    NodeType::create(['type' => 'review_test_page', 'name' => 'Review test page'])->save();
+    $otherNode = Node::create(['type' => 'review_test_page', 'title' => 'Geen KnowledgeItem']);
     $otherNode->save();
     $this->drupalGet('/admin/content/brebo-knowledge/' . $otherNode->id() . '/review');
     $this->assertSession()->statusCodeEquals(403);
@@ -81,7 +76,7 @@ final class KnowledgeReviewFormTest extends BrowserTestBase {
       'field_knowledge_meaning' => 'Sterke aanwijzing voor een niet meer intacte randafdichting; thermische noodzaak moet afzonderlijk worden beoordeeld.',
       'field_knowledge_risk' => 'Beoordeel technische prestatie, comfort, functioneel doorzicht en esthetische kwaliteit afzonderlijk.',
       'field_knowledge_next_step' => 'Controleer positie van het vocht, glasopbouw, gebruiksfunctie, doorzicht en toestand van kozijn en sponning.',
-      'field_knowledge_basis' => 'Gebaseerd op technische bronnen; deskundige controle blijft nodig voor projectspecifieke maatregelkeuze.',
+      'field_knowledge_basis' => "Gebaseerd op technische bronnen.\nPublieke vrijgave: ja\nAI-vrijgave: ja",
       'field_knowledge_regie' => 'Prioriteer op impact en gebruiksfunctie, niet alleen op de aanwezigheid van het gebrek.',
       'field_knowledge_realization' => 'Behoud waar verantwoord of vervang de isolatieglaseenheid vanwege techniek, zicht of esthetiek; kozijnvervanging volgt niet automatisch.',
       'review_status' => 'approved',
@@ -90,12 +85,16 @@ final class KnowledgeReviewFormTest extends BrowserTestBase {
     ], 'Correcties en reviewbesluit opslaan');
 
     $this->assertSession()->statusCodeEquals(200);
-    $this->assertSession()->pageTextContains('De KnowledgeItem-correcties en reviewstatus zijn opgeslagen.');
+    $this->assertSession()->pageTextContains('Publieke en AI-vrijgave zijn ingetrokken');
     $this->assertSession()->pageTextContains('Goedgekeurd');
 
     $storage->resetCache([$knowledgeItem->id()]);
     $reloaded = $storage->load($knowledgeItem->id());
     $this->assertNotNull($reloaded);
+    $this->assertFalse($reloaded->isPublished());
+    $basis = (string) $reloaded->get('field_knowledge_basis')->value;
+    $this->assertStringContainsString('Publieke vrijgave: nee', $basis);
+    $this->assertStringContainsString('AI-vrijgave: nee', $basis);
     $this->assertSame(
       'Beoordeel technische prestatie, comfort, functioneel doorzicht en esthetische kwaliteit afzonderlijk.',
       $reloaded->get('field_knowledge_risk')->value,
@@ -103,10 +102,7 @@ final class KnowledgeReviewFormTest extends BrowserTestBase {
 
     $afterRevisionIds = $storage->revisionIds($reloaded);
     $this->assertCount(count($beforeRevisionIds) + 1, $afterRevisionIds);
-    $this->assertSame(
-      'Nuance techniek, doorzicht en esthetiek toegevoegd.',
-      $reloaded->getRevisionLogMessage(),
-    );
+    $this->assertSame('Nuance techniek, doorzicht en esthetiek toegevoegd.', $reloaded->getRevisionLogMessage());
 
     $decision = $this->container->get('brebo_knowledge_review.status_storage')->load((int) $reloaded->id());
     $this->assertNotNull($decision);
