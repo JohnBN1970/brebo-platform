@@ -79,22 +79,37 @@ final class KnowledgeReviewForm extends FormBase {
     'changes_required' => 'Herziening nodig',
   ];
 
+  /**
+   * The KnowledgeItem being reviewed.
+   */
   private ?NodeInterface $knowledgeItem = NULL;
 
+  /**
+   * Creates the form.
+   */
   public function __construct(
     private ReviewStatusStorage $statusStorage,
   ) {}
 
+  /**
+   * {@inheritdoc}
+   */
   public static function create(ContainerInterface $container): static {
     return new static(
       $container->get('brebo_knowledge_review.status_storage'),
     );
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function getFormId(): string {
     return 'brebo_knowledge_review_form';
   }
 
+  /**
+   * Builds the review form.
+   */
   public function buildForm(array $form, FormStateInterface $form_state, ?NodeInterface $node = NULL): array {
     if (!$node instanceof NodeInterface || $node->bundle() !== 'brebo_knowledge_item') {
       throw new AccessDeniedHttpException('Alleen BREBO KnowledgeItems kunnen via deze route worden beoordeeld.');
@@ -193,6 +208,9 @@ final class KnowledgeReviewForm extends FormBase {
     return $form;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function submitForm(array &$form, FormStateInterface $form_state): void {
     if (!$this->knowledgeItem instanceof NodeInterface || $this->knowledgeItem->bundle() !== 'brebo_knowledge_item') {
       throw new AccessDeniedHttpException('KnowledgeItem ontbreekt of is ongeldig.');
@@ -240,6 +258,9 @@ final class KnowledgeReviewForm extends FormBase {
     $form_state->setRedirect('brebo_knowledge_review.review', ['node' => $this->knowledgeItem->id()]);
   }
 
+  /**
+   * Sets or appends a review metadata line.
+   */
   private function setLine(string $text, string $prefix, string $value): string {
     $lines = preg_split('/\R/', $text) ?: [];
     $replacement = $prefix . ' ' . trim($value);
