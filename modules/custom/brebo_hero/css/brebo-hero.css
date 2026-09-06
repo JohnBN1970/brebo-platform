@@ -36,9 +36,9 @@
 .brebo-hero__button--secondary { border-color:rgba(11,24,48,.22); background:rgba(255,255,255,.78); color:var(--brebo-hero-ink); backdrop-filter:blur(.3rem); }
 .brebo-hero__button--secondary:hover { border-color:var(--brebo-hero-ink); background:#fff; color:var(--brebo-hero-ink); }
 
-.brebo-hero__scroll { position:absolute; z-index:2; bottom:1.25rem; left:50%; display:grid; width:2.75rem; height:2.75rem; place-items:center; border-radius:50%; color:var(--brebo-hero-ink); font-size:1.75rem; line-height:1; text-decoration:none; transform:translateX(-50%); }
+.brebo-hero__scroll { position:absolute; z-index:2; bottom:1.15rem; left:50%; display:grid; width:3.5rem; height:3.5rem; place-items:center; border:1px solid rgba(118,80,181,.22); border-radius:50%; background:rgba(255,255,255,.78); color:var(--brebo-hero-accent); font-size:2.15rem; line-height:1; text-decoration:none; box-shadow:0 .4rem 1.5rem rgba(11,24,48,.1); backdrop-filter:blur(.3rem); transform:translateX(-50%); transition:background-color 160ms ease,border-color 160ms ease,box-shadow 160ms ease; }
 .brebo-hero__scroll span { display:block; animation:brebo-hero-scroll-cue 1.8s ease-in-out infinite; }
-.brebo-hero__scroll:hover { color:var(--brebo-hero-accent); }
+.brebo-hero__scroll:hover { border-color:rgba(118,80,181,.42); background:#fff; color:var(--brebo-hero-accent); box-shadow:0 .55rem 1.75rem rgba(11,24,48,.14); }
 .brebo-hero__scroll-target { height:0; scroll-margin-top:88px; }
 @keyframes brebo-hero-scroll-cue { 0%,100% { transform:translateY(-2px); } 50% { transform:translateY(4px); } }
 
@@ -69,6 +69,6 @@
 }
 
 @media (prefers-reduced-motion:reduce) {
-  .brebo-hero__button { transition:none; }
+  .brebo-hero__button,.brebo-hero__scroll { transition:none; }
   .brebo-hero__scroll span { animation:none; }
 }
