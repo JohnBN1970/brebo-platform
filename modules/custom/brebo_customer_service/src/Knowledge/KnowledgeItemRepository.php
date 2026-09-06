@@ -37,9 +37,21 @@ final class KnowledgeItemRepository {
    * Finds one public canonical knowledge item by slug.
    */
   public function find(string $slug): ?array {
+    $item = $this->findForReview($slug);
+    return $item !== NULL && KnowledgeApproval::isPublic($item) ? $item : NULL;
+  }
+
+  /**
+   * Finds one canonical knowledge item for the protected editorial workflow.
+   *
+   * This deliberately does not apply the public publication gate: newly
+   * imported seeds start unpublished and must remain reviewable before they
+   * can be released publicly.
+   */
+  public function findForReview(string $slug): ?array {
     foreach ($this->loadSeedNodes($slug) as $node) {
       $item = $this->project($node);
-      if ($item !== NULL && $item['slug'] === $slug && KnowledgeApproval::isPublic($item)) {
+      if ($item !== NULL && $item['slug'] === $slug) {
         return $item;
       }
     }
@@ -68,7 +80,6 @@ final class KnowledgeItemRepository {
     $query = $storage->getQuery()
       ->accessCheck(FALSE)
       ->condition('type', self::BUNDLE)
-      ->condition('status', NodeInterface::PUBLISHED)
       ->condition('field_knowledge_basis', self::SEED_PREFIX . ($slug ?? ''), 'CONTAINS')
       ->sort('nid');
 
