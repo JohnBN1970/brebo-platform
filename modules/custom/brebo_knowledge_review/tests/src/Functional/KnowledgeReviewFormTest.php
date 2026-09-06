@@ -17,6 +17,9 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 #[RunTestsInSeparateProcesses]
 final class KnowledgeReviewFormTest extends BrowserTestBase {
 
+  /**
+   * {@inheritdoc}
+   */
   protected static $modules = [
     'node',
     'text',
@@ -24,6 +27,9 @@ final class KnowledgeReviewFormTest extends BrowserTestBase {
     'brebo_knowledge_review',
   ];
 
+  /**
+   * {@inheritdoc}
+   */
   protected $defaultTheme = 'stark';
 
   /**
