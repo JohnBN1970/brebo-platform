@@ -19,18 +19,36 @@ final class KnowledgeItemRepository {
     private readonly EntityTypeManagerInterface $entityTypeManager,
   ) {}
 
+  /**
+   * Returns public canonical knowledge items grouped by topic.
+   */
   public function itemsByTopic(): array {
     $items = [];
     foreach ($this->loadSeedNodes() as $node) {
       $item = $this->project($node);
-      if ($item !== NULL) {
+      if ($item !== NULL && KnowledgeApproval::isPublic($item)) {
         $items[$item['topic']][] = $item;
       }
     }
     return $items;
   }
 
+  /**
+   * Finds one public canonical knowledge item by slug.
+   */
   public function find(string $slug): ?array {
+    $item = $this->findForReview($slug);
+    return $item !== NULL && KnowledgeApproval::isPublic($item) ? $item : NULL;
+  }
+
+  /**
+   * Finds one canonical knowledge item for the protected editorial workflow.
+   *
+   * This deliberately does not apply the public publication gate: newly
+   * imported seeds start unpublished and must remain reviewable before they
+   * can be released publicly.
+   */
+  public function findForReview(string $slug): ?array {
     foreach ($this->loadSeedNodes($slug) as $node) {
       $item = $this->project($node);
       if ($item !== NULL && $item['slug'] === $slug) {

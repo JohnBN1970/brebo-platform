@@ -31,7 +31,7 @@ final class KnowledgeReviewForm extends FormBase {
   }
 
   public function buildForm(array $form, FormStateInterface $form_state, ?string $slug = NULL): array {
-    $item = $slug ? $this->repository->find($slug) : NULL;
+    $item = $slug ? $this->repository->findForReview($slug) : NULL;
     if ($item === NULL) {
       throw new NotFoundHttpException();
     }
