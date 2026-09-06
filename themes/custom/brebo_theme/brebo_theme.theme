@@ -12,10 +12,7 @@ function brebo_theme_preprocess_html(array &$variables): void {
   $paths_with_embedded_h1 = [
     '/uw-gebouw',
     '/projecten',
-    '/onderhoud-renovatie',
-    '/kennis-advies',
     '/klantenservice',
-    '/contact',
   ];
 
   $path = rtrim(\Drupal::request()->getPathInfo(), '/') ?: '/';
