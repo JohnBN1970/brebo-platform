@@ -56,6 +56,16 @@ final class KnowledgeReviewFormTest extends BrowserTestBase {
 
     $reviewer = $this->drupalCreateUser(['review brebo knowledge items']);
     $this->drupalLogin($reviewer);
+
+    $operations = $this->container->get('module_handler')->invoke(
+      'brebo_knowledge_review',
+      'entity_operation',
+      [$knowledgeItem],
+    );
+    $this->assertArrayHasKey('brebo_knowledge_review', $operations);
+    $this->assertSame('Beoordelen', (string) $operations['brebo_knowledge_review']['title']);
+    $this->assertSame($path, $operations['brebo_knowledge_review']['url']->toString());
+
     $this->drupalGet($path);
     $this->assertSession()->statusCodeEquals(200);
     $this->assertSession()->pageTextContains('Condens tussen de glasbladen');
@@ -64,6 +74,12 @@ final class KnowledgeReviewFormTest extends BrowserTestBase {
     NodeType::create(['type' => 'review_test_page', 'name' => 'Review test page'])->save();
     $otherNode = Node::create(['type' => 'review_test_page', 'title' => 'Geen KnowledgeItem']);
     $otherNode->save();
+    $otherOperations = $this->container->get('module_handler')->invoke(
+      'brebo_knowledge_review',
+      'entity_operation',
+      [$otherNode],
+    );
+    $this->assertSame([], $otherOperations);
     $this->drupalGet('/admin/content/brebo-knowledge/' . $otherNode->id() . '/review');
     $this->assertSession()->statusCodeEquals(403);
 
