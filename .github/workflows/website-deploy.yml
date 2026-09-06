@@ -156,19 +156,30 @@ jobs:
           "${drush[@]}" php:eval '
             $importer = \Drupal::service("brebo_customer_service.knowledge_item_seed_importer");
             $result = $importer->import();
+            $storage = \Drupal::entityTypeManager()->getStorage("node");
+            $persisted = $storage->getQuery()
+              ->accessCheck(FALSE)
+              ->condition("type", "brebo_knowledge_item")
+              ->condition("field_knowledge_basis", "BREBO-WEB-SEED:", "CONTAINS")
+              ->count()
+              ->execute();
+            $reportedTotal = count($result["created"]) + count($result["existing"]);
             print "KNOWLEDGE_SEED_CREATED=" . count($result["created"]) . "\n";
             print "KNOWLEDGE_SEED_EXISTING=" . count($result["existing"]) . "\n";
             print "KNOWLEDGE_SEED_ERRORS=" . count($result["errors"]) . "\n";
+            print "KNOWLEDGE_SEED_REPORTED_TOTAL=" . $reportedTotal . "\n";
+            print "KNOWLEDGE_SEED_TOTAL=" . $persisted . "\n";
             if ($result["errors"] !== []) {
               foreach ($result["errors"] as $error) {
                 print "KNOWLEDGE_SEED_ERROR=" . $error . "\n";
               }
               throw new \RuntimeException("Knowledge seed import contains errors.");
             }
-            $total = count($result["created"]) + count($result["existing"]);
-            print "KNOWLEDGE_SEED_TOTAL=" . $total . "\n";
-            if ($total !== 48) {
-              throw new \RuntimeException("Expected exactly 48 canonical Knowledgebase seeds, found " . $total . ".");
+            if ((int) $persisted !== 48) {
+              throw new \RuntimeException("Expected exactly 48 persisted canonical Knowledgebase seeds, found " . $persisted . ".");
+            }
+            if ($reportedTotal !== 48) {
+              throw new \RuntimeException("Importer reported " . $reportedTotal . " catalog seeds; expected 48.");
             }
           '
 
