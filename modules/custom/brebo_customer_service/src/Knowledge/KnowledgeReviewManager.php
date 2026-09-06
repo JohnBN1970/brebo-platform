@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Drupal\brebo_customer_service\Knowledge;
 
 use Drupal\Component\Datetime\TimeInterface;
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\node\NodeInterface;
@@ -76,7 +77,7 @@ final class KnowledgeReviewManager {
     $basis = $this->setLine($basis, 'AI-vrijgave:', $aiApproved ? 'ja' : 'nee');
 
     $node->set('field_knowledge_basis', $basis);
-    $node->setPublished($publicApproved);
+    $node->setPublished($publicApproved && $status === KnowledgeApproval::STATUS_APPROVED && $hasValidation);
     $node->setNewRevision(TRUE);
     $node->setRevisionLogMessage(sprintf(
       'Kennisbeoordeling: %s; publieke vrijgave: %s; AI-vrijgave: %s.',
@@ -85,6 +86,10 @@ final class KnowledgeReviewManager {
       $aiApproved ? 'ja' : 'nee',
     ));
     $node->save();
+
+    // Public knowledge pages carry this tag, so publication changes become
+    // visible immediately and an unpublished revision cannot linger in cache.
+    Cache::invalidateTags(['brebo_public_knowledge']);
 
     return $node;
   }
