@@ -19,21 +19,27 @@ final class KnowledgeItemRepository {
     private readonly EntityTypeManagerInterface $entityTypeManager,
   ) {}
 
+  /**
+   * Returns public canonical knowledge items grouped by topic.
+   */
   public function itemsByTopic(): array {
     $items = [];
     foreach ($this->loadSeedNodes() as $node) {
       $item = $this->project($node);
-      if ($item !== NULL) {
+      if ($item !== NULL && KnowledgeApproval::isPublic($item)) {
         $items[$item['topic']][] = $item;
       }
     }
     return $items;
   }
 
+  /**
+   * Finds one public canonical knowledge item by slug.
+   */
   public function find(string $slug): ?array {
     foreach ($this->loadSeedNodes($slug) as $node) {
       $item = $this->project($node);
-      if ($item !== NULL && $item['slug'] === $slug) {
+      if ($item !== NULL && $item['slug'] === $slug && KnowledgeApproval::isPublic($item)) {
         return $item;
       }
     }
@@ -62,6 +68,7 @@ final class KnowledgeItemRepository {
     $query = $storage->getQuery()
       ->accessCheck(FALSE)
       ->condition('type', self::BUNDLE)
+      ->condition('status', NodeInterface::PUBLISHED)
       ->condition('field_knowledge_basis', self::SEED_PREFIX . ($slug ?? ''), 'CONTAINS')
       ->sort('nid');
 
