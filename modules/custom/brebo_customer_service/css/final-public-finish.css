@@ -1,0 +1,88 @@
+.brebo-knowledge-index__grid:empty {
+  display: block;
+  margin-top: 2rem;
+  padding: clamp(1.75rem, 4vw, 2.75rem);
+  background: #f7f9fc;
+  border: 1px solid rgba(17, 24, 39, .1);
+}
+
+.brebo-knowledge-index__grid:empty::before {
+  content: "We publiceren hier alleen kennis die inhoudelijk is gecontroleerd. Voor dit onderwerp staat nog geen publiek vrijgegeven kennisartikel klaar. Heeft u nu een vraag over uw gebouw? Neem dan contact op met BREBO via Klantenservice of Contact.";
+  display: block;
+  max-width: 760px;
+  color: #5f6878;
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.brebo-legal {
+  width: min(920px, calc(100% - 3rem));
+  margin: 0 auto;
+  padding: clamp(4rem, 8vw, 7rem) 0;
+  color: #111827;
+}
+
+.brebo-legal__header {
+  max-width: 760px;
+  padding-bottom: clamp(2rem, 4vw, 3rem);
+  border-bottom: 2px solid transparent;
+  border-image: linear-gradient(90deg, #168bff, #7137b5) 1;
+}
+
+.brebo-legal__header h1 {
+  margin: 0;
+  font-size: clamp(2.8rem, 6vw, 5rem);
+  line-height: .98;
+  letter-spacing: -.05em;
+}
+
+.brebo-legal__lead {
+  max-width: 680px;
+  margin: 1.4rem 0 0;
+  color: #5f6878;
+  font-size: 1.08rem;
+  line-height: 1.7;
+}
+
+.brebo-legal__content {
+  display: grid;
+  gap: 0;
+  margin-top: 1rem;
+}
+
+.brebo-legal__section {
+  display: grid;
+  grid-template-columns: minmax(180px, .55fr) minmax(0, 1.45fr);
+  gap: clamp(1.5rem, 4vw, 4rem);
+  padding: clamp(1.8rem, 4vw, 2.8rem) 0;
+  border-bottom: 1px solid rgba(17, 24, 39, .12);
+}
+
+.brebo-legal__section h2 {
+  margin: 0;
+  font-size: 1.12rem;
+  line-height: 1.35;
+}
+
+.brebo-legal__section p {
+  margin: 0;
+  color: #5f6878;
+  line-height: 1.75;
+}
+
+.brebo-legal__updated {
+  margin: 2rem 0 0;
+  color: #7b8492;
+  font-size: .86rem;
+}
+
+@media (max-width: 700px) {
+  .brebo-legal {
+    width: min(100% - 2rem, 920px);
+  }
+
+  .brebo-legal__section {
+    grid-template-columns: 1fr;
+    gap: .75rem;
+  }
+}
