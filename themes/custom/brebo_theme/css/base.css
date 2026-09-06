@@ -18,9 +18,9 @@ body {
   line-height: 1.6;
 }
 
-/* De publieke pagina's hebben hun eigen inhoudelijke H1. De door Drupal
- * toegevoegde page-title erboven is daarom visueel dubbel. */
-.site-page__main > .block-page-title-block {
+/* Alleen de zes publieke hoofdpagina's hebben een eigen inhoudelijke H1.
+ * Formulieren, accountpagina's en overige Drupal-routes behouden hun title. */
+.brebo-has-embedded-page-title .site-page__main > .block-page-title-block {
   display: none;
 }
 
