@@ -40,3 +40,27 @@ brebo_customer_service.form:
     _title: 'Projectservice'
   requirements:
     _access: 'TRUE'
+
+brebo_customer_service.privacy:
+  path: '/privacy'
+  defaults:
+    _controller: '\Drupal\brebo_customer_service\Controller\LegalController::privacy'
+    _title: 'Privacyverklaring'
+  requirements:
+    _access: 'TRUE'
+
+brebo_customer_service.cookies:
+  path: '/cookies'
+  defaults:
+    _controller: '\Drupal\brebo_customer_service\Controller\LegalController::cookies'
+    _title: 'Cookieverklaring'
+  requirements:
+    _access: 'TRUE'
+
+brebo_customer_service.disclaimer:
+  path: '/disclaimer'
+  defaults:
+    _controller: '\Drupal\brebo_customer_service\Controller\LegalController::disclaimer'
+    _title: 'Disclaimer'
+  requirements:
+    _access: 'TRUE'

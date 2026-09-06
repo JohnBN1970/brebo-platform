@@ -3,3 +3,4 @@ service:
     theme:
       css/brebo-customer-service.css: {}
       css/harmonise.css: {}
+      css/final-public-finish.css: {}
