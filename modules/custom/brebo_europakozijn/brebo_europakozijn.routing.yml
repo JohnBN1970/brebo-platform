@@ -1,0 +1,7 @@
+brebo_europakozijn.configurator:
+  path: '/europakozijn/samenstellen'
+  defaults:
+    _controller: '\Drupal\brebo_europakozijn\Controller\EuropakozijnConfiguratorController::build'
+    _title: 'Stel uw Europakozijn samen'
+  requirements:
+    _permission: 'access content'
