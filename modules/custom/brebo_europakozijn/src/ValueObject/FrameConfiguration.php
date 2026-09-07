@@ -2,6 +2,8 @@
 
 namespace Drupal\brebo_europakozijn\ValueObject;
 
+use InvalidArgumentException;
+
 /**
  * Immutable canonical input for an Europakozijn configuration.
  *
@@ -25,13 +27,29 @@ final readonly class FrameConfiguration {
    * Builds a configuration from an untrusted payload.
    */
   public static function fromArray(array $values): self {
+    if (($values['schema_version'] ?? self::SCHEMA_VERSION) !== self::SCHEMA_VERSION) {
+      throw new InvalidArgumentException('unsupported_schema_version');
+    }
+
+    foreach (['width_mm', 'height_mm', 'fields'] as $field) {
+      if (!array_key_exists($field, $values) || !is_int($values[$field])) {
+        throw new InvalidArgumentException('invalid_integer:' . $field);
+      }
+    }
+
+    foreach (['type', 'colour', 'glass'] as $field) {
+      if (!array_key_exists($field, $values) || !is_string($values[$field])) {
+        throw new InvalidArgumentException('invalid_string:' . $field);
+      }
+    }
+
     return new self(
-      type: (string) ($values['type'] ?? ''),
-      widthMm: (int) ($values['width_mm'] ?? 0),
-      heightMm: (int) ($values['height_mm'] ?? 0),
-      fields: (int) ($values['fields'] ?? 0),
-      colour: (string) ($values['colour'] ?? ''),
-      glass: (string) ($values['glass'] ?? ''),
+      type: $values['type'],
+      widthMm: $values['width_mm'],
+      heightMm: $values['height_mm'],
+      fields: $values['fields'],
+      colour: $values['colour'],
+      glass: $values['glass'],
     );
   }
 
