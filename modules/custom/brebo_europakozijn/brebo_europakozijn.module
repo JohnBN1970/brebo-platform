@@ -1,0 +1,17 @@
+<?php
+
+/**
+ * @file
+ * BREBO Europakozijn module hooks.
+ */
+
+/**
+ * Implements hook_theme().
+ */
+function brebo_europakozijn_theme($existing, $type, $theme, $path): array {
+  return [
+    'brebo_europakozijn_configurator' => [
+      'template' => 'brebo-europakozijn-configurator',
+    ],
+  ];
+}
