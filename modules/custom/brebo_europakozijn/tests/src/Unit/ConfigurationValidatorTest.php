@@ -4,6 +4,7 @@ namespace Drupal\Tests\brebo_europakozijn\Unit;
 
 use Drupal\brebo_europakozijn\Validation\ConfigurationValidator;
 use Drupal\brebo_europakozijn\ValueObject\FrameConfiguration;
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -33,6 +34,36 @@ final class ConfigurationValidatorTest extends TestCase {
     $configuration = new FrameConfiguration('vast', 1000, 1000, 1, 'RAL 9010', 'Triple');
 
     self::assertSame(1, $configuration->toArray()['schema_version']);
+  }
+
+  public function testRejectsUnsupportedSchemaVersion(): void {
+    $this->expectException(InvalidArgumentException::class);
+    $this->expectExceptionMessage('unsupported_schema_version');
+
+    FrameConfiguration::fromArray([
+      'schema_version' => 2,
+      'type' => 'vast',
+      'width_mm' => 1000,
+      'height_mm' => 1000,
+      'fields' => 1,
+      'colour' => 'RAL 9010',
+      'glass' => 'HR++',
+    ]);
+  }
+
+  public function testRejectsBooleanNumericInput(): void {
+    $this->expectException(InvalidArgumentException::class);
+    $this->expectExceptionMessage('invalid_integer:width_mm');
+
+    FrameConfiguration::fromArray([
+      'schema_version' => 1,
+      'type' => 'vast',
+      'width_mm' => TRUE,
+      'height_mm' => 1000,
+      'fields' => 1,
+      'colour' => 'RAL 9010',
+      'glass' => 'HR++',
+    ]);
   }
 
 }
