@@ -1,0 +1,3 @@
+services:
+  brebo_europakozijn.configuration_validator:
+    class: Drupal\brebo_europakozijn\Validation\ConfigurationValidator
