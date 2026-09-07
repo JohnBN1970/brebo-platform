@@ -1,0 +1,66 @@
+<section class="ek-configurator" data-europakozijn-configurator>
+  <header class="ek-configurator__header">
+    <p class="ek-configurator__eyebrow">BREBO × Europakozijn</p>
+    <h1>Stel uw kozijn samen</h1>
+    <p>Voer de maat in, kies de indeling en bekijk direct uw kozijn.</p>
+  </header>
+
+  <div class="ek-configurator__layout">
+    <form class="ek-configurator__controls" data-ek-form>
+      <fieldset>
+        <legend>1. Kozijntype</legend>
+        <label><input type="radio" name="type" value="vast" checked> Vast glas</label>
+        <label><input type="radio" name="type" value="draaikiep"> Draai-kiep</label>
+        <label><input type="radio" name="type" value="deur"> Deur</label>
+      </fieldset>
+
+      <fieldset>
+        <legend>2. Buitenwerkse maat</legend>
+        <label>Breedte (mm)<input name="width" type="number" min="400" max="6000" step="1" value="1200" required></label>
+        <label>Hoogte (mm)<input name="height" type="number" min="400" max="3000" step="1" value="1500" required></label>
+      </fieldset>
+
+      <fieldset>
+        <legend>3. Indeling</legend>
+        <label>Aantal vakken
+          <select name="fields">
+            <option value="1">1 vak</option>
+            <option value="2" selected>2 vakken</option>
+            <option value="3">3 vakken</option>
+          </select>
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>4. Uitvoering</legend>
+        <label>Kleur
+          <select name="colour">
+            <option value="RAL 7016">RAL 7016 antraciet</option>
+            <option value="RAL 9010">RAL 9010 wit</option>
+            <option value="RAL 9005">RAL 9005 zwart</option>
+          </select>
+        </label>
+        <label>Glas
+          <select name="glass">
+            <option value="HR++">HR++</option>
+            <option value="Triple">Triple</option>
+          </select>
+        </label>
+      </fieldset>
+
+      <button type="button" class="ek-configurator__cta" data-ek-request>Opslaan als aanvraag</button>
+    </form>
+
+    <div class="ek-configurator__preview">
+      <div class="ek-configurator__status" data-ek-status>Technisch controleerbaar concept</div>
+      <svg data-ek-drawing viewBox="0 0 640 480" role="img" aria-label="Voorbeeldtekening van het samengestelde kozijn"></svg>
+      <dl class="ek-configurator__summary">
+        <div><dt>Maat</dt><dd data-ek-size></dd></div>
+        <div><dt>Type</dt><dd data-ek-type></dd></div>
+        <div><dt>Kleur</dt><dd data-ek-colour></dd></div>
+        <div><dt>Glas</dt><dd data-ek-glass></dd></div>
+      </dl>
+      <p class="ek-configurator__note">Indicatieve configuratie. Definitieve technische controle en prijs volgen via BREBO Office.</p>
+    </div>
+  </div>
+</section>
