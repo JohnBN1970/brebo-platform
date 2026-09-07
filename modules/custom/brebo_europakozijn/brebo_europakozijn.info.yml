@@ -1,0 +1,7 @@
+name: 'BREBO Europakozijn'
+type: module
+description: 'Publieke Europakozijn-configurator voor BREBO met technische basisvalidatie en aanvraagvoorbereiding.'
+package: BREBO
+core_version_requirement: ^11
+dependencies:
+  - brebo_runtime:brebo_runtime
