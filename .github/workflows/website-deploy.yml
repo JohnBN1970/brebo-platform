@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   deploy:
-    name: Deploy platform.brebobv.nl
+    name: Deploy brebobv.nl
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
@@ -89,7 +89,7 @@ jobs:
           target="$HOME/domains/brebobv.nl/public_html/platform"
           public_root="$target/web"
           branch="develop"
-          public_url="https://platform.brebobv.nl/"
+          public_url="https://brebobv.nl/"
           deploy_marker="$target/.brebo-deploy-ok-sha"
 
           [[ -d "$target/.git" ]] || {
@@ -151,15 +151,30 @@ jobs:
 
           echo "===== PROJECTS ROUTE GUARD ====="
           "${drush[@]}" php:eval '
-            $storage = \Drupal::entityTypeManager()->getStorage("path_alias");
-            $ids = $storage->getQuery()
+            $aliasStorage = \Drupal::entityTypeManager()->getStorage("path_alias");
+            $aliasIds = $aliasStorage->getQuery()
               ->accessCheck(FALSE)
               ->condition("alias", "/projecten")
               ->execute();
-            print "PROJECTS_ALIAS_CONFLICTS=" . count($ids) . "\n";
-            if ($ids !== []) {
-              $storage->delete($storage->loadMultiple($ids));
-              print "PROJECTS_ALIAS_CONFLICTS_REMOVED=" . count($ids) . "\n";
+            print "PROJECTS_ALIAS_CONFLICTS=" . count($aliasIds) . "\n";
+            if ($aliasIds !== []) {
+              $aliasStorage->delete($aliasStorage->loadMultiple($aliasIds));
+              print "PROJECTS_ALIAS_CONFLICTS_REMOVED=" . count($aliasIds) . "\n";
+            }
+
+            $menuStorage = \Drupal::entityTypeManager()->getStorage("menu_link_content");
+            $menuIds = $menuStorage->getQuery()
+              ->accessCheck(FALSE)
+              ->condition("menu_name", "main")
+              ->condition("title", "Projecten")
+              ->execute();
+            print "PROJECTS_MENU_LINKS=" . count($menuIds) . "\n";
+            foreach ($menuStorage->loadMultiple($menuIds) as $link) {
+              if ($link->get("link")->uri !== "internal:/projecten") {
+                $link->set("link", ["uri" => "internal:/projecten"]);
+                $link->save();
+                print "PROJECTS_MENU_LINK_REPAIRED=1\n";
+              }
             }
           '
 
@@ -244,7 +259,7 @@ jobs:
           echo "LENS_ASSETS_CURRENT=1"
 
           echo "===== PUBLIC SMOKE TESTS ====="
-          homepage_code="$(curl -L -sS -o /dev/null --max-time 20 -w '%{http_code}' "${public_url}?v=${asset_token}")"
+          homepage_code="$(curl -L -sS -o /tmp/brebo-home.html --max-time 20 -w '%{http_code}' "${public_url}?v=${asset_token}")"
           logo_url="${public_url}themes/custom/brebo_theme/logo.svg?v=${asset_token}"
           logo_result="$(curl -L -sS -o /dev/null --max-time 20 -w '%{http_code} %{content_type}' "$logo_url")"
           projects_url="${public_url}projecten?v=${asset_token}"
@@ -285,7 +300,12 @@ jobs:
             echo "::error::Public projects page does not render the expected empty-state."
             exit 1
           }
+          if grep -Fq 'href="/node/5"' /tmp/brebo-home.html; then
+            echo "::error::Production homepage still contains stale Projecten link to /node/5."
+            exit 1
+          fi
           echo "PROJECTS_PUBLIC_RENDER_OK=1"
+          echo "PROJECTS_MENU_ROUTE_OK=1"
 
           deployed_sha="$(git rev-parse HEAD)"
           printf '%s\n' "$deployed_sha" > "$deploy_marker"

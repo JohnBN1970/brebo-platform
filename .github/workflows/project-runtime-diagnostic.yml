@@ -152,7 +152,7 @@ jobs:
 
           echo "===== PUBLIC ROUTES ====="
           for path in / /projecten; do
-            code="$(curl -L -sS -o /dev/null --max-time 20 -w '%{http_code}' "https://platform.brebobv.nl${path}")"
+            code="$(curl -L -sS -o /dev/null --max-time 20 -w '%{http_code}' "https://brebobv.nl${path}")"
             echo "HTTP_${path//\//_}=$code"
           done
           REMOTE
