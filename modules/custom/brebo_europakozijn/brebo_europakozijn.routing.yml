@@ -5,3 +5,11 @@ brebo_europakozijn.configurator:
     _title: 'Stel uw Europakozijn samen'
   requirements:
     _permission: 'access content'
+
+brebo_europakozijn.validate:
+  path: '/europakozijn/api/validate'
+  defaults:
+    _controller: '\Drupal\brebo_europakozijn\Controller\EuropakozijnValidationController::validate'
+  requirements:
+    _permission: 'access content'
+  methods: [POST]
