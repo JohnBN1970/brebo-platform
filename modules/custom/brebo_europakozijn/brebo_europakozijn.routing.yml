@@ -13,3 +13,11 @@ brebo_europakozijn.validate:
   requirements:
     _permission: 'access content'
   methods: [POST]
+
+brebo_europakozijn.rule_validate:
+  path: '/europakozijn/api/rules'
+  defaults:
+    _controller: '\Drupal\brebo_europakozijn\Controller\EuropakozijnRuleValidationController::validate'
+  requirements:
+    _permission: 'access content'
+  methods: [POST]
