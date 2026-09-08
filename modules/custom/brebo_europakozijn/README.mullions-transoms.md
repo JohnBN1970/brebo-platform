@@ -1,0 +1,1 @@
+Stijlen en dorpels zijn in deze stap uitsluitend configuratiegeometrie. Er wordt nog geen prijscoëfficiënt aan gekoppeld. De publieke configurator kan ze tekenen en een calibration payload opbouwen; Price Intelligence blijft voor deze geometrieën onbetrouwbaar totdat gecontroleerde A/B-prijzen zijn toegevoegd.
