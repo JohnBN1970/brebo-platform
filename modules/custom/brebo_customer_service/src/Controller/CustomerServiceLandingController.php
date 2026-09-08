@@ -31,7 +31,7 @@ final class CustomerServiceLandingController extends ControllerBase {
       '#markup' => '
         <section class="brebo-knowledge-library">
           <div class="brebo-knowledge-library__hero"><div class="brebo-knowledge-library__hero-inner">
-            <div class="brebo-knowledge-library__hero-copy" style="grid-column: 1 / -1;"><p class="brebo-knowledge-library__eyebrow">BREBO Klantenservice</p><h1>Waar kunnen we u mee helpen?</h1><p class="brebo-knowledge-library__lead">Kies wat bij uw situatie past. Voor een lopend project, een servicevraag, technische informatie of een nieuwe opgave komt u direct op de juiste plek.</p></div>
+            <div class="brebo-knowledge-library__hero-copy brebo-knowledge-library__hero-copy--full"><p class="brebo-knowledge-library__eyebrow">BREBO Klantenservice</p><h1>Waar kunnen we u mee helpen?</h1><p class="brebo-knowledge-library__lead">Kies wat bij uw situatie past. Voor een lopend project, een servicevraag, technische informatie of een nieuwe opgave komt u direct op de juiste plek.</p></div>
           </div></div>
           <div class="brebo-knowledge-library__routes">
             <article><div class="brebo-route-icon" aria-hidden="true">▦</div><div><p class="brebo-knowledge-library__eyebrow">Lopend project</p><h2>Vraag over uw project?</h2><p>Stel een vraag, geef een wijziging door of leg een afspraak over een lopend BREBO-project vast.</p><a class="brebo-knowledge-library__button" href="/klantenservice/projectvraag">Naar projectservice <span aria-hidden="true">→</span></a></div></article>
