@@ -275,7 +275,7 @@ jobs:
             echo "::error::Public projects page does not render the expected empty-state."
             exit 1
           }
-          grep -Fq 'Stel uw kozijn samen' /tmp/brebo-europakozijn.html || {
+          grep -Fq 'data-europakozijn-configurator' /tmp/brebo-europakozijn.html || {
             echo "::error::Public Europakozijn page does not render the configurator."
             exit 1
           }
