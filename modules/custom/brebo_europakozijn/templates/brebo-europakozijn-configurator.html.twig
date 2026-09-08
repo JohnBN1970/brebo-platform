@@ -1,76 +1,102 @@
 <section class="ek-configurator" data-europakozijn-configurator>
   <header class="ek-configurator__header">
     <p class="ek-configurator__eyebrow">BREBO × Europakozijn</p>
-    <h1>Stel uw kozijn samen</h1>
-    <p>Voer de maat in, kies de indeling en bekijk direct uw kozijn.</p>
+    <h1>Bouw uw kozijn</h1>
+    <p>Begin met de buitenmaat. Voeg daarna stijlen en dorpels toe en geef ieder vak zijn eigen functie.</p>
   </header>
 
-  <div class="ek-configurator__layout">
-    <form class="ek-configurator__controls" data-ek-form>
-      <fieldset>
-        <legend>1. Kozijntype</legend>
-        <label><input type="radio" name="type" value="vast" checked> Vast glas</label>
-        <label><input type="radio" name="type" value="draaikiep"> Draai-kiep</label>
-        <label><input type="radio" name="type" value="deur"> Deur</label>
-      </fieldset>
+  <div class="ek-builder">
+    <aside class="ek-builder__panel">
+      <form class="ek-configurator__controls" data-ek-form>
+        <section class="ek-step">
+          <div class="ek-step__number">1</div>
+          <div class="ek-step__body">
+            <h2>Buitenmaat</h2>
+            <div class="ek-control-grid">
+              <label>Breedte (mm)<input name="width" type="number" min="400" max="6000" step="1" value="1200" required></label>
+              <label>Hoogte (mm)<input name="height" type="number" min="400" max="3000" step="1" value="1500" required></label>
+            </div>
+          </div>
+        </section>
 
-      <fieldset>
-        <legend>2. Buitenwerkse maat</legend>
-        <label>Breedte (mm)<input name="width" type="number" min="400" max="6000" step="1" value="1200" required></label>
-        <label>Hoogte (mm)<input name="height" type="number" min="400" max="3000" step="1" value="1500" required></label>
-      </fieldset>
+        <section class="ek-step">
+          <div class="ek-step__number">2</div>
+          <div class="ek-step__body">
+            <h2>Indeling</h2>
+            <p class="ek-step__intro">Plaats profielen in de tekening. De positie kan daarna exact worden verschoven.</p>
+            <div class="ek-builder__actions">
+              <button type="button" class="ek-tool" data-ek-add-mullion><span>＋</span> Verticale stijl</button>
+              <button type="button" class="ek-tool" data-ek-add-transom><span>＋</span> Horizontale dorpel</button>
+            </div>
+            <div class="ek-profile-list" data-ek-profile-list>
+              <p class="ek-empty" data-ek-profile-empty>Nog geen stijlen of dorpels geplaatst.</p>
+            </div>
+          </div>
+        </section>
 
-      <fieldset>
-        <legend>3. Indeling</legend>
-        <label>Verticale stijlen
-          <select name="vertical_mullions">
-            <option value="0">Geen</option>
-            <option value="1" selected>1 stijl</option>
-            <option value="2">2 stijlen</option>
-          </select>
-        </label>
-        <label>Horizontale dorpels
-          <select name="horizontal_transoms">
-            <option value="0" selected>Geen</option>
-            <option value="1">1 dorpel</option>
-            <option value="2">2 dorpels</option>
-          </select>
-        </label>
-        <p class="ek-configurator__note">Stijlen en dorpels worden voorlopig gelijkmatig verdeeld. Hun prijseffect wordt pas na gecontroleerde leverancierproeven gekalibreerd.</p>
-      </fieldset>
+        <section class="ek-step">
+          <div class="ek-step__number">3</div>
+          <div class="ek-step__body">
+            <h2>Geselecteerd vak</h2>
+            <p class="ek-step__intro" data-ek-field-help>Klik in de tekening op een vak om de functie te kiezen.</p>
+            <div class="ek-function-picker" data-ek-function-picker>
+              <button type="button" data-ek-function="vast" class="is-active">Vast glas</button>
+              <button type="button" data-ek-function="draaikiep">Draai-kiep</button>
+              <button type="button" data-ek-function="deur">Deur</button>
+            </div>
+          </div>
+        </section>
 
-      <fieldset>
-        <legend>4. Uitvoering</legend>
-        <label>Kleur
-          <select name="colour">
-            <option value="RAL 7016">RAL 7016 antraciet</option>
-            <option value="RAL 9010">RAL 9010 wit</option>
-            <option value="RAL 9005">RAL 9005 zwart</option>
-          </select>
-        </label>
-        <label>Glas
-          <select name="glass">
-            <option value="HR++">HR++</option>
-            <option value="Triple">Triple</option>
-          </select>
-        </label>
-      </fieldset>
+        <section class="ek-step">
+          <div class="ek-step__number">4</div>
+          <div class="ek-step__body">
+            <h2>Uitvoering</h2>
+            <label>Kleur
+              <select name="colour">
+                <option value="RAL 7016">RAL 7016 antraciet</option>
+                <option value="RAL 9010">RAL 9010 wit</option>
+                <option value="RAL 9005">RAL 9005 zwart</option>
+              </select>
+            </label>
+            <label>Glas
+              <select name="glass">
+                <option value="HR++">HR++</option>
+                <option value="Triple">Triple</option>
+              </select>
+            </label>
+          </div>
+        </section>
 
-      <button type="button" class="ek-configurator__cta" data-ek-request>Opslaan als aanvraag</button>
-    </form>
+        <button type="button" class="ek-configurator__cta" data-ek-request>Opslaan als aanvraag</button>
+      </form>
+    </aside>
 
-    <div class="ek-configurator__preview">
-      <div class="ek-configurator__status" data-ek-status>Technisch controleerbaar concept</div>
-      <svg data-ek-drawing viewBox="0 0 640 480" role="img" aria-label="Voorbeeldtekening van het samengestelde kozijn"></svg>
+    <main class="ek-builder__workspace">
+      <div class="ek-builder__topline">
+        <div>
+          <span class="ek-configurator__status" data-ek-status>Live configuratie</span>
+          <p>De tekening is de configuratie. Klik op een vak om het te bewerken.</p>
+        </div>
+        <div class="ek-builder__price">
+          <span>Prijsindicatie</span>
+          <strong data-ek-price-status>Wordt gekoppeld aan Price Intelligence</strong>
+        </div>
+      </div>
+
+      <div class="ek-canvas">
+        <svg data-ek-drawing viewBox="0 0 720 520" role="img" aria-label="Interactieve tekening van het samengestelde kozijn"></svg>
+      </div>
+
       <dl class="ek-configurator__summary">
         <div><dt>Maat</dt><dd data-ek-size></dd></div>
-        <div><dt>Type</dt><dd data-ek-type></dd></div>
         <div><dt>Indeling</dt><dd data-ek-layout></dd></div>
+        <div><dt>Geselecteerd</dt><dd data-ek-selected>Vak 1</dd></div>
         <div><dt>Kleur</dt><dd data-ek-colour></dd></div>
         <div><dt>Glas</dt><dd data-ek-glass></dd></div>
       </dl>
+
       <output data-ek-calibration hidden></output>
-      <p class="ek-configurator__note">Indicatieve configuratie. Definitieve technische controle en prijs volgen via BREBO Office.</p>
-    </div>
+      <p class="ek-configurator__note">Definitieve technische controle en actuele prijs volgen via de BREBO rule-engine en Price Intelligence.</p>
+    </main>
   </div>
 </section>
