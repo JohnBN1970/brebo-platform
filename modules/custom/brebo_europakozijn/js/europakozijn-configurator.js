@@ -14,6 +14,7 @@
         const brandPicker = root.querySelector('[data-ek-brand-picker]');
         const priceStatus = root.querySelector('[data-ek-price-status]');
         const ruleFeedback = root.querySelector('[data-ek-rule-feedback]');
+        const contextState = root.querySelector('[data-ek-context-state]');
         const ns = 'http://www.w3.org/2000/svg';
 
         const brands = {
@@ -46,6 +47,7 @@
         const sorted = (values) => [...values].sort((a, b) => a - b);
         const fieldKey = (row, column) => `r${row}c${column}`;
         const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+        const clean = (value) => typeof value === 'string' ? value.trim() : '';
 
         const ensureFields = (rows, columns) => {
           const nextFunctions = {};
@@ -196,6 +198,15 @@
           const rebateType = data.get('rebate_type') || 'with_rebate';
           const colour = data.get('colour');
           const glass = data.get('glass');
+          const postcode = clean(data.get('postcode'));
+          const houseNumber = clean(data.get('house_number'));
+          const buildingType = clean(data.get('building_type'));
+          const floorLevel = clean(data.get('floor_level'));
+          const roomType = clean(data.get('room_type'));
+          const roomAreaM2 = Number(data.get('room_area_m2')) || 0;
+          const ventilationSystem = clean(data.get('ventilation_system'));
+          const contextComplete = Boolean(postcode && houseNumber && buildingType && floorLevel !== '' && roomType && roomAreaM2 > 0 && ventilationSystem);
+
           const xPositionsPct = [0, ...sorted(state.mullions), 100];
           const yPositionsPct = [0, ...sorted(state.transoms), 100];
           const columns = xPositionsPct.length - 1;
@@ -300,6 +311,20 @@
             },
             product_selection: {brand: brandKey, system: null, joint_type: jointType, rebate_type: rebateType},
             finish: {colour, glass},
+            building_context: {
+              postcode,
+              house_number: houseNumber,
+              building_type: buildingType || null,
+              floor_level: floorLevel || null,
+            },
+            room_context: {
+              room_type: roomType || null,
+              area_m2: roomAreaM2 || null,
+              ventilation_system: ventilationSystem || null,
+            },
+            pricing_readiness: {
+              technical_context_complete: contextComplete,
+            },
           };
 
           calibration.value = JSON.stringify(observationGeometry);
@@ -313,7 +338,26 @@
           text('[data-ek-rebate-summary]', rebateTypes[rebateType] || rebateTypes.with_rebate);
           text('[data-ek-colour]', colour);
           text('[data-ek-glass]', glass);
-          if (priceStatus) priceStatus.textContent = brand.pricing === 'calibrated' ? `${brand.label} · eerste Price Intelligence-kalibratie beschikbaar` : `${brand.label} · prijsmodel wordt gekalibreerd`;
+          text('[data-ek-context-summary]', contextComplete ? 'Compleet' : 'Onvolledig');
+
+          if (contextState) {
+            contextState.textContent = contextComplete
+              ? 'Technische basisgegevens compleet. De volgende stap is automatische beoordeling van wind, glas, veiligheid en ventilatie.'
+              : 'Nog niet genoeg technische gegevens voor een betrouwbare prijs.';
+            contextState.classList.toggle('is-complete', contextComplete);
+          }
+
+          if (priceStatus) {
+            if (!contextComplete) {
+              priceStatus.textContent = 'Vul eerst de technische situatie aan';
+            }
+            else if (brand.pricing === 'calibrated') {
+              priceStatus.textContent = `${brand.label} · technische context compleet · prijsmodel kan daarna rekenen`;
+            }
+            else {
+              priceStatus.textContent = `${brand.label} · technische context compleet · prijsmodel wordt gekalibreerd`;
+            }
+          }
         };
 
         root.querySelector('[data-ek-add-mullion]').addEventListener('click', () => addProfile('vertical'));
