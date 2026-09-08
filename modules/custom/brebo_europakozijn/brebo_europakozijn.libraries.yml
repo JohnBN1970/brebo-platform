@@ -3,6 +3,7 @@ configurator:
   css:
     theme:
       css/europakozijn-configurator.css: {}
+      css/europakozijn-dimensions.css: {}
   js:
     js/europakozijn-configurator.js: {}
     js/europakozijn-dimensions.js: {}
