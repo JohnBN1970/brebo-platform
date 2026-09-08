@@ -106,11 +106,17 @@
         const drawOperation = (left, top, right, bottom, fn) => {
           const inset = Math.min(12, Math.max(5, (right - left) * 0.06));
           if (fn === 'draaikiep') {
-            drawing.appendChild(svgElement('line', {x1: left + inset, y1: top + inset, x2: right - inset, y2: bottom - inset, class: 'ek-drawing__operation'}));
-            drawing.appendChild(svgElement('line', {x1: right - inset, y1: top + inset, x2: left + inset, y2: bottom - inset, class: 'ek-drawing__operation'}));
+            // Conventional elevation symbol: side-hinged triangle plus bottom-hinged V.
+            const midY = (top + bottom) / 2;
+            const midX = (left + right) / 2;
+            drawing.appendChild(svgElement('line', {x1: left + inset, y1: top + inset, x2: right - inset, y2: midY, class: 'ek-drawing__operation'}));
+            drawing.appendChild(svgElement('line', {x1: left + inset, y1: bottom - inset, x2: right - inset, y2: midY, class: 'ek-drawing__operation'}));
+            drawing.appendChild(svgElement('line', {x1: left + inset, y1: top + inset, x2: midX, y2: bottom - inset, class: 'ek-drawing__operation'}));
+            drawing.appendChild(svgElement('line', {x1: right - inset, y1: top + inset, x2: midX, y2: bottom - inset, class: 'ek-drawing__operation'}));
           }
           if (fn === 'deur') {
-            drawing.appendChild(svgElement('line', {x1: left + inset, y1: top + inset, x2: right - inset, y2: bottom - inset, class: 'ek-drawing__operation'}));
+            // Door: single diagonal opening indication, with handle marker.
+            drawing.appendChild(svgElement('line', {x1: left + inset, y1: bottom - inset, x2: right - inset, y2: top + inset, class: 'ek-drawing__operation'}));
             const handle = svgElement('circle', {cx: right - inset * 1.5, cy: (top + bottom) / 2, r: 3, class: 'ek-drawing__handle'});
             drawing.appendChild(handle);
           }
@@ -154,35 +160,11 @@
               const bottom = y + h * bottomPct / 100;
               const fieldWidthMm = Math.round(width * (rightPct - leftPct) / 100);
               const fieldHeightMm = Math.round(height * (bottomPct - topPct) / 100);
-              fieldPayload.push({
-                id: key,
-                function: state.fieldFunctions[key],
-                width_mm: fieldWidthMm,
-                height_mm: fieldHeightMm,
-              });
+              fieldPayload.push({id: key, function: state.fieldFunctions[key], width_mm: fieldWidthMm, height_mm: fieldHeightMm});
 
-              const field = svgElement('rect', {
-                x: left,
-                y: top,
-                width: right - left,
-                height: bottom - top,
-                class: `ek-drawing__field${state.selectedField === key ? ' is-selected' : ''}`,
-                'data-field-key': key,
-                tabindex: '0',
-                role: 'button',
-                'aria-label': `Vak ${row * columns + column + 1}`,
-              });
-              field.addEventListener('click', () => {
-                state.selectedField = key;
-                render();
-              });
-              field.addEventListener('keydown', (event) => {
-                if (event.key === 'Enter' || event.key === ' ') {
-                  event.preventDefault();
-                  state.selectedField = key;
-                  render();
-                }
-              });
+              const field = svgElement('rect', {x: left, y: top, width: right - left, height: bottom - top, class: `ek-drawing__field${state.selectedField === key ? ' is-selected' : ''}`, 'data-field-key': key, tabindex: '0', role: 'button', 'aria-label': `Vak ${row * columns + column + 1}`});
+              field.addEventListener('click', () => { state.selectedField = key; render(); });
+              field.addEventListener('keydown', (event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); state.selectedField = key; render(); } });
               drawing.appendChild(field);
               drawOperation(left, top, right, bottom, state.fieldFunctions[key]);
               const label = svgElement('text', {x: (left + right) / 2, y: (top + bottom) / 2, class: 'ek-drawing__field-label'});
@@ -191,44 +173,18 @@
             }
           }
 
-          const frame = svgElement('rect', {x, y, width: w, height: h, class: 'ek-drawing__frame'});
-          drawing.appendChild(frame);
-          sorted(state.mullions).forEach((position) => {
-            const px = x + w * position / 100;
-            drawing.appendChild(svgElement('line', {x1: px, y1: y, x2: px, y2: y + h, class: 'ek-drawing__mullion'}));
-          });
-          sorted(state.transoms).forEach((position) => {
-            const py = y + h * position / 100;
-            drawing.appendChild(svgElement('line', {x1: x, y1: py, x2: x + w, y2: py, class: 'ek-drawing__mullion'}));
-          });
+          drawing.appendChild(svgElement('rect', {x, y, width: w, height: h, class: 'ek-drawing__frame'}));
+          sorted(state.mullions).forEach((position) => { const px = x + w * position / 100; drawing.appendChild(svgElement('line', {x1: px, y1: y, x2: px, y2: y + h, class: 'ek-drawing__mullion'})); });
+          sorted(state.transoms).forEach((position) => { const py = y + h * position / 100; drawing.appendChild(svgElement('line', {x1: x, y1: py, x2: x + w, y2: py, class: 'ek-drawing__mullion'})); });
 
           renderProfileControls(width, height);
-
           const selectedIndex = Object.keys(state.fieldFunctions).indexOf(state.selectedField) + 1;
           const selectedFunction = state.fieldFunctions[state.selectedField];
           text('[data-ek-selected]', `Vak ${selectedIndex} · ${selectedFunction === 'draaikiep' ? 'Draai-kiep' : selectedFunction === 'deur' ? 'Deur' : 'Vast glas'}`);
           text('[data-ek-field-help]', `Vak ${selectedIndex} geselecteerd. Kies hieronder de functie.`);
           functionPicker.querySelectorAll('[data-ek-function]').forEach((button) => button.classList.toggle('is-active', button.dataset.ekFunction === selectedFunction));
 
-          const observationGeometry = {
-            schema_version: 3,
-            source: 'europakozijn_web_configurator',
-            geometry: {
-              width_mm: width,
-              height_mm: height,
-              vertical_mullions: sorted(state.mullions).map((positionPct) => ({position_mm: Math.round(width * positionPct / 100), length_mm: height})),
-              horizontal_transoms: sorted(state.transoms).map((positionPct) => ({position_mm: Math.round(height * positionPct / 100), length_mm: width})),
-              fields: fieldPayload,
-            },
-            product_selection: {
-              brand: brandKey,
-              system: null,
-            },
-            finish: {
-              colour,
-              glass,
-            },
-          };
+          const observationGeometry = {schema_version: 3, source: 'europakozijn_web_configurator', geometry: {width_mm: width, height_mm: height, vertical_mullions: sorted(state.mullions).map((positionPct) => ({position_mm: Math.round(width * positionPct / 100), length_mm: height})), horizontal_transoms: sorted(state.transoms).map((positionPct) => ({position_mm: Math.round(height * positionPct / 100), length_mm: width})), fields: fieldPayload}, product_selection: {brand: brandKey, system: null}, finish: {colour, glass}};
           calibration.value = JSON.stringify(observationGeometry);
           calibration.textContent = calibration.value;
 
@@ -237,29 +193,15 @@
           text('[data-ek-layout]', `${columns} × ${rows} · ${columns * rows} vak${columns * rows === 1 ? '' : 'ken'}`);
           text('[data-ek-colour]', colour);
           text('[data-ek-glass]', glass);
-
-          if (priceStatus) {
-            priceStatus.textContent = brand.pricing === 'calibrated'
-              ? `${brand.label} · eerste Price Intelligence-kalibratie beschikbaar`
-              : `${brand.label} · prijsmodel wordt gekalibreerd`;
-          }
+          if (priceStatus) priceStatus.textContent = brand.pricing === 'calibrated' ? `${brand.label} · eerste Price Intelligence-kalibratie beschikbaar` : `${brand.label} · prijsmodel wordt gekalibreerd`;
         };
 
         root.querySelector('[data-ek-add-mullion]').addEventListener('click', () => addProfile('vertical'));
         root.querySelector('[data-ek-add-transom]').addEventListener('click', () => addProfile('horizontal'));
-        functionPicker.querySelectorAll('[data-ek-function]').forEach((button) => {
-          button.addEventListener('click', () => {
-            state.fieldFunctions[state.selectedField] = button.dataset.ekFunction;
-            render();
-          });
-        });
-        form.addEventListener('input', (event) => {
-          if (!event.target.matches('.ek-profile-control input')) render();
-        });
+        functionPicker.querySelectorAll('[data-ek-function]').forEach((button) => button.addEventListener('click', () => { state.fieldFunctions[state.selectedField] = button.dataset.ekFunction; render(); }));
+        form.addEventListener('input', (event) => { if (!event.target.matches('.ek-profile-control input')) render(); });
         form.addEventListener('change', render);
-        root.querySelector('[data-ek-request]').addEventListener('click', () => {
-          root.querySelector('[data-ek-status]').textContent = 'Configuratie gereed voor BREBO-aanvraag';
-        });
+        root.querySelector('[data-ek-request]').addEventListener('click', () => { root.querySelector('[data-ek-status]').textContent = 'Configuratie gereed voor BREBO-aanvraag'; });
         render();
       });
     }
