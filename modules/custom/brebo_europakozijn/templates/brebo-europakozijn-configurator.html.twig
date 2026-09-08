@@ -67,6 +67,12 @@
           <div class="ek-step__number">5</div>
           <div class="ek-step__body">
             <h2>Uitvoering</h2>
+            <label>Hoekverbinding
+              <select name="joint_type" data-ek-joint-type>
+                <option value="normal">Normale verbinding</option>
+                <option value="hvl">HVL-verbinding</option>
+              </select>
+            </label>
             <label>Kleur
               <select name="colour">
                 <option value="RAL 7016">RAL 7016 antraciet</option>
@@ -108,6 +114,7 @@
         <div><dt>Maat</dt><dd data-ek-size></dd></div>
         <div><dt>Indeling</dt><dd data-ek-layout></dd></div>
         <div><dt>Geselecteerd</dt><dd data-ek-selected>Vak 1</dd></div>
+        <div><dt>Verbinding</dt><dd data-ek-joint-summary></dd></div>
         <div><dt>Kleur</dt><dd data-ek-colour></dd></div>
         <div><dt>Glas</dt><dd data-ek-glass></dd></div>
       </dl>
