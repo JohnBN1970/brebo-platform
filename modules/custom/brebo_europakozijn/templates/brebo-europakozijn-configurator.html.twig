@@ -60,6 +60,10 @@
               <button type="button" data-ek-function="draaikiep">Draai-kiep</button>
               <button type="button" data-ek-function="deur">Deur</button>
             </div>
+            <div class="ek-function-picker" data-ek-direction-picker>
+              <button type="button" data-ek-direction="left" class="is-active">Scharnieren links</button>
+              <button type="button" data-ek-direction="right">Scharnieren rechts</button>
+            </div>
           </div>
         </section>
 
@@ -71,6 +75,12 @@
               <select name="joint_type" data-ek-joint-type>
                 <option value="normal">Normale verbinding</option>
                 <option value="hvl">HVL-verbinding</option>
+              </select>
+            </label>
+            <label>Aanslag
+              <select name="rebate_type" data-ek-rebate-type>
+                <option value="with">Met aanslag</option>
+                <option value="without">Zonder aanslag</option>
               </select>
             </label>
             <label>Kleur
@@ -115,6 +125,7 @@
         <div><dt>Indeling</dt><dd data-ek-layout></dd></div>
         <div><dt>Geselecteerd</dt><dd data-ek-selected>Vak 1</dd></div>
         <div><dt>Verbinding</dt><dd data-ek-joint-summary></dd></div>
+        <div><dt>Aanslag</dt><dd data-ek-rebate-summary></dd></div>
         <div><dt>Kleur</dt><dd data-ek-colour></dd></div>
         <div><dt>Glas</dt><dd data-ek-glass></dd></div>
       </dl>
