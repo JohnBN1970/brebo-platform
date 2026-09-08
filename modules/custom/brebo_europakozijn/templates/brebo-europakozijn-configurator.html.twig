@@ -24,14 +24,21 @@
           <div class="ek-step__body">
             <h2>Merk</h2>
             <p class="ek-step__intro">Kies het gewenste profielsysteem. De geometrie blijft merk-onafhankelijk; technische regels en prijs worden per merk toegepast.</p>
-            <label>Merk
-              <select name="brand" data-ek-brand>
-                <option value="aluplast">Aluplast</option>
-                <option value="koemmerling">Kömmerling</option>
-                <option value="rehau">REHAU</option>
-                <option value="schueco">Schüco</option>
-              </select>
-            </label>
+            <input type="hidden" name="brand" value="aluplast" data-ek-brand>
+            <div class="ek-brand-picker" data-ek-brand-picker role="group" aria-label="Kies merk">
+              <button type="button" class="ek-brand-card is-active" data-ek-brand-choice="aluplast" aria-pressed="true" aria-label="Aluplast kiezen">
+                <span class="ek-brand-card__wordmark ek-brand-card__wordmark--aluplast" aria-hidden="true">aluplast</span>
+              </button>
+              <button type="button" class="ek-brand-card" data-ek-brand-choice="koemmerling" aria-pressed="false" aria-label="Kömmerling kiezen">
+                <span class="ek-brand-card__wordmark ek-brand-card__wordmark--koemmerling" aria-hidden="true">KÖMMERLING</span>
+              </button>
+              <button type="button" class="ek-brand-card" data-ek-brand-choice="rehau" aria-pressed="false" aria-label="REHAU kiezen">
+                <span class="ek-brand-card__wordmark ek-brand-card__wordmark--rehau" aria-hidden="true">REHAU</span>
+              </button>
+              <button type="button" class="ek-brand-card" data-ek-brand-choice="schueco" aria-pressed="false" aria-label="Schüco kiezen">
+                <span class="ek-brand-card__wordmark ek-brand-card__wordmark--schueco" aria-hidden="true">SCHÜCO</span>
+              </button>
+            </div>
           </div>
         </section>
 
@@ -60,6 +67,13 @@
               <button type="button" data-ek-function="draaikiep">Draai-kiep</button>
               <button type="button" data-ek-function="deur">Deur</button>
             </div>
+            <div class="ek-opening-picker" data-ek-opening-picker hidden>
+              <span>Draairichting</span>
+              <div>
+                <button type="button" data-ek-opening="left" class="is-active">Scharnieren links</button>
+                <button type="button" data-ek-opening="right">Scharnieren rechts</button>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -67,6 +81,18 @@
           <div class="ek-step__number">5</div>
           <div class="ek-step__body">
             <h2>Uitvoering</h2>
+            <label>Hoekverbinding
+              <select name="joint_type" data-ek-joint-type>
+                <option value="normal">Normale verbinding</option>
+                <option value="hvl">HVL-verbinding</option>
+              </select>
+            </label>
+            <label>Aanslag
+              <select name="rebate_type" data-ek-rebate-type>
+                <option value="with_rebate">Met aanslag</option>
+                <option value="without_rebate">Zonder aanslag</option>
+              </select>
+            </label>
             <label>Kleur
               <select name="colour">
                 <option value="RAL 7016">RAL 7016 antraciet</option>
@@ -108,6 +134,9 @@
         <div><dt>Maat</dt><dd data-ek-size></dd></div>
         <div><dt>Indeling</dt><dd data-ek-layout></dd></div>
         <div><dt>Geselecteerd</dt><dd data-ek-selected>Vak 1</dd></div>
+        <div><dt>Draairichting</dt><dd data-ek-opening-summary>—</dd></div>
+        <div><dt>Verbinding</dt><dd data-ek-joint-summary></dd></div>
+        <div><dt>Aanslag</dt><dd data-ek-rebate-summary></dd></div>
         <div><dt>Kleur</dt><dd data-ek-colour></dd></div>
         <div><dt>Glas</dt><dd data-ek-glass></dd></div>
       </dl>
