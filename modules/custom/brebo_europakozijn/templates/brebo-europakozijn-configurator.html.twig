@@ -2,7 +2,7 @@
   <header class="ek-configurator__header">
     <p class="ek-configurator__eyebrow">BREBO × Europakozijn</p>
     <h1>Bouw uw kozijn</h1>
-    <p>Begin met de buitenmaat. Voeg daarna stijlen en dorpels toe, kies een merk en geef ieder vak zijn eigen functie.</p>
+    <p>Begin met de buitenmaat. Voeg daarna stijlen en dorpels toe, kies een merk en geef ieder vak zijn eigen functie. Voor een betrouwbare prijs vragen we daarna alleen de technische situatie die echt nodig is.</p>
   </header>
 
   <div class="ek-builder">
@@ -78,6 +78,72 @@
           </div>
         </section>
 
+        <section class="ek-step ek-step--journey" data-ek-context-step>
+          <div class="ek-step__number">6</div>
+          <div class="ek-step__body">
+            <h2>Waar komt het kozijn?</h2>
+            <p class="ek-step__intro">Vertel alleen wat u weet. Wij gebruiken deze gegevens later voor onder meer windbelasting, glasopbouw, veiligheid en ventilatie. Pas daarna kan een betrouwbare prijs worden berekend.</p>
+
+            <div class="ek-control-grid">
+              <label>Postcode<input name="postcode" type="text" autocomplete="postal-code" placeholder="1234 AB"></label>
+              <label>Huisnummer<input name="house_number" type="text" autocomplete="address-line2" placeholder="12A"></label>
+            </div>
+            <details class="ek-why"><summary>Waarom vragen we het adres?</summary><p>De locatie is nodig om de omstandigheden rond het gebouw technisch te kunnen beoordelen. U hoeft zelf geen wind- of glasgegevens uit te zoeken.</p></details>
+
+            <label>Type gebouw
+              <select name="building_type">
+                <option value="">Kies wat het beste past</option>
+                <option value="tussenwoning">Tussenwoning</option>
+                <option value="hoekwoning">Hoekwoning</option>
+                <option value="vrijstaand">Vrijstaande woning</option>
+                <option value="appartement">Appartement / woongebouw</option>
+                <option value="overig">Anders</option>
+              </select>
+            </label>
+            <details class="ek-why"><summary>Waarom vragen we het gebouwtype?</summary><p>De ligging van een gevel kan invloed hebben op de technische belasting van kozijn en glas. Wij vertalen uw antwoord later naar de juiste productregels.</p></details>
+
+            <label>Verdieping
+              <select name="floor_level">
+                <option value="">Kies verdieping</option>
+                <option value="0">Begane grond</option>
+                <option value="1">1e verdieping</option>
+                <option value="2">2e verdieping</option>
+                <option value="3">3e verdieping</option>
+                <option value="4">4e verdieping</option>
+                <option value="5_plus">5e verdieping of hoger</option>
+              </select>
+            </label>
+            <details class="ek-why"><summary>Waarom vragen we de verdieping?</summary><p>De hoogte van het kozijn kan invloed hebben op windbelasting, glasopbouw en andere technische eisen.</p></details>
+
+            <label>Ruimte achter dit kozijn
+              <select name="room_type">
+                <option value="">Kies ruimte</option>
+                <option value="woonkamer">Woonkamer</option>
+                <option value="slaapkamer">Slaapkamer</option>
+                <option value="keuken">Keuken</option>
+                <option value="badkamer">Badkamer</option>
+                <option value="werkkamer">Werkkamer</option>
+                <option value="overig">Andere ruimte</option>
+              </select>
+            </label>
+            <label>Oppervlakte ruimte (m²)<input name="room_area_m2" type="number" min="1" max="500" step="0.1" placeholder="bijv. 28"></label>
+            <details class="ek-why"><summary>Waarom vragen we de ruimte en oppervlakte?</summary><p>Daarmee kan Europakozijn later automatisch bepalen of ventilatietoevoer nodig is en welke roostercapaciteit daarbij past.</p></details>
+
+            <label>Hoe wordt de woning nu geventileerd?
+              <select name="ventilation_system">
+                <option value="">Weet ik niet / kies systeem</option>
+                <option value="natural">Natuurlijke ventilatie</option>
+                <option value="mechanical_extract">Mechanische afvoer</option>
+                <option value="balanced">Balansventilatie / WTW</option>
+                <option value="other">Anders</option>
+              </select>
+            </label>
+            <details class="ek-why"><summary>Waarom vragen we naar ventilatie?</summary><p>Niet iedere woning heeft een gevelrooster nodig. Wij willen alleen een rooster adviseren als dat bij het ventilatiesysteem en de ruimte past.</p></details>
+
+            <div class="ek-context-state" data-ek-context-state aria-live="polite">Nog niet genoeg technische gegevens voor een betrouwbare prijs.</div>
+          </div>
+        </section>
+
         <button type="button" class="ek-configurator__cta" data-ek-request>Opslaan als aanvraag</button>
       </form>
     </aside>
@@ -85,7 +151,7 @@
     <main class="ek-builder__workspace">
       <div class="ek-builder__topline">
         <div><span class="ek-configurator__status" data-ek-status>Live configuratie</span><p>De tekening is de configuratie. Klik op een vak om het te bewerken.</p></div>
-        <div class="ek-builder__price"><span>Prijsindicatie</span><strong data-ek-price-status>Wordt gekoppeld aan Price Intelligence</strong></div>
+        <div class="ek-builder__price"><span>Prijsindicatie</span><strong data-ek-price-status>Vul eerst de technische situatie aan</strong></div>
       </div>
 
       <div class="ek-canvas"><svg data-ek-drawing viewBox="0 0 720 520" role="img" aria-label="Interactieve tekening van het samengestelde kozijn"></svg></div>
@@ -105,10 +171,11 @@
         <div><dt>Aanslag</dt><dd data-ek-rebate-summary></dd></div>
         <div><dt>Kleur</dt><dd data-ek-colour></dd></div>
         <div><dt>Glas</dt><dd data-ek-glass></dd></div>
+        <div><dt>Technische context</dt><dd data-ek-context-summary>Onvolledig</dd></div>
       </dl>
 
       <output data-ek-calibration hidden></output>
-      <p class="ek-configurator__note">Definitieve technische controle en actuele prijs volgen via de BREBO rule-engine en Price Intelligence per gekozen merk.</p>
+      <p class="ek-configurator__note">Europakozijn gebruikt de ingevulde situatie om later automatisch technische eisen, productkeuzes en toeslagen te bepalen. Een prijs wordt pas vrijgegeven als de benodigde technische context compleet is.</p>
     </main>
   </div>
 </section>
