@@ -5,10 +5,12 @@ configurator:
       css/europakozijn-configurator.css: {}
       css/europakozijn-dimensions.css: {}
       css/europakozijn-visual-picker.css: {}
+      css/europakozijn-request-state.css: {}
   js:
     js/europakozijn-visual-picker.js: {}
     js/europakozijn-configurator.js: {}
     js/europakozijn-dimensions.js: {}
+    js/europakozijn-request-state.js: {}
   dependencies:
     - core/drupal
     - core/once
