@@ -26,18 +26,10 @@
             <p class="ek-step__intro">Kies het gewenste profielsysteem. De geometrie blijft merk-onafhankelijk; technische regels en prijs worden per merk toegepast.</p>
             <input type="hidden" name="brand" value="aluplast" data-ek-brand>
             <div class="ek-brand-picker" data-ek-brand-picker role="group" aria-label="Kies merk">
-              <button type="button" class="ek-brand-card is-active" data-ek-brand-choice="aluplast" aria-pressed="true" aria-label="Aluplast kiezen">
-                <span class="ek-brand-card__wordmark ek-brand-card__wordmark--aluplast" aria-hidden="true">aluplast</span>
-              </button>
-              <button type="button" class="ek-brand-card" data-ek-brand-choice="koemmerling" aria-pressed="false" aria-label="Kömmerling kiezen">
-                <span class="ek-brand-card__wordmark ek-brand-card__wordmark--koemmerling" aria-hidden="true">KÖMMERLING</span>
-              </button>
-              <button type="button" class="ek-brand-card" data-ek-brand-choice="rehau" aria-pressed="false" aria-label="REHAU kiezen">
-                <span class="ek-brand-card__wordmark ek-brand-card__wordmark--rehau" aria-hidden="true">REHAU</span>
-              </button>
-              <button type="button" class="ek-brand-card" data-ek-brand-choice="schueco" aria-pressed="false" aria-label="Schüco kiezen">
-                <span class="ek-brand-card__wordmark ek-brand-card__wordmark--schueco" aria-hidden="true">SCHÜCO</span>
-              </button>
+              <button type="button" class="ek-brand-card is-active" data-ek-brand-choice="aluplast" aria-pressed="true" aria-label="Aluplast kiezen"><span class="ek-brand-card__wordmark ek-brand-card__wordmark--aluplast" aria-hidden="true">aluplast</span></button>
+              <button type="button" class="ek-brand-card" data-ek-brand-choice="koemmerling" aria-pressed="false" aria-label="Kömmerling kiezen"><span class="ek-brand-card__wordmark ek-brand-card__wordmark--koemmerling" aria-hidden="true">KÖMMERLING</span></button>
+              <button type="button" class="ek-brand-card" data-ek-brand-choice="rehau" aria-pressed="false" aria-label="REHAU kiezen"><span class="ek-brand-card__wordmark ek-brand-card__wordmark--rehau" aria-hidden="true">REHAU</span></button>
+              <button type="button" class="ek-brand-card" data-ek-brand-choice="schueco" aria-pressed="false" aria-label="Schüco kiezen"><span class="ek-brand-card__wordmark ek-brand-card__wordmark--schueco" aria-hidden="true">SCHÜCO</span></button>
             </div>
           </div>
         </section>
@@ -51,9 +43,7 @@
               <button type="button" class="ek-tool" data-ek-add-mullion><span>＋</span> Verticale stijl</button>
               <button type="button" class="ek-tool" data-ek-add-transom><span>＋</span> Horizontale dorpel</button>
             </div>
-            <div class="ek-profile-list" data-ek-profile-list>
-              <p class="ek-empty" data-ek-profile-empty>Nog geen stijlen of dorpels geplaatst.</p>
-            </div>
+            <div class="ek-profile-list" data-ek-profile-list><p class="ek-empty" data-ek-profile-empty>Nog geen stijlen of dorpels geplaatst.</p></div>
           </div>
         </section>
 
@@ -81,31 +71,10 @@
           <div class="ek-step__number">5</div>
           <div class="ek-step__body">
             <h2>Uitvoering</h2>
-            <label>Hoekverbinding
-              <select name="joint_type" data-ek-joint-type>
-                <option value="normal">Normale verbinding</option>
-                <option value="hvl">HVL-verbinding</option>
-              </select>
-            </label>
-            <label>Aanslag
-              <select name="rebate_type" data-ek-rebate-type>
-                <option value="with_rebate">Met aanslag</option>
-                <option value="without_rebate">Zonder aanslag</option>
-              </select>
-            </label>
-            <label>Kleur
-              <select name="colour">
-                <option value="RAL 7016">RAL 7016 antraciet</option>
-                <option value="RAL 9010">RAL 9010 wit</option>
-                <option value="RAL 9005">RAL 9005 zwart</option>
-              </select>
-            </label>
-            <label>Glas
-              <select name="glass">
-                <option value="HR++">HR++</option>
-                <option value="Triple">Triple</option>
-              </select>
-            </label>
+            <label>Hoekverbinding<select name="joint_type" data-ek-joint-type><option value="normal">Normale verbinding</option><option value="hvl">HVL-verbinding</option></select></label>
+            <label>Aanslag<select name="rebate_type" data-ek-rebate-type><option value="with_rebate">Met aanslag</option><option value="without_rebate">Zonder aanslag</option></select></label>
+            <label>Kleur<select name="colour"><option value="RAL 7016">RAL 7016 antraciet</option><option value="RAL 9010">RAL 9010 wit</option><option value="RAL 9005">RAL 9005 zwart</option></select></label>
+            <label>Glas<select name="glass"><option value="HR++">HR++</option><option value="Triple">Triple</option></select></label>
           </div>
         </section>
 
@@ -115,18 +84,15 @@
 
     <main class="ek-builder__workspace">
       <div class="ek-builder__topline">
-        <div>
-          <span class="ek-configurator__status" data-ek-status>Live configuratie</span>
-          <p>De tekening is de configuratie. Klik op een vak om het te bewerken.</p>
-        </div>
-        <div class="ek-builder__price">
-          <span>Prijsindicatie</span>
-          <strong data-ek-price-status>Wordt gekoppeld aan Price Intelligence</strong>
-        </div>
+        <div><span class="ek-configurator__status" data-ek-status>Live configuratie</span><p>De tekening is de configuratie. Klik op een vak om het te bewerken.</p></div>
+        <div class="ek-builder__price"><span>Prijsindicatie</span><strong data-ek-price-status>Wordt gekoppeld aan Price Intelligence</strong></div>
       </div>
 
-      <div class="ek-canvas">
-        <svg data-ek-drawing viewBox="0 0 720 520" role="img" aria-label="Interactieve tekening van het samengestelde kozijn"></svg>
+      <div class="ek-canvas"><svg data-ek-drawing viewBox="0 0 720 520" role="img" aria-label="Interactieve tekening van het samengestelde kozijn"></svg></div>
+
+      <div class="ek-rule-feedback" data-ek-rule-feedback aria-live="polite" hidden>
+        <strong data-ek-rule-title>Technische controle</strong>
+        <span data-ek-rule-message></span>
       </div>
 
       <dl class="ek-configurator__summary">
