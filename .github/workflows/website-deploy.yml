@@ -67,11 +67,10 @@ jobs:
               echo "::error::Unable to establish authenticated SSH connection."
               exit 1
             fi
-
             sleep $((attempt * 2))
           done
 
-      - name: Deploy develop publish assets and verify website
+      - name: Deploy canonical Drupal app and verify public root
         shell: bash
         run: |
           set -euo pipefail
@@ -86,8 +85,8 @@ jobs:
           set -eEuo pipefail
           export NO_COLOR=1 TERM=dumb
 
-          target="$HOME/domains/brebobv.nl/public_html/platform"
-          public_root="$target/web"
+          root="$HOME/domains/brebobv.nl/public_html"
+          target="$root/platform"
           branch="develop"
           public_url="https://brebobv.nl/"
           deploy_marker="$target/.brebo-deploy-ok-sha"
@@ -97,10 +96,17 @@ jobs:
             exit 1
           }
 
-          [[ -d "$public_root" && -f "$public_root/index.php" ]] || {
-            echo "::error::Expected public webroot is missing: $public_root"
+          [[ -f "$root/index.php" ]] || {
+            echo "::error::Normalized public front controller is missing: $root/index.php"
             exit 1
           }
+
+          for link in core modules profiles sites themes; do
+            [[ -L "$root/$link" && "$(readlink "$root/$link")" == "platform/$link" ]] || {
+              echo "::error::Normalized public link is missing or wrong: $root/$link"
+              exit 1
+            }
+          done
 
           cd "$target"
           rm -f "$deploy_marker"
@@ -113,20 +119,6 @@ jobs:
 
           git fetch origin "$branch"
           git pull --ff-only origin "$branch"
-
-          echo "===== PUBLISH PUBLIC CUSTOM EXTENSIONS ====="
-          rm -rf "$public_root/modules/custom" "$public_root/themes/custom"
-          mkdir -p "$public_root/modules" "$public_root/themes"
-          cp -a "$target/modules/custom" "$public_root/modules/custom"
-          cp -a "$target/themes/custom" "$public_root/themes/custom"
-
-          [[ -f "$public_root/themes/custom/brebo_theme/logo.svg" ]] || {
-            echo "::error::BREBO logo was not published to the public webroot."
-            exit 1
-          }
-
-          echo "PUBLIC_MODULES=$(find "$public_root/modules/custom" -mindepth 1 -maxdepth 1 -type d | wc -l)"
-          echo "PUBLIC_THEMES=$(find "$public_root/themes/custom" -mindepth 1 -maxdepth 1 -type d | wc -l)"
 
           if [[ -x /opt/alt/php83/usr/bin/php ]]; then
             php_bin=/opt/alt/php83/usr/bin/php
@@ -199,99 +191,69 @@ jobs:
             print "KNOWLEDGE_SEED_REPORTED_TOTAL=" . $reportedTotal . "\n";
             print "KNOWLEDGE_SEED_TOTAL=" . $persisted . "\n";
             if ($result["errors"] !== []) {
-              foreach ($result["errors"] as $error) {
-                print "KNOWLEDGE_SEED_ERROR=" . $error . "\n";
-              }
               throw new \RuntimeException("Knowledge seed import contains errors.");
             }
-            if ((int) $persisted !== 48) {
-              throw new \RuntimeException("Expected exactly 48 persisted canonical Knowledgebase seeds, found " . $persisted . ".");
-            }
-            if ($reportedTotal !== 48) {
-              throw new \RuntimeException("Importer reported " . $reportedTotal . " catalog seeds; expected 48.");
+            if ((int) $persisted !== 48 || $reportedTotal !== 48) {
+              throw new \RuntimeException("Expected exactly 48 canonical Knowledgebase seeds.");
             }
           '
 
-          echo "===== RUNTIME CHECK ====="
-          "${drush[@]}" php:eval 'print "DRUPAL_BOOTSTRAP_OK=1\n"; print "SITE_NAME=" . \Drupal::config("system.site")->get("name") . "\n";'
-
-          echo "===== FRONTEND ASSET CHECK ====="
-          lens_css_rel="modules/custom/brebo_lens/css/brebo-lens.css"
-          lens_js_rel="modules/custom/brebo_lens/js/brebo-lens.js"
-          for asset in "$lens_css_rel" "$lens_js_rel"; do
-            [[ -s "$public_root/$asset" ]] || {
-              echo "::error::Published frontend asset is missing or empty: $asset"
+          echo "===== SOURCE ASSET CHECK ====="
+          for asset in \
+            modules/custom/brebo_lens/css/brebo-lens.css \
+            modules/custom/brebo_lens/js/brebo-lens.js \
+            modules/custom/brebo_projects/templates/brebo-projects-overview.html.twig \
+            themes/custom/brebo_theme/logo.svg; do
+            [[ -s "$target/$asset" ]] || {
+              echo "::error::Required source asset is missing or empty: $asset"
               exit 1
             }
           done
 
-          source_css_sha="$(sha256sum "$target/$lens_css_rel" | awk '{print $1}')"
-          public_css_sha="$(sha256sum "$public_root/$lens_css_rel" | awk '{print $1}')"
-          source_js_sha="$(sha256sum "$target/$lens_js_rel" | awk '{print $1}')"
-          public_js_sha="$(sha256sum "$public_root/$lens_js_rel" | awk '{print $1}')"
-          [[ "$source_css_sha" == "$public_css_sha" ]] || { echo "::error::Lens CSS differs between source and public webroot."; exit 1; }
-          [[ "$source_js_sha" == "$public_js_sha" ]] || { echo "::error::Lens JS differs between source and public webroot."; exit 1; }
-
-          projects_template_rel="modules/custom/brebo_projects/templates/brebo-projects-overview.html.twig"
-          [[ -s "$public_root/$projects_template_rel" ]] || {
-            echo "::error::Published projects overview template is missing or empty."
-            exit 1
-          }
-          source_projects_template_sha="$(sha256sum "$target/$projects_template_rel" | awk '{print $1}')"
-          public_projects_template_sha="$(sha256sum "$public_root/$projects_template_rel" | awk '{print $1}')"
-          [[ "$source_projects_template_sha" == "$public_projects_template_sha" ]] || {
-            echo "::error::Projects overview template differs between source and public webroot."
-            exit 1
-          }
-          echo "PROJECTS_TEMPLATE_CURRENT=1"
-
           asset_token="$(git rev-parse --short=12 HEAD)"
-          lens_css_url="${public_url}${lens_css_rel}?v=${asset_token}"
-          lens_js_url="${public_url}${lens_js_rel}?v=${asset_token}"
-          lens_css_result="$(curl -L -sS -o /tmp/brebo-lens.css --max-time 20 -w '%{http_code} %{content_type}' "$lens_css_url")"
-          lens_js_result="$(curl -L -sS -o /tmp/brebo-lens.js --max-time 20 -w '%{http_code} %{content_type}' "$lens_js_url")"
-          public_http_css_sha="$(sha256sum /tmp/brebo-lens.css | awk '{print $1}')"
-          public_http_js_sha="$(sha256sum /tmp/brebo-lens.js | awk '{print $1}')"
-          [[ "$public_http_css_sha" == "$source_css_sha" ]] || { echo "::error::Public Lens CSS is stale or differs from deployed source."; exit 1; }
-          [[ "$public_http_js_sha" == "$source_js_sha" ]] || { echo "::error::Public Lens JS is stale or differs from deployed source."; exit 1; }
-          echo "LENS_CSS_RESULT=$lens_css_result"
-          echo "LENS_JS_RESULT=$lens_js_result"
-          echo "LENS_ASSETS_CURRENT=1"
+
+          echo "===== PUBLIC ASSET CHECK ====="
+          lens_css_rel="modules/custom/brebo_lens/css/brebo-lens.css"
+          lens_js_rel="modules/custom/brebo_lens/js/brebo-lens.js"
+          source_css_sha="$(sha256sum "$target/$lens_css_rel" | awk '{print $1}')"
+          source_js_sha="$(sha256sum "$target/$lens_js_rel" | awk '{print $1}')"
+
+          curl -L -sS -o /tmp/brebo-lens.css --max-time 20 "${public_url}${lens_css_rel}?v=${asset_token}"
+          curl -L -sS -o /tmp/brebo-lens.js --max-time 20 "${public_url}${lens_js_rel}?v=${asset_token}"
+
+          [[ "$(sha256sum /tmp/brebo-lens.css | awk '{print $1}')" == "$source_css_sha" ]] || {
+            echo "::error::Public Lens CSS differs from canonical source."
+            exit 1
+          }
+          [[ "$(sha256sum /tmp/brebo-lens.js | awk '{print $1}')" == "$source_js_sha" ]] || {
+            echo "::error::Public Lens JS differs from canonical source."
+            exit 1
+          }
+          echo "PUBLIC_ASSETS_CURRENT=1"
 
           echo "===== PUBLIC SMOKE TESTS ====="
           homepage_code="$(curl -L -sS -o /tmp/brebo-home.html --max-time 20 -w '%{http_code}' "${public_url}?v=${asset_token}")"
-          logo_url="${public_url}themes/custom/brebo_theme/logo.svg?v=${asset_token}"
-          logo_result="$(curl -L -sS -o /dev/null --max-time 20 -w '%{http_code} %{content_type}' "$logo_url")"
-          projects_url="${public_url}projecten?v=${asset_token}"
-          projects_code="$(curl -L -sS -o /tmp/brebo-projecten.html --max-time 20 -w '%{http_code}' "$projects_url")"
+          logo_result="$(curl -L -sS -o /dev/null --max-time 20 -w '%{http_code} %{content_type}' "${public_url}themes/custom/brebo_theme/logo.svg?v=${asset_token}")"
+          projects_code="$(curl -L -sS -o /tmp/brebo-projecten.html --max-time 20 -w '%{http_code}' "${public_url}projecten?v=${asset_token}")"
+          user_code="$(curl -sS -o /dev/null -w '%{http_code}' "${public_url}user?v=${asset_token}")"
+          login_code="$(curl -L -sS -o /dev/null -w '%{http_code}' "${public_url}user/login?v=${asset_token}")"
 
           echo "PUBLIC_URL=$public_url"
           echo "HOMEPAGE_HTTP_CODE=$homepage_code"
-          echo "LOGO_URL=$logo_url"
           echo "LOGO_RESULT=$logo_result"
-          echo "PROJECTS_URL=$projects_url"
           echo "PROJECTS_HTTP_CODE=$projects_code"
+          echo "USER_HTTP_CODE=$user_code"
+          echo "USER_LOGIN_HTTP_CODE=$login_code"
 
-          case "$homepage_code" in
-            200|301|302) ;;
-            *)
-              echo "::error::Unexpected HTTP status from $public_url: $homepage_code"
-              exit 1
-              ;;
-          esac
-
+          [[ "$homepage_code" == "200" ]] || { echo "::error::Homepage failed."; exit 1; }
           case "$logo_result" in
             200\ image/svg+xml*) ;;
-            *)
-              echo "::error::BREBO logo is not publicly available as SVG: $logo_result"
-              exit 1
-              ;;
+            *) echo "::error::BREBO logo is not publicly available as SVG: $logo_result"; exit 1 ;;
           esac
+          [[ "$projects_code" == "200" ]] || { echo "::error::Projects page failed."; exit 1; }
+          [[ "$user_code" == "302" ]] || { echo "::error::Anonymous /user must redirect with HTTP 302."; exit 1; }
+          [[ "$login_code" == "200" ]] || { echo "::error::User login page failed."; exit 1; }
 
-          [[ "$projects_code" == "200" ]] || {
-            echo "::error::Unexpected HTTP status from public projects page: $projects_code"
-            exit 1
-          }
           grep -Fq 'De situatie aan het gebouw bepaalt de aanpak.' /tmp/brebo-projecten.html || {
             echo "::error::Public projects page does not render the BREBO projects hero."
             exit 1
@@ -304,15 +266,20 @@ jobs:
             echo "::error::Production homepage still contains stale Projecten link to /node/5."
             exit 1
           fi
+          if grep -Fq '/platform/web/' /tmp/brebo-home.html; then
+            echo "::error::Production homepage exposes legacy /platform/web path."
+            exit 1
+          fi
+
           echo "PROJECTS_PUBLIC_RENDER_OK=1"
           echo "PROJECTS_MENU_ROUTE_OK=1"
+          echo "PUBLIC_ROOT_NORMALIZED=1"
 
           deployed_sha="$(git rev-parse HEAD)"
           printf '%s\n' "$deployed_sha" > "$deploy_marker"
           echo "DEPLOY_OK=1"
-          echo "PUBLIC_ASSETS_OK=1"
           echo "DEPLOYED_SHA=$deployed_sha"
           echo "DEPLOY_MARKER=$deploy_marker"
           echo "TARGET=$target"
-          echo "PUBLIC_ROOT=$public_root"
+          echo "PUBLIC_ROOT=$root"
           REMOTE
