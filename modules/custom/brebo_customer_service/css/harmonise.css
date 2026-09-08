@@ -20,6 +20,10 @@
   background: #fff;
 }
 
+.brebo-knowledge-library__hero-copy--full {
+  grid-column: 1 / -1;
+}
+
 .brebo-knowledge-library__hero-copy h1 {
   max-width: 10ch;
   font-size: clamp(3.4rem, 5.5vw, 5.4rem);
