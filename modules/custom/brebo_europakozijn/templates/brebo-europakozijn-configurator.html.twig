@@ -22,13 +22,21 @@
 
       <fieldset>
         <legend>3. Indeling</legend>
-        <label>Aantal vakken
-          <select name="fields">
-            <option value="1">1 vak</option>
-            <option value="2" selected>2 vakken</option>
-            <option value="3">3 vakken</option>
+        <label>Verticale stijlen
+          <select name="vertical_mullions">
+            <option value="0">Geen</option>
+            <option value="1" selected>1 stijl</option>
+            <option value="2">2 stijlen</option>
           </select>
         </label>
+        <label>Horizontale dorpels
+          <select name="horizontal_transoms">
+            <option value="0" selected>Geen</option>
+            <option value="1">1 dorpel</option>
+            <option value="2">2 dorpels</option>
+          </select>
+        </label>
+        <p class="ek-configurator__note">Stijlen en dorpels worden voorlopig gelijkmatig verdeeld. Hun prijseffect wordt pas na gecontroleerde leverancierproeven gekalibreerd.</p>
       </fieldset>
 
       <fieldset>
@@ -57,9 +65,11 @@
       <dl class="ek-configurator__summary">
         <div><dt>Maat</dt><dd data-ek-size></dd></div>
         <div><dt>Type</dt><dd data-ek-type></dd></div>
+        <div><dt>Indeling</dt><dd data-ek-layout></dd></div>
         <div><dt>Kleur</dt><dd data-ek-colour></dd></div>
         <div><dt>Glas</dt><dd data-ek-glass></dd></div>
       </dl>
+      <output data-ek-calibration hidden></output>
       <p class="ek-configurator__note">Indicatieve configuratie. Definitieve technische controle en prijs volgen via BREBO Office.</p>
     </div>
   </div>
