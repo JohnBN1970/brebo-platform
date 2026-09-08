@@ -9,7 +9,15 @@
         const calibration = root.querySelector('[data-ek-calibration]');
         const profileList = root.querySelector('[data-ek-profile-list]');
         const functionPicker = root.querySelector('[data-ek-function-picker]');
+        const priceStatus = root.querySelector('[data-ek-price-status]');
         const ns = 'http://www.w3.org/2000/svg';
+
+        const brands = {
+          aluplast: {label: 'Aluplast', pricing: 'calibrated'},
+          koemmerling: {label: 'Kömmerling', pricing: 'pending'},
+          rehau: {label: 'REHAU', pricing: 'pending'},
+          schueco: {label: 'Schüco', pricing: 'pending'},
+        };
 
         const state = {
           mullions: [],
@@ -112,6 +120,8 @@
           const data = new FormData(form);
           const width = Number(data.get('width')) || 1200;
           const height = Number(data.get('height')) || 1500;
+          const brandKey = data.get('brand') || 'aluplast';
+          const brand = brands[brandKey] || brands.aluplast;
           const colour = data.get('colour');
           const glass = data.get('glass');
           const xPositionsPct = [0, ...sorted(state.mullions), 100];
@@ -130,13 +140,27 @@
 
           drawing.replaceChildren();
 
+          const fieldPayload = [];
           for (let row = 0; row < rows; row += 1) {
             for (let column = 0; column < columns; column += 1) {
               const key = fieldKey(row, column);
-              const left = x + w * xPositionsPct[column] / 100;
-              const right = x + w * xPositionsPct[column + 1] / 100;
-              const top = y + h * yPositionsPct[row] / 100;
-              const bottom = y + h * yPositionsPct[row + 1] / 100;
+              const leftPct = xPositionsPct[column];
+              const rightPct = xPositionsPct[column + 1];
+              const topPct = yPositionsPct[row];
+              const bottomPct = yPositionsPct[row + 1];
+              const left = x + w * leftPct / 100;
+              const right = x + w * rightPct / 100;
+              const top = y + h * topPct / 100;
+              const bottom = y + h * bottomPct / 100;
+              const fieldWidthMm = Math.round(width * (rightPct - leftPct) / 100);
+              const fieldHeightMm = Math.round(height * (bottomPct - topPct) / 100);
+              fieldPayload.push({
+                id: key,
+                function: state.fieldFunctions[key],
+                width_mm: fieldWidthMm,
+                height_mm: fieldHeightMm,
+              });
+
               const field = svgElement('rect', {
                 x: left,
                 y: top,
@@ -187,22 +211,38 @@
           functionPicker.querySelectorAll('[data-ek-function]').forEach((button) => button.classList.toggle('is-active', button.dataset.ekFunction === selectedFunction));
 
           const observationGeometry = {
-            schema_version: 2,
-            width_mm: width,
-            height_mm: height,
-            vertical_mullions: sorted(state.mullions).map((positionPct) => ({position_mm: Math.round(width * positionPct / 100), length_mm: height})),
-            horizontal_transoms: sorted(state.transoms).map((positionPct) => ({position_mm: Math.round(height * positionPct / 100), length_mm: width})),
-            fields: Object.entries(state.fieldFunctions).map(([id, fn]) => ({id, function: fn})),
-            colour,
-            glass,
+            schema_version: 3,
+            source: 'europakozijn_web_configurator',
+            geometry: {
+              width_mm: width,
+              height_mm: height,
+              vertical_mullions: sorted(state.mullions).map((positionPct) => ({position_mm: Math.round(width * positionPct / 100), length_mm: height})),
+              horizontal_transoms: sorted(state.transoms).map((positionPct) => ({position_mm: Math.round(height * positionPct / 100), length_mm: width})),
+              fields: fieldPayload,
+            },
+            product_selection: {
+              brand: brandKey,
+              system: null,
+            },
+            finish: {
+              colour,
+              glass,
+            },
           };
           calibration.value = JSON.stringify(observationGeometry);
           calibration.textContent = calibration.value;
 
+          text('[data-ek-brand-summary]', brand.label);
           text('[data-ek-size]', `${width} × ${height} mm`);
           text('[data-ek-layout]', `${columns} × ${rows} · ${columns * rows} vak${columns * rows === 1 ? '' : 'ken'}`);
           text('[data-ek-colour]', colour);
           text('[data-ek-glass]', glass);
+
+          if (priceStatus) {
+            priceStatus.textContent = brand.pricing === 'calibrated'
+              ? `${brand.label} · eerste Price Intelligence-kalibratie beschikbaar`
+              : `${brand.label} · prijsmodel wordt gekalibreerd`;
+          }
         };
 
         root.querySelector('[data-ek-add-mullion]').addEventListener('click', () => addProfile('vertical'));
