@@ -4,7 +4,9 @@ configurator:
     theme:
       css/europakozijn-configurator.css: {}
       css/europakozijn-dimensions.css: {}
+      css/europakozijn-visual-picker.css: {}
   js:
+    js/europakozijn-visual-picker.js: {}
     js/europakozijn-configurator.js: {}
     js/europakozijn-dimensions.js: {}
   dependencies:
