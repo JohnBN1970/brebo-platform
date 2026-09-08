@@ -1,7 +1,7 @@
 brebo_customer_service.knowledge:
   path: '/klantenservice'
   defaults:
-    _controller: '\Drupal\brebo_customer_service\Controller\KnowledgeLibraryController::page'
+    _controller: '\Drupal\brebo_customer_service\Controller\CustomerServiceLandingController::page'
     _title: 'Klantenservice'
   requirements:
     _access: 'TRUE'
