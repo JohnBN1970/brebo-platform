@@ -2,7 +2,7 @@
   <header class="ek-configurator__header">
     <p class="ek-configurator__eyebrow">BREBO × Europakozijn</p>
     <h1>Bouw uw kozijn</h1>
-    <p>Begin met de buitenmaat. Voeg daarna stijlen en dorpels toe en geef ieder vak zijn eigen functie.</p>
+    <p>Begin met de buitenmaat. Voeg daarna stijlen en dorpels toe, kies een merk en geef ieder vak zijn eigen functie.</p>
   </header>
 
   <div class="ek-builder">
@@ -22,6 +22,22 @@
         <section class="ek-step">
           <div class="ek-step__number">2</div>
           <div class="ek-step__body">
+            <h2>Merk</h2>
+            <p class="ek-step__intro">Kies het gewenste profielsysteem. De geometrie blijft merk-onafhankelijk; technische regels en prijs worden per merk toegepast.</p>
+            <label>Merk
+              <select name="brand" data-ek-brand>
+                <option value="aluplast">Aluplast</option>
+                <option value="koemmerling">Kömmerling</option>
+                <option value="rehau">REHAU</option>
+                <option value="schueco">Schüco</option>
+              </select>
+            </label>
+          </div>
+        </section>
+
+        <section class="ek-step">
+          <div class="ek-step__number">3</div>
+          <div class="ek-step__body">
             <h2>Indeling</h2>
             <p class="ek-step__intro">Plaats profielen in de tekening. De positie kan daarna exact worden verschoven.</p>
             <div class="ek-builder__actions">
@@ -35,7 +51,7 @@
         </section>
 
         <section class="ek-step">
-          <div class="ek-step__number">3</div>
+          <div class="ek-step__number">4</div>
           <div class="ek-step__body">
             <h2>Geselecteerd vak</h2>
             <p class="ek-step__intro" data-ek-field-help>Klik in de tekening op een vak om de functie te kiezen.</p>
@@ -48,7 +64,7 @@
         </section>
 
         <section class="ek-step">
-          <div class="ek-step__number">4</div>
+          <div class="ek-step__number">5</div>
           <div class="ek-step__body">
             <h2>Uitvoering</h2>
             <label>Kleur
@@ -88,6 +104,7 @@
       </div>
 
       <dl class="ek-configurator__summary">
+        <div><dt>Merk</dt><dd data-ek-brand-summary></dd></div>
         <div><dt>Maat</dt><dd data-ek-size></dd></div>
         <div><dt>Indeling</dt><dd data-ek-layout></dd></div>
         <div><dt>Geselecteerd</dt><dd data-ek-selected>Vak 1</dd></div>
@@ -96,7 +113,7 @@
       </dl>
 
       <output data-ek-calibration hidden></output>
-      <p class="ek-configurator__note">Definitieve technische controle en actuele prijs volgen via de BREBO rule-engine en Price Intelligence.</p>
+      <p class="ek-configurator__note">Definitieve technische controle en actuele prijs volgen via de BREBO rule-engine en Price Intelligence per gekozen merk.</p>
     </main>
   </div>
 </section>
