@@ -141,6 +141,15 @@ jobs:
           echo "===== DRUPAL PRECHECK ====="
           "${drush[@]}" status --fields=bootstrap,root,uri --format=list
 
+          echo "===== REQUIRED WEBSITE MODULES ====="
+          "${drush[@]}" en -y brebo_europakozijn
+          europakozijn_status="$("${drush[@]}" pml --type=module --status=enabled --format=list | grep -Fx 'brebo_europakozijn' || true)"
+          [[ "$europakozijn_status" == "brebo_europakozijn" ]] || {
+            echo "::error::brebo_europakozijn is not enabled after deployment."
+            exit 1
+          }
+          echo "EUROPAKOZIJN_MODULE_ENABLED=1"
+
           echo "===== PROJECTS ROUTE GUARD ====="
           "${drush[@]}" php:eval '
             $aliasStorage = \Drupal::entityTypeManager()->getStorage("path_alias");
@@ -203,6 +212,7 @@ jobs:
             modules/custom/brebo_lens/css/brebo-lens.css \
             modules/custom/brebo_lens/js/brebo-lens.js \
             modules/custom/brebo_projects/templates/brebo-projects-overview.html.twig \
+            modules/custom/brebo_europakozijn/brebo_europakozijn.routing.yml \
             themes/custom/brebo_theme/logo.svg; do
             [[ -s "$target/$asset" ]] || {
               echo "::error::Required source asset is missing or empty: $asset"
@@ -235,6 +245,7 @@ jobs:
           homepage_code="$(curl -L -sS -o /tmp/brebo-home.html --max-time 20 -w '%{http_code}' "${public_url}?v=${asset_token}")"
           logo_result="$(curl -L -sS -o /dev/null --max-time 20 -w '%{http_code} %{content_type}' "${public_url}themes/custom/brebo_theme/logo.svg?v=${asset_token}")"
           projects_code="$(curl -L -sS -o /tmp/brebo-projecten.html --max-time 20 -w '%{http_code}' "${public_url}projecten?v=${asset_token}")"
+          europakozijn_code="$(curl -L -sS -o /tmp/brebo-europakozijn.html --max-time 20 -w '%{http_code}' "${public_url}europakozijn/samenstellen?v=${asset_token}")"
           user_code="$(curl -sS -o /dev/null -w '%{http_code}' "${public_url}user?v=${asset_token}")"
           login_code="$(curl -L -sS -o /dev/null -w '%{http_code}' "${public_url}user/login?v=${asset_token}")"
 
@@ -242,6 +253,7 @@ jobs:
           echo "HOMEPAGE_HTTP_CODE=$homepage_code"
           echo "LOGO_RESULT=$logo_result"
           echo "PROJECTS_HTTP_CODE=$projects_code"
+          echo "EUROPAKOZIJN_HTTP_CODE=$europakozijn_code"
           echo "USER_HTTP_CODE=$user_code"
           echo "USER_LOGIN_HTTP_CODE=$login_code"
 
@@ -251,6 +263,7 @@ jobs:
             *) echo "::error::BREBO logo is not publicly available as SVG: $logo_result"; exit 1 ;;
           esac
           [[ "$projects_code" == "200" ]] || { echo "::error::Projects page failed."; exit 1; }
+          [[ "$europakozijn_code" == "200" ]] || { echo "::error::Europakozijn configurator page failed."; exit 1; }
           [[ "$user_code" == "302" ]] || { echo "::error::Anonymous /user must redirect with HTTP 302."; exit 1; }
           [[ "$login_code" == "200" ]] || { echo "::error::User login page failed."; exit 1; }
 
@@ -260,6 +273,10 @@ jobs:
           }
           grep -Fq 'Hier wordt aan gewerkt. Letterlijk.' /tmp/brebo-projecten.html || {
             echo "::error::Public projects page does not render the expected empty-state."
+            exit 1
+          }
+          grep -Fq 'Stel uw kozijn samen' /tmp/brebo-europakozijn.html || {
+            echo "::error::Public Europakozijn page does not render the configurator."
             exit 1
           }
           if grep -Fq 'href="/node/5"' /tmp/brebo-home.html; then
@@ -273,6 +290,7 @@ jobs:
 
           echo "PROJECTS_PUBLIC_RENDER_OK=1"
           echo "PROJECTS_MENU_ROUTE_OK=1"
+          echo "EUROPAKOZIJN_PUBLIC_RENDER_OK=1"
           echo "PUBLIC_ROOT_NORMALIZED=1"
 
           deployed_sha="$(git rev-parse HEAD)"
