@@ -2,5 +2,8 @@ services:
   brebo_europakozijn.configuration_validator:
     class: Drupal\brebo_europakozijn\Validation\ConfigurationValidator
 
+  brebo_europakozijn.product_rule_engine:
+    class: Drupal\brebo_europakozijn\Product\ProductRuleEngine
+
   brebo_europakozijn.price_intelligence:
     class: Drupal\brebo_europakozijn\Pricing\PriceIntelligence
