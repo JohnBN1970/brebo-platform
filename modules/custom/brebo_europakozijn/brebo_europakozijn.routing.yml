@@ -30,6 +30,14 @@ brebo_europakozijn.wind_validate:
     _permission: 'access content'
   methods: [POST]
 
+brebo_europakozijn.glass_advice:
+  path: '/europakozijn/api/glass-advice'
+  defaults:
+    _controller: '\Drupal\brebo_europakozijn\Controller\EuropakozijnGlassAdviceController::advise'
+  requirements:
+    _permission: 'access content'
+  methods: [POST]
+
 brebo_europakozijn.address_lookup:
   path: '/europakozijn/api/address'
   defaults:
