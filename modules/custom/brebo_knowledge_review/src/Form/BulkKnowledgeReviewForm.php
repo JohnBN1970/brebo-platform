@@ -57,13 +57,12 @@ final class BulkKnowledgeReviewForm extends FormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state): array {
     $nodes = $this->loadKnowledgeItems();
-    $snapshot = $form_state->get('revision_snapshot');
+    $snapshot = $form_state->getValue('revision_snapshot');
     if (!is_array($snapshot)) {
       $snapshot = [];
       foreach ($nodes as $node) {
         $snapshot[(int) $node->id()] = (int) $node->getRevisionId();
       }
-      $form_state->set('revision_snapshot', $snapshot);
     }
 
     $topics = [];
@@ -78,6 +77,10 @@ final class BulkKnowledgeReviewForm extends FormBase {
 
     $form['intro'] = [
       '#markup' => '<p><strong>Bulk-reviewcockpit.</strong> Werk per selectie of per kennisgebied. De automatische voorcontrole blokkeert publieke vrijgave als verplichte inhoud, bron of geldigheidscontrole ontbreekt. Goedkeuring is gebonden aan exact de revisie die op dit scherm is beoordeeld. AI-vrijgave blijft altijd uit.</p>',
+    ];
+    $form['revision_snapshot'] = [
+      '#type' => 'value',
+      '#value' => $snapshot,
     ];
     $form['bulk'] = [
       '#type' => 'details',
@@ -151,16 +154,11 @@ final class BulkKnowledgeReviewForm extends FormBase {
     ];
     foreach ($nodes as $node) {
       $nid = (int) $node->id();
-      $revisionId = $snapshot[$nid] ?? 0;
       $basis = (string) $node->get('field_knowledge_basis')->value;
       $topic = $this->lineValue($basis, 'Onderwerp:') ?? '';
       $check = $this->precheck($node);
       $effective = $this->statusStorage->getEffectiveStatus($nid, (int) $node->getRevisionId());
       $form['items'][$nid]['select'] = ['#type' => 'checkbox'];
-      $form['items'][$nid]['revision_id'] = [
-        '#type' => 'hidden',
-        '#value' => $revisionId,
-      ];
       $form['items'][$nid]['topic_key'] = [
         '#type' => 'hidden',
         '#value' => $topic,
@@ -208,7 +206,7 @@ final class BulkKnowledgeReviewForm extends FormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state): void {
     $selected = $this->selectedIds($form_state);
-    $snapshot = $form_state->get('revision_snapshot');
+    $snapshot = $form_state->getValue('revision_snapshot');
     $snapshot = is_array($snapshot) ? $snapshot : [];
     $action = (string) $form_state->getValue('action');
     $bulkSources = trim((string) $form_state->getValue('sources'));
@@ -316,6 +314,8 @@ final class BulkKnowledgeReviewForm extends FormBase {
    */
   private function selectedIds(FormStateInterface $form_state): array {
     $rows = $form_state->getValue('items') ?? [];
+    $snapshot = $form_state->getValue('revision_snapshot');
+    $snapshot = is_array($snapshot) ? $snapshot : [];
     if ((string) $form_state->getValue('selection_scope') === 'topic') {
       $topic = trim((string) $form_state->getValue('topic'));
       if ($topic === '') {
@@ -323,7 +323,7 @@ final class BulkKnowledgeReviewForm extends FormBase {
       }
       $ids = [];
       foreach ($rows as $nid => $row) {
-        if (($row['topic_key'] ?? '') === $topic && !empty($row['revision_id'])) {
+        if (($row['topic_key'] ?? '') === $topic && isset($snapshot[(int) $nid])) {
           $ids[] = (int) $nid;
         }
       }
@@ -331,7 +331,7 @@ final class BulkKnowledgeReviewForm extends FormBase {
     }
     $ids = [];
     foreach ($rows as $nid => $row) {
-      if (!empty($row['select']) && !empty($row['revision_id'])) {
+      if (!empty($row['select']) && isset($snapshot[(int) $nid])) {
         $ids[] = (int) $nid;
       }
     }
