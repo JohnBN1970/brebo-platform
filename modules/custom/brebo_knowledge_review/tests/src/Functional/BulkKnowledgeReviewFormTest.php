@@ -16,31 +16,18 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 #[RunTestsInSeparateProcesses]
 final class BulkKnowledgeReviewFormTest extends BrowserTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
-  protected static $modules = [
-    'node',
-    'text',
-    'brebo_knowledge',
-    'brebo_knowledge_review',
-  ];
+  /** {@inheritdoc} */
+  protected static $modules = ['node', 'text', 'brebo_knowledge', 'brebo_knowledge_review'];
 
-  /**
-   * {@inheritdoc}
-   */
+  /** {@inheritdoc} */
   protected $defaultTheme = 'stark';
 
-  /**
-   * Tests that bulk approval requires explicit confirmation.
-   */
+  /** Tests that bulk approval requires explicit confirmation. */
   public function testBulkApprovalPublishesOnlyAfterExplicitConfirmation(): void {
     $knowledgeItem = $this->createKnowledgeItem();
-
     $path = '/admin/content/brebo-knowledge/review';
     $this->drupalGet($path);
     $this->assertSession()->statusCodeEquals(403);
-
     $reviewer = $this->drupalCreateUser(['review brebo knowledge items']);
     $this->drupalLogin($reviewer);
     $this->drupalGet($path);
@@ -48,56 +35,34 @@ final class BulkKnowledgeReviewFormTest extends BrowserTestBase {
     $this->assertSession()->pageTextContains('Bulk-reviewcockpit');
     $this->assertSession()->pageTextContains('Condens tussen de glasbladen');
     $this->assertSession()->pageTextContains('Controle nodig');
-
-    $this->submitForm([
-      'items[' . $knowledgeItem->id() . '][select]' => TRUE,
-      'action' => 'approve_publish',
-      'sources' => 'BREBO technische beoordeling',
-      'validity_date' => '2026-09-08',
-      'review_note' => 'Eerste gecontroleerde publieke kennisbatch.',
-    ], 'Bulkbesluit toepassen');
+    $this->submitForm(['items[' . $knowledgeItem->id() . '][select]' => TRUE, 'action' => 'approve_publish', 'sources' => 'BREBO technische beoordeling', 'validity_date' => '2026-09-08', 'review_note' => 'Eerste gecontroleerde publieke kennisbatch.'], 'Bulkbesluit toepassen');
     $this->assertSession()->pageTextContains('Bevestig eerst dat alle KnowledgeItems binnen dit bereik inhoudelijk zijn beoordeeld.');
-
-    $this->submitForm([
-      'items[' . $knowledgeItem->id() . '][select]' => TRUE,
-      'action' => 'approve_publish',
-      'sources' => 'BREBO technische beoordeling',
-      'validity_date' => '2026-09-08',
-      'review_note' => 'Eerste gecontroleerde publieke kennisbatch.',
-      'confirmed' => TRUE,
-    ], 'Bulkbesluit toepassen');
-
+    $this->submitForm(['items[' . $knowledgeItem->id() . '][select]' => TRUE, 'action' => 'approve_publish', 'sources' => 'BREBO technische beoordeling', 'validity_date' => '2026-09-08', 'review_note' => 'Eerste gecontroleerde publieke kennisbatch.', 'confirmed' => TRUE], 'Bulkbesluit toepassen');
     $this->assertSession()->pageTextContains('1 KnowledgeItem bijgewerkt.');
-
     $storage = $this->container->get('entity_type.manager')->getStorage('node');
     $storage->resetCache([$knowledgeItem->id()]);
     $reloaded = $storage->load($knowledgeItem->id());
     $this->assertNotNull($reloaded);
     $this->assertTrue($reloaded->isPublished());
-
     $basis = (string) $reloaded->get('field_knowledge_basis')->value;
     $this->assertStringContainsString('Status: approved', $basis);
     $this->assertStringContainsString('Bronnen: BREBO technische beoordeling', $basis);
     $this->assertStringContainsString('Geldigheid: 2026-09-08', $basis);
     $this->assertStringContainsString('Publieke vrijgave: ja', $basis);
     $this->assertStringContainsString('AI-vrijgave: nee', $basis);
-
     $decision = $this->container->get('brebo_knowledge_review.status_storage')->load((int) $knowledgeItem->id());
     $this->assertNotNull($decision);
     $this->assertSame('approved', $decision['status']);
   }
 
-  /**
-   * Tests that approval rejects a revision changed after rendering.
-   */
+  /** Tests that a POST rebuild cannot replace the rendered revision snapshot. */
   public function testBulkApprovalRejectsRevisionChangedAfterRender(): void {
     $knowledgeItem = $this->createKnowledgeItem();
+    $originalRevision = (int) $knowledgeItem->getRevisionId();
     $reviewer = $this->drupalCreateUser(['review brebo knowledge items']);
     $this->drupalLogin($reviewer);
-
     $path = '/admin/content/brebo-knowledge/review';
     $this->drupalGet($path);
-
     $storage = $this->container->get('entity_type.manager')->getStorage('node');
     $storage->resetCache([$knowledgeItem->id()]);
     $changed = $storage->load($knowledgeItem->id());
@@ -105,47 +70,29 @@ final class BulkKnowledgeReviewFormTest extends BrowserTestBase {
     $changed->set('field_knowledge_observation', 'Inhoud gewijzigd nadat de cockpit was geopend.');
     $changed->setNewRevision(TRUE);
     $changed->save();
-
-    $this->submitForm([
-      'items[' . $knowledgeItem->id() . '][select]' => TRUE,
-      'action' => 'approve_publish',
-      'sources' => 'BREBO technische beoordeling',
-      'validity_date' => '2026-09-08',
-      'confirmed' => TRUE,
-    ], 'Bulkbesluit toepassen');
-
+    $this->assertNotSame($originalRevision, (int) $changed->getRevisionId());
+    $this->submitForm(['items[' . $knowledgeItem->id() . '][select]' => TRUE, 'action' => 'approve_publish', 'sources' => 'BREBO technische beoordeling', 'validity_date' => '2026-09-08', 'confirmed' => TRUE], 'Bulkbesluit toepassen');
     $this->assertSession()->pageTextContains('revisie is gewijzigd sinds deze cockpit is geopend');
     $storage->resetCache([$knowledgeItem->id()]);
     $reloaded = $storage->load($knowledgeItem->id());
     $this->assertNotNull($reloaded);
     $this->assertFalse($reloaded->isPublished());
+    $this->assertSame('Inhoud gewijzigd nadat de cockpit was geopend.', (string) $reloaded->get('field_knowledge_observation')->value);
   }
 
-  /**
-   * Tests shared source and validity metadata during in-review.
-   */
+  /** Tests shared source and validity metadata during in-review. */
   public function testInReviewStoresSharedSourceAndValidityMetadata(): void {
     $knowledgeItem = $this->createKnowledgeItem();
     $reviewer = $this->drupalCreateUser(['review brebo knowledge items']);
     $this->drupalLogin($reviewer);
-
     $this->drupalGet('/admin/content/brebo-knowledge/review');
-    $this->submitForm([
-      'items[' . $knowledgeItem->id() . '][select]' => TRUE,
-      'action' => 'in_review',
-      'sources' => 'Technische bron voor voorcontrole',
-      'validity_date' => '2026-09-09',
-      'review_note' => 'Bron en geldigheid alvast geregistreerd.',
-    ], 'Bulkbesluit toepassen');
-
+    $this->submitForm(['items[' . $knowledgeItem->id() . '][select]' => TRUE, 'action' => 'in_review', 'sources' => 'Technische bron voor voorcontrole', 'validity_date' => '2026-09-09', 'review_note' => 'Bron en geldigheid alvast geregistreerd.'], 'Bulkbesluit toepassen');
     $this->assertSession()->pageTextContains('1 KnowledgeItem bijgewerkt.');
-
     $storage = $this->container->get('entity_type.manager')->getStorage('node');
     $storage->resetCache([$knowledgeItem->id()]);
     $reloaded = $storage->load($knowledgeItem->id());
     $this->assertNotNull($reloaded);
     $this->assertFalse($reloaded->isPublished());
-
     $basis = (string) $reloaded->get('field_knowledge_basis')->value;
     $this->assertStringContainsString('Status: review', $basis);
     $this->assertStringContainsString('Bronnen: Technische bron voor voorcontrole', $basis);
@@ -154,9 +101,7 @@ final class BulkKnowledgeReviewFormTest extends BrowserTestBase {
     $this->assertStringContainsString('AI-vrijgave: nee', $basis);
   }
 
-  /**
-   * Creates a canonical KnowledgeItem fixture for the tests.
-   */
+  /** Creates a canonical KnowledgeItem fixture for the tests. */
   private function createKnowledgeItem(): Node {
     $knowledgeItem = Node::create([
       'type' => 'brebo_knowledge_item',
