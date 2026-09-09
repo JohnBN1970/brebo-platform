@@ -1,0 +1,1 @@
+Rollback point: e2b6edb23140d666ab97eb11e67ca49411f85b14 (merge of PR #137). Remove europakozijn-control-truth-gate.js and its library entry to restore the prior control-screen behavior.
