@@ -26,19 +26,7 @@ final class BulkKnowledgeReviewFormTest extends BrowserTestBase {
   protected $defaultTheme = 'stark';
 
   public function testBulkApprovalPublishesOnlyAfterExplicitConfirmation(): void {
-    $knowledgeItem = Node::create([
-      'type' => 'brebo_knowledge_item',
-      'title' => 'Condens tussen de glasbladen',
-      'status' => 0,
-      'field_knowledge_observation' => 'Er is blijvende condens of waas tussen de glasbladen zichtbaar.',
-      'field_knowledge_meaning' => 'Dit kan wijzen op verlies van de randafdichting van de isolatieglaseenheid.',
-      'field_knowledge_risk' => 'Technische prestatie, doorzicht en esthetische kwaliteit moeten afzonderlijk worden beoordeeld.',
-      'field_knowledge_next_step' => 'Stel vast waar de condens zich bevindt en beoordeel glas, sponning en kozijn.',
-      'field_knowledge_basis' => "BREBO-WEB-SEED:condens-tussen-glasbladen\nStatus: editorial\nOnderwerp: glas\nBronnen: nog niet vastgesteld\nGeldigheid: nog niet gecontroleerd\nDeskundige controle: nog niet uitgevoerd\nPublieke vrijgave: nee\nAI-vrijgave: nee",
-      'field_knowledge_regie' => '',
-      'field_knowledge_realization' => '',
-    ]);
-    $knowledgeItem->save();
+    $knowledgeItem = $this->createKnowledgeItem();
 
     $path = '/admin/content/brebo-knowledge/review';
     $this->drupalGet($path);
@@ -59,7 +47,7 @@ final class BulkKnowledgeReviewFormTest extends BrowserTestBase {
       'validity_date' => '2026-09-08',
       'review_note' => 'Eerste gecontroleerde publieke kennisbatch.',
     ], 'Bulkbesluit toepassen');
-    $this->assertSession()->pageTextContains('Bevestig eerst dat de geselecteerde inhoud inhoudelijk is beoordeeld.');
+    $this->assertSession()->pageTextContains('Bevestig eerst dat alle KnowledgeItems binnen dit bereik inhoudelijk zijn beoordeeld.');
 
     $this->submitForm([
       'items[' . $knowledgeItem->id() . '][select]' => TRUE,
@@ -88,6 +76,84 @@ final class BulkKnowledgeReviewFormTest extends BrowserTestBase {
     $decision = $this->container->get('brebo_knowledge_review.status_storage')->load((int) $knowledgeItem->id());
     $this->assertNotNull($decision);
     $this->assertSame('approved', $decision['status']);
+  }
+
+  public function testBulkApprovalRejectsRevisionChangedAfterRender(): void {
+    $knowledgeItem = $this->createKnowledgeItem();
+    $reviewer = $this->drupalCreateUser(['review brebo knowledge items']);
+    $this->drupalLogin($reviewer);
+
+    $path = '/admin/content/brebo-knowledge/review';
+    $this->drupalGet($path);
+
+    $storage = $this->container->get('entity_type.manager')->getStorage('node');
+    $storage->resetCache([$knowledgeItem->id()]);
+    $changed = $storage->load($knowledgeItem->id());
+    $this->assertNotNull($changed);
+    $changed->set('field_knowledge_observation', 'Inhoud gewijzigd nadat de cockpit was geopend.');
+    $changed->setNewRevision(TRUE);
+    $changed->save();
+
+    $this->submitForm([
+      'items[' . $knowledgeItem->id() . '][select]' => TRUE,
+      'action' => 'approve_publish',
+      'sources' => 'BREBO technische beoordeling',
+      'validity_date' => '2026-09-08',
+      'confirmed' => TRUE,
+    ], 'Bulkbesluit toepassen');
+
+    $this->assertSession()->pageTextContains('revisie is gewijzigd sinds deze cockpit is geopend');
+    $storage->resetCache([$knowledgeItem->id()]);
+    $reloaded = $storage->load($knowledgeItem->id());
+    $this->assertNotNull($reloaded);
+    $this->assertFalse($reloaded->isPublished());
+  }
+
+  public function testInReviewStoresSharedSourceAndValidityMetadata(): void {
+    $knowledgeItem = $this->createKnowledgeItem();
+    $reviewer = $this->drupalCreateUser(['review brebo knowledge items']);
+    $this->drupalLogin($reviewer);
+
+    $this->drupalGet('/admin/content/brebo-knowledge/review');
+    $this->submitForm([
+      'items[' . $knowledgeItem->id() . '][select]' => TRUE,
+      'action' => 'in_review',
+      'sources' => 'Technische bron voor voorcontrole',
+      'validity_date' => '2026-09-09',
+      'review_note' => 'Bron en geldigheid alvast geregistreerd.',
+    ], 'Bulkbesluit toepassen');
+
+    $this->assertSession()->pageTextContains('1 KnowledgeItem bijgewerkt.');
+
+    $storage = $this->container->get('entity_type.manager')->getStorage('node');
+    $storage->resetCache([$knowledgeItem->id()]);
+    $reloaded = $storage->load($knowledgeItem->id());
+    $this->assertNotNull($reloaded);
+    $this->assertFalse($reloaded->isPublished());
+
+    $basis = (string) $reloaded->get('field_knowledge_basis')->value;
+    $this->assertStringContainsString('Status: review', $basis);
+    $this->assertStringContainsString('Bronnen: Technische bron voor voorcontrole', $basis);
+    $this->assertStringContainsString('Geldigheid: 2026-09-09', $basis);
+    $this->assertStringContainsString('Publieke vrijgave: nee', $basis);
+    $this->assertStringContainsString('AI-vrijgave: nee', $basis);
+  }
+
+  private function createKnowledgeItem(): Node {
+    $knowledgeItem = Node::create([
+      'type' => 'brebo_knowledge_item',
+      'title' => 'Condens tussen de glasbladen',
+      'status' => 0,
+      'field_knowledge_observation' => 'Er is blijvende condens of waas tussen de glasbladen zichtbaar.',
+      'field_knowledge_meaning' => 'Dit kan wijzen op verlies van de randafdichting van de isolatieglaseenheid.',
+      'field_knowledge_risk' => 'Technische prestatie, doorzicht en esthetische kwaliteit moeten afzonderlijk worden beoordeeld.',
+      'field_knowledge_next_step' => 'Stel vast waar de condens zich bevindt en beoordeel glas, sponning en kozijn.',
+      'field_knowledge_basis' => "BREBO-WEB-SEED:condens-tussen-glasbladen\nStatus: editorial\nOnderwerp: glas\nBronnen: nog niet vastgesteld\nGeldigheid: nog niet gecontroleerd\nDeskundige controle: nog niet uitgevoerd\nPublieke vrijgave: nee\nAI-vrijgave: nee",
+      'field_knowledge_regie' => '',
+      'field_knowledge_realization' => '',
+    ]);
+    $knowledgeItem->save();
+    return $knowledgeItem;
   }
 
 }
