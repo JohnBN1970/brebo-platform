@@ -57,6 +57,15 @@ final class BulkKnowledgeReviewForm extends FormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state): array {
     $nodes = $this->loadKnowledgeItems();
+    $snapshot = $form_state->get('revision_snapshot');
+    if (!is_array($snapshot)) {
+      $snapshot = [];
+      foreach ($nodes as $node) {
+        $snapshot[(int) $node->id()] = (int) $node->getRevisionId();
+      }
+      $form_state->set('revision_snapshot', $snapshot);
+    }
+
     $topics = [];
     foreach ($nodes as $node) {
       $basis = (string) $node->get('field_knowledge_basis')->value;
@@ -70,95 +79,32 @@ final class BulkKnowledgeReviewForm extends FormBase {
     $form['intro'] = [
       '#markup' => '<p><strong>Bulk-reviewcockpit.</strong> Werk per selectie of per kennisgebied. De automatische voorcontrole blokkeert publieke vrijgave als verplichte inhoud, bron of geldigheidscontrole ontbreekt. Goedkeuring is gebonden aan exact de revisie die op dit scherm is beoordeeld. AI-vrijgave blijft altijd uit.</p>',
     ];
-
-    $form['bulk'] = [
-      '#type' => 'details',
-      '#title' => $this->t('Besluit voor KnowledgeItems'),
-      '#open' => TRUE,
-    ];
-    $form['bulk']['selection_scope'] = [
-      '#type' => 'select',
-      '#title' => $this->t('Bereik'),
-      '#options' => [
-        'manual' => $this->t('Alleen handmatig aangevinkte items'),
-        'topic' => $this->t('Alle zichtbare items van één kennisgebied'),
-      ],
-      '#default_value' => 'manual',
-      '#required' => TRUE,
-    ];
-    $form['bulk']['topic'] = [
-      '#type' => 'select',
-      '#title' => $this->t('Kennisgebied'),
-      '#options' => ['' => $this->t('- Kies kennisgebied -')] + $topics,
-      '#description' => $this->t('Wordt alleen gebruikt als het bereik op één kennisgebied staat.'),
-    ];
-    $form['bulk']['action'] = [
-      '#type' => 'select',
-      '#title' => $this->t('Bulkactie'),
-      '#options' => [
-        'in_review' => $this->t('Markeer als in beoordeling'),
-        'approve_publish' => $this->t('Goedkeuren en publiek vrijgeven'),
-        'unpublish' => $this->t('Publieke vrijgave intrekken'),
-      ],
-      '#required' => TRUE,
-    ];
-    $form['bulk']['sources'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Bronnen voor deze batch'),
-      '#description' => $this->t('Scheid meerdere bronnen met een puntkomma. Leeg laten behoudt reeds vastgelegde bronnen. Ingevulde bronnen worden ook bij In beoordeling of Intrekken opgeslagen.'),
-      '#maxlength' => 512,
-    ];
-    $form['bulk']['validity_date'] = [
-      '#type' => 'date',
-      '#title' => $this->t('Geldigheid gecontroleerd op'),
-      '#description' => $this->t('Leeg laten behoudt de bestaande geldigheidsdatum. Een ingevulde datum wordt bij iedere bulkactie opgeslagen.'),
-    ];
-    $form['bulk']['review_note'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Reviewtoelichting'),
-      '#maxlength' => 255,
-      '#description' => $this->t('Wordt vastgelegd bij het bulkbesluit en de nieuwe revisie.'),
-    ];
-    $form['bulk']['confirmed'] = [
-      '#type' => 'checkbox',
-      '#title' => $this->t('Ik bevestig dat ik de inhoud van alle items binnen dit bereik inhoudelijk heb beoordeeld.'),
-    ];
+    $form['bulk'] = ['#type' => 'details', '#title' => $this->t('Besluit voor KnowledgeItems'), '#open' => TRUE];
+    $form['bulk']['selection_scope'] = ['#type' => 'select', '#title' => $this->t('Bereik'), '#options' => ['manual' => $this->t('Alleen handmatig aangevinkte items'), 'topic' => $this->t('Alle zichtbare items van één kennisgebied')], '#default_value' => 'manual', '#required' => TRUE];
+    $form['bulk']['topic'] = ['#type' => 'select', '#title' => $this->t('Kennisgebied'), '#options' => ['' => $this->t('- Kies kennisgebied -')] + $topics, '#description' => $this->t('Wordt alleen gebruikt als het bereik op één kennisgebied staat.')];
+    $form['bulk']['action'] = ['#type' => 'select', '#title' => $this->t('Bulkactie'), '#options' => ['in_review' => $this->t('Markeer als in beoordeling'), 'approve_publish' => $this->t('Goedkeuren en publiek vrijgeven'), 'unpublish' => $this->t('Publieke vrijgave intrekken')], '#required' => TRUE];
+    $form['bulk']['sources'] = ['#type' => 'textfield', '#title' => $this->t('Bronnen voor deze batch'), '#description' => $this->t('Scheid meerdere bronnen met een puntkomma. Leeg laten behoudt reeds vastgelegde bronnen. Ingevulde bronnen worden ook bij In beoordeling of Intrekken opgeslagen.'), '#maxlength' => 512];
+    $form['bulk']['validity_date'] = ['#type' => 'date', '#title' => $this->t('Geldigheid gecontroleerd op'), '#description' => $this->t('Leeg laten behoudt de bestaande geldigheidsdatum. Een ingevulde datum wordt bij iedere bulkactie opgeslagen.')];
+    $form['bulk']['review_note'] = ['#type' => 'textfield', '#title' => $this->t('Reviewtoelichting'), '#maxlength' => 255, '#description' => $this->t('Wordt vastgelegd bij het bulkbesluit en de nieuwe revisie.')];
+    $form['bulk']['confirmed'] = ['#type' => 'checkbox', '#title' => $this->t('Ik bevestig dat ik de inhoud van alle items binnen dit bereik inhoudelijk heb beoordeeld.')];
 
     $form['items'] = [
       '#type' => 'table',
-      '#header' => [
-        $this->t('Selecteer'),
-        $this->t('Voorcontrole'),
-        $this->t('KnowledgeItem'),
-        $this->t('Onderwerp'),
-        $this->t('Reviewstatus'),
-        $this->t('Bron'),
-        $this->t('Geldigheid'),
-        $this->t('Publiek'),
-        $this->t('Detail'),
-      ],
+      '#header' => [$this->t('Selecteer'), $this->t('Voorcontrole'), $this->t('KnowledgeItem'), $this->t('Onderwerp'), $this->t('Reviewstatus'), $this->t('Bron'), $this->t('Geldigheid'), $this->t('Publiek'), $this->t('Detail')],
       '#tree' => TRUE,
       '#empty' => $this->t('Geen KnowledgeItems gevonden.'),
       '#sticky' => TRUE,
     ];
-
     foreach ($nodes as $node) {
       $nid = (int) $node->id();
-      $revisionId = (int) $node->getRevisionId();
+      $revisionId = $snapshot[$nid] ?? 0;
       $basis = (string) $node->get('field_knowledge_basis')->value;
       $topic = $this->lineValue($basis, 'Onderwerp:') ?? '';
       $check = $this->precheck($node);
-      $effective = $this->statusStorage->getEffectiveStatus($nid, $revisionId);
-
+      $effective = $this->statusStorage->getEffectiveStatus($nid, (int) $node->getRevisionId());
       $form['items'][$nid]['select'] = ['#type' => 'checkbox'];
-      $form['items'][$nid]['revision_id'] = [
-        '#type' => 'hidden',
-        '#value' => $revisionId,
-      ];
-      $form['items'][$nid]['topic_key'] = [
-        '#type' => 'hidden',
-        '#value' => $topic,
-      ];
+      $form['items'][$nid]['revision_id'] = ['#type' => 'hidden', '#value' => $revisionId];
+      $form['items'][$nid]['topic_key'] = ['#type' => 'hidden', '#value' => $topic];
       $form['items'][$nid]['signal'] = ['#markup' => $check['label']];
       $form['items'][$nid]['title'] = ['#plain_text' => (string) $node->label()];
       $form['items'][$nid]['topic'] = ['#plain_text' => $topic !== '' ? $topic : '—'];
@@ -166,47 +112,34 @@ final class BulkKnowledgeReviewForm extends FormBase {
       $form['items'][$nid]['source'] = ['#plain_text' => $this->meaningfulValue($this->lineValue($basis, 'Bronnen:')) ?? '—'];
       $form['items'][$nid]['validity'] = ['#plain_text' => $this->meaningfulValue($this->lineValue($basis, 'Geldigheid:')) ?? '—'];
       $form['items'][$nid]['public'] = ['#plain_text' => $node->isPublished() ? 'Ja' : 'Nee'];
-      $form['items'][$nid]['edit'] = [
-        '#markup' => Link::fromTextAndUrl('Open', Url::fromRoute('brebo_knowledge_review.review', ['node' => $nid]))->toString(),
-      ];
+      $form['items'][$nid]['edit'] = ['#markup' => Link::fromTextAndUrl('Open', Url::fromRoute('brebo_knowledge_review.review', ['node' => $nid]))->toString()];
     }
-
     $form['actions'] = ['#type' => 'actions'];
-    $form['actions']['apply'] = [
-      '#type' => 'submit',
-      '#value' => $this->t('Bulkbesluit toepassen'),
-      '#button_type' => 'primary',
-    ];
-
+    $form['actions']['apply'] = ['#type' => 'submit', '#value' => $this->t('Bulkbesluit toepassen'), '#button_type' => 'primary'];
     $form['#cache']['max-age'] = 0;
     return $form;
   }
 
-  /**
-   * {@inheritdoc}
-   */
+  /** {@inheritdoc} */
   public function validateForm(array &$form, FormStateInterface $form_state): void {
     if ((string) $form_state->getValue('selection_scope') === 'topic' && trim((string) $form_state->getValue('topic')) === '') {
       $form_state->setErrorByName('topic', $this->t('Kies een kennisgebied voor deze batch.'));
       return;
     }
-
     if ($this->selectedIds($form_state) === []) {
       $form_state->setErrorByName('items', $this->t('Dit bereik bevat geen KnowledgeItems.'));
       return;
     }
-
     if ((string) $form_state->getValue('action') === 'approve_publish' && !$form_state->getValue('confirmed')) {
       $form_state->setErrorByName('confirmed', $this->t('Bevestig eerst dat alle KnowledgeItems binnen dit bereik inhoudelijk zijn beoordeeld.'));
     }
   }
 
-  /**
-   * {@inheritdoc}
-   */
+  /** {@inheritdoc} */
   public function submitForm(array &$form, FormStateInterface $form_state): void {
     $selected = $this->selectedIds($form_state);
-    $rows = $form_state->getValue('items') ?? [];
+    $snapshot = $form_state->get('revision_snapshot');
+    $snapshot = is_array($snapshot) ? $snapshot : [];
     $action = (string) $form_state->getValue('action');
     $bulkSources = trim((string) $form_state->getValue('sources'));
     $bulkValidity = trim((string) $form_state->getValue('validity_date'));
@@ -215,39 +148,33 @@ final class BulkKnowledgeReviewForm extends FormBase {
     $nodes = $storage->loadMultiple($selected);
     $updated = 0;
     $blocked = [];
-
     foreach ($nodes as $node) {
       if (!$node instanceof NodeInterface || $node->bundle() !== 'brebo_knowledge_item') {
         continue;
       }
-
       $nid = (int) $node->id();
-      $expectedRevisionId = isset($rows[$nid]['revision_id']) ? (int) $rows[$nid]['revision_id'] : 0;
+      $expectedRevisionId = isset($snapshot[$nid]) ? (int) $snapshot[$nid] : 0;
       if ($action === 'approve_publish' && ($expectedRevisionId === 0 || $expectedRevisionId !== (int) $node->getRevisionId())) {
         $blocked[] = $node->label() . ': revisie is gewijzigd sinds deze cockpit is geopend; laad de pagina opnieuw en beoordeel de actuele revisie.';
         continue;
       }
-
       $basis = (string) $node->get('field_knowledge_basis')->value;
       $existingSources = $this->meaningfulValue($this->lineValue($basis, 'Bronnen:')) ?? '';
       $existingValidity = $this->meaningfulValue($this->lineValue($basis, 'Geldigheid:')) ?? '';
       $sources = $bulkSources !== '' ? ($this->meaningfulValue($bulkSources) ?? '') : $existingSources;
       $validity = $bulkValidity !== '' ? ($this->meaningfulValue($bulkValidity) ?? '') : $existingValidity;
-
       if ($bulkSources !== '') {
         $basis = $this->setLine($basis, 'Bronnen:', $sources);
       }
       if ($bulkValidity !== '') {
         $basis = $this->setLine($basis, 'Geldigheid:', $validity);
       }
-
       if ($action === 'approve_publish') {
         $check = $this->precheck($node, $sources, $validity);
         if (!$check['publishable']) {
           $blocked[] = $node->label() . ': ' . implode(', ', $check['reasons']);
           continue;
         }
-
         $basis = $this->setLine($basis, 'Status:', 'approved');
         $basis = $this->setLine($basis, 'Bronnen:', $sources);
         $basis = $this->setLine($basis, 'Geldigheid:', $validity);
@@ -270,26 +197,15 @@ final class BulkKnowledgeReviewForm extends FormBase {
         $node->setUnpublished();
         $reviewStatus = 'in_review';
       }
-
       $node->set('field_knowledge_basis', $basis);
       $node->setNewRevision(TRUE);
       $node->setRevisionUserId((int) $this->currentUser()->id());
       $node->setRevisionLogMessage($note !== '' ? $note : 'Bulkbesluit BREBO Knowledge Review.');
       $node->save();
-
-      $this->statusStorage->save(
-        $nid,
-        (int) $node->getRevisionId(),
-        $reviewStatus,
-        (int) $this->currentUser()->id(),
-        time(),
-        $note,
-      );
+      $this->statusStorage->save($nid, (int) $node->getRevisionId(), $reviewStatus, (int) $this->currentUser()->id(), time(), $note);
       $updated++;
     }
-
     Cache::invalidateTags(['brebo_public_knowledge']);
-
     if ($updated > 0) {
       $this->messenger()->addStatus($this->formatPlural($updated, '1 KnowledgeItem bijgewerkt.', '@count KnowledgeItems bijgewerkt.'));
     }
@@ -307,11 +223,7 @@ final class BulkKnowledgeReviewForm extends FormBase {
    */
   private function loadKnowledgeItems(): array {
     $storage = $this->entityTypeManager->getStorage('node');
-    $ids = $storage->getQuery()
-      ->accessCheck(FALSE)
-      ->condition('type', 'brebo_knowledge_item')
-      ->sort('title')
-      ->execute();
+    $ids = $storage->getQuery()->accessCheck(FALSE)->condition('type', 'brebo_knowledge_item')->sort('title')->execute();
     return $ids === [] ? [] : $storage->loadMultiple($ids);
   }
 
@@ -336,7 +248,6 @@ final class BulkKnowledgeReviewForm extends FormBase {
       }
       return $ids;
     }
-
     $ids = [];
     foreach ($rows as $nid => $row) {
       if (!empty($row['select']) && !empty($row['revision_id'])) {
@@ -360,7 +271,6 @@ final class BulkKnowledgeReviewForm extends FormBase {
         break;
       }
     }
-
     $basis = (string) ($node->get('field_knowledge_basis')->value ?? '');
     if ($this->lineValue($basis, 'BREBO-WEB-SEED:') === NULL) {
       $reasons[] = 'seed-identiteit ontbreekt';
@@ -368,21 +278,14 @@ final class BulkKnowledgeReviewForm extends FormBase {
     if ($this->lineValue($basis, 'Onderwerp:') === NULL) {
       $reasons[] = 'onderwerp ontbreekt';
     }
-
-    $source = $sourceOverride !== NULL
-      ? ($this->meaningfulValue($sourceOverride) ?? '')
-      : ($this->meaningfulValue($this->lineValue($basis, 'Bronnen:')) ?? '');
-    $validity = $validityOverride !== NULL
-      ? ($this->meaningfulValue($validityOverride) ?? '')
-      : ($this->meaningfulValue($this->lineValue($basis, 'Geldigheid:')) ?? '');
-
+    $source = $sourceOverride !== NULL ? ($this->meaningfulValue($sourceOverride) ?? '') : ($this->meaningfulValue($this->lineValue($basis, 'Bronnen:')) ?? '');
+    $validity = $validityOverride !== NULL ? ($this->meaningfulValue($validityOverride) ?? '') : ($this->meaningfulValue($this->lineValue($basis, 'Geldigheid:')) ?? '');
     if ($source === '') {
       $reasons[] = 'bron ontbreekt';
     }
     if ($validity === '') {
       $reasons[] = 'geldigheidscontrole ontbreekt';
     }
-
     if ($reasons === []) {
       return ['label' => '🟢 Publiceerbaar', 'publishable' => TRUE, 'reasons' => []];
     }
@@ -392,21 +295,12 @@ final class BulkKnowledgeReviewForm extends FormBase {
     return ['label' => '🟠 Controle nodig', 'publishable' => FALSE, 'reasons' => $reasons];
   }
 
-  /**
-   * Returns the human-readable label for a review status.
-   */
+  /** Returns the human-readable label for a review status. */
   private function statusLabel(string $status): string {
-    return match ($status) {
-      'approved' => 'Goedgekeurd',
-      'in_review' => 'In beoordeling',
-      'changes_required' => 'Herziening nodig',
-      default => 'Te beoordelen',
-    };
+    return match ($status) {'approved' => 'Goedgekeurd', 'in_review' => 'In beoordeling', 'changes_required' => 'Herziening nodig', default => 'Te beoordelen'};
   }
 
-  /**
-   * Reads a prefixed metadata line from the basis text.
-   */
+  /** Reads a prefixed metadata line from the basis text. */
   private function lineValue(string $text, string $prefix): ?string {
     foreach (preg_split('/\R/', $text) ?: [] as $line) {
       $line = trim($line);
@@ -418,9 +312,7 @@ final class BulkKnowledgeReviewForm extends FormBase {
     return NULL;
   }
 
-  /**
-   * Normalizes placeholder metadata to an empty value.
-   */
+  /** Normalizes placeholder metadata to an empty value. */
   private function meaningfulValue(?string $value): ?string {
     if ($value === NULL) {
       return NULL;
@@ -434,14 +326,11 @@ final class BulkKnowledgeReviewForm extends FormBase {
     return trim($value) !== '' ? trim($value) : NULL;
   }
 
-  /**
-   * Replaces or appends a prefixed metadata line.
-   */
+  /** Replaces or appends a prefixed metadata line. */
   private function setLine(string $text, string $prefix, string $value): string {
     $lines = preg_split('/\R/', $text) ?: [];
     $replacement = $prefix . ' ' . trim($value);
     $found = FALSE;
-
     foreach ($lines as &$line) {
       if (str_starts_with(trim($line), $prefix)) {
         $line = $replacement;
@@ -450,7 +339,6 @@ final class BulkKnowledgeReviewForm extends FormBase {
       }
     }
     unset($line);
-
     if (!$found) {
       $lines[] = $replacement;
     }
