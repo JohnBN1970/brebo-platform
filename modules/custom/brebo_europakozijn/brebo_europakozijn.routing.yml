@@ -22,6 +22,14 @@ brebo_europakozijn.rule_validate:
     _permission: 'access content'
   methods: [POST]
 
+brebo_europakozijn.wind_validate:
+  path: '/europakozijn/api/wind'
+  defaults:
+    _controller: '\Drupal\brebo_europakozijn\Controller\EuropakozijnWindValidationController::validate'
+  requirements:
+    _permission: 'access content'
+  methods: [POST]
+
 brebo_europakozijn.address_lookup:
   path: '/europakozijn/api/address'
   defaults:

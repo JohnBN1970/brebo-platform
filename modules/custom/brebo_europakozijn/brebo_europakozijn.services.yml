@@ -7,3 +7,6 @@ services:
 
   brebo_europakozijn.price_intelligence:
     class: Drupal\brebo_europakozijn\Pricing\PriceIntelligence
+
+  brebo_europakozijn.wind_load_calculator:
+    class: Drupal\brebo_europakozijn\Wind\WindLoadCalculator
