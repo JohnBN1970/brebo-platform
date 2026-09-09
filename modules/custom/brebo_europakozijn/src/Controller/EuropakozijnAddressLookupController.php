@@ -6,7 +6,6 @@ namespace Drupal\brebo_europakozijn\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use GuzzleHttp\ClientInterface;
-use JsonException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -53,7 +52,7 @@ final class EuropakozijnAddressLookupController extends ControllerBase {
       ]);
       $payload = json_decode((string) $response->getBody(), TRUE, 512, JSON_THROW_ON_ERROR);
     }
-    catch (JsonException | Throwable $exception) {
+    catch (Throwable $exception) {
       return new JsonResponse([
         'found' => FALSE,
         'message' => 'De officiële adrescontrole is tijdelijk niet beschikbaar.',
