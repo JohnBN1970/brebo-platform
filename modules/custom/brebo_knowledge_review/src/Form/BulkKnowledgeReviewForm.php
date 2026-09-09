@@ -120,7 +120,9 @@ final class BulkKnowledgeReviewForm extends FormBase {
     return $form;
   }
 
-  /** {@inheritdoc} */
+  /**
+   * {@inheritdoc}
+   */
   public function validateForm(array &$form, FormStateInterface $form_state): void {
     if ((string) $form_state->getValue('selection_scope') === 'topic' && trim((string) $form_state->getValue('topic')) === '') {
       $form_state->setErrorByName('topic', $this->t('Kies een kennisgebied voor deze batch.'));
@@ -135,7 +137,9 @@ final class BulkKnowledgeReviewForm extends FormBase {
     }
   }
 
-  /** {@inheritdoc} */
+  /**
+   * {@inheritdoc}
+   */
   public function submitForm(array &$form, FormStateInterface $form_state): void {
     $selected = $this->selectedIds($form_state);
     $snapshot = $form_state->get('revision_snapshot');
@@ -295,12 +299,16 @@ final class BulkKnowledgeReviewForm extends FormBase {
     return ['label' => '🟠 Controle nodig', 'publishable' => FALSE, 'reasons' => $reasons];
   }
 
-  /** Returns the human-readable label for a review status. */
+  /**
+   * Returns the human-readable label for a review status.
+   */
   private function statusLabel(string $status): string {
     return match ($status) {'approved' => 'Goedgekeurd', 'in_review' => 'In beoordeling', 'changes_required' => 'Herziening nodig', default => 'Te beoordelen'};
   }
 
-  /** Reads a prefixed metadata line from the basis text. */
+  /**
+   * Reads a prefixed metadata line from the basis text.
+   */
   private function lineValue(string $text, string $prefix): ?string {
     foreach (preg_split('/\R/', $text) ?: [] as $line) {
       $line = trim($line);
@@ -312,7 +320,9 @@ final class BulkKnowledgeReviewForm extends FormBase {
     return NULL;
   }
 
-  /** Normalizes placeholder metadata to an empty value. */
+  /**
+   * Normalizes placeholder metadata to an empty value.
+   */
   private function meaningfulValue(?string $value): ?string {
     if ($value === NULL) {
       return NULL;
@@ -326,7 +336,9 @@ final class BulkKnowledgeReviewForm extends FormBase {
     return trim($value) !== '' ? trim($value) : NULL;
   }
 
-  /** Replaces or appends a prefixed metadata line. */
+  /**
+   * Replaces or appends a prefixed metadata line.
+   */
   private function setLine(string $text, string $prefix, string $value): string {
     $lines = preg_split('/\R/', $text) ?: [];
     $replacement = $prefix . ' ' . trim($value);
