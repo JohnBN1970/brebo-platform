@@ -94,6 +94,7 @@ final class BulkKnowledgeReviewFormTest extends BrowserTestBase {
     $this->drupalLogin($reviewer);
     $path = '/admin/content/brebo-knowledge/review';
     $this->drupalGet($path);
+    $this->assertSession()->elementExists('css', 'input[name="form_build_id"]');
 
     $storage = $this->container->get('entity_type.manager')->getStorage('node');
     $storage->resetCache([$knowledgeItem->id()]);
