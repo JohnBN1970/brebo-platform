@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\brebo_europakozijn\Controller;
 
+use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Controller\ControllerBase;
 use GuzzleHttp\ClientInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -20,12 +21,18 @@ final class EuropakozijnAddressLookupController extends ControllerBase {
    */
   private const ADDRESSES_URL = 'https://api.pdok.nl/kadaster/bag/ogc/v2-demo/collections/adres/items';
 
+  private const CACHE_TTL = 86400;
+
   public function __construct(
     private readonly ClientInterface $httpClient,
+    private readonly CacheBackendInterface $cache,
   ) {}
 
   public static function create(ContainerInterface $container): self {
-    return new self($container->get('http_client'));
+    return new self(
+      $container->get('http_client'),
+      $container->get('cache.default'),
+    );
   }
 
   public function lookup(Request $request): JsonResponse {
@@ -41,6 +48,12 @@ final class EuropakozijnAddressLookupController extends ControllerBase {
 
     $houseNumber = (int) $match[1];
     $suffix = strtoupper(preg_replace('/[^A-Z0-9]/', '', trim((string) ($match[2] ?? ''))) ?? '');
+    $cacheId = 'brebo_europakozijn:pdok_address:' . hash('sha256', $postcode . '|' . $houseNumber . '|' . $suffix);
+
+    if ($cached = $this->cache->get($cacheId)) {
+      return new JsonResponse($cached->data, 200, ['X-BREBO-PDOK-Cache' => 'HIT']);
+    }
+
     $filter = sprintf("postcode='%s' AND huisnummer=%d", str_replace("'", "''", $postcode), $houseNumber);
 
     try {
@@ -52,7 +65,8 @@ final class EuropakozijnAddressLookupController extends ControllerBase {
           'filter-lang' => 'cql2-text',
         ],
         'headers' => ['Accept' => 'application/geo+json, application/json'],
-        'timeout' => 10,
+        'connect_timeout' => 2,
+        'timeout' => 5,
       ]);
       $payload = json_decode((string) $response->getBody(), TRUE, 512, JSON_THROW_ON_ERROR);
     }
@@ -105,11 +119,14 @@ final class EuropakozijnAddressLookupController extends ControllerBase {
     $displayNumber = $address['house_number'] . ($address['house_letter'] ?? '') . (($address['addition'] ?? '') !== '' ? '-' . $address['addition'] : '');
     $address['display'] = trim(sprintf('%s %s, %s %s', $address['street'] ?? '', $displayNumber, $address['postal_code'] ?? '', $address['city'] ?? ''));
 
-    return new JsonResponse([
+    $result = [
       'found' => TRUE,
       'source' => 'PDOK/BAG',
       'address' => $address,
-    ]);
+    ];
+    $this->cache->set($cacheId, $result, time() + self::CACHE_TTL);
+
+    return new JsonResponse($result, 200, ['X-BREBO-PDOK-Cache' => 'MISS']);
   }
 
 }
