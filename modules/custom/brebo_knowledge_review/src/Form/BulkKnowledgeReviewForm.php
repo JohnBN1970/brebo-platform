@@ -56,13 +56,15 @@ final class BulkKnowledgeReviewForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state): array {
+    $form_state->setCached(TRUE);
     $nodes = $this->loadKnowledgeItems();
-    $snapshot = $form_state->getValue('revision_snapshot');
+    $snapshot = $form_state->get('revision_snapshot');
     if (!is_array($snapshot)) {
       $snapshot = [];
       foreach ($nodes as $node) {
         $snapshot[(int) $node->id()] = (int) $node->getRevisionId();
       }
+      $form_state->set('revision_snapshot', $snapshot);
     }
 
     $topics = [];
@@ -77,10 +79,6 @@ final class BulkKnowledgeReviewForm extends FormBase {
 
     $form['intro'] = [
       '#markup' => '<p><strong>Bulk-reviewcockpit.</strong> Werk per selectie of per kennisgebied. De automatische voorcontrole blokkeert publieke vrijgave als verplichte inhoud, bron of geldigheidscontrole ontbreekt. Goedkeuring is gebonden aan exact de revisie die op dit scherm is beoordeeld. AI-vrijgave blijft altijd uit.</p>',
-    ];
-    $form['revision_snapshot'] = [
-      '#type' => 'value',
-      '#value' => $snapshot,
     ];
     $form['bulk'] = [
       '#type' => 'details',
@@ -206,7 +204,7 @@ final class BulkKnowledgeReviewForm extends FormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state): void {
     $selected = $this->selectedIds($form_state);
-    $snapshot = $form_state->getValue('revision_snapshot');
+    $snapshot = $form_state->get('revision_snapshot');
     $snapshot = is_array($snapshot) ? $snapshot : [];
     $action = (string) $form_state->getValue('action');
     $bulkSources = trim((string) $form_state->getValue('sources'));
@@ -307,14 +305,14 @@ final class BulkKnowledgeReviewForm extends FormBase {
   }
 
   /**
-   * Returns only node IDs that were actually rendered in this form instance.
+   * Returns only node IDs that were rendered in this form instance.
    *
    * @return int[]
    *   The selected node IDs.
    */
   private function selectedIds(FormStateInterface $form_state): array {
     $rows = $form_state->getValue('items') ?? [];
-    $snapshot = $form_state->getValue('revision_snapshot');
+    $snapshot = $form_state->get('revision_snapshot');
     $snapshot = is_array($snapshot) ? $snapshot : [];
     if ((string) $form_state->getValue('selection_scope') === 'topic') {
       $topic = trim((string) $form_state->getValue('topic'));
