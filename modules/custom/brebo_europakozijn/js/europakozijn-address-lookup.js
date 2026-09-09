@@ -49,6 +49,19 @@
         result.textContent = message;
       };
 
+      const renderAddress = (address) => {
+        result.hidden = false;
+        result.className = 'ek-address-result is-found';
+        result.replaceChildren();
+        const title = document.createElement('strong');
+        const line = document.createElement('span');
+        const source = document.createElement('small');
+        title.textContent = 'Adres gevonden';
+        line.textContent = address.display || '';
+        source.textContent = 'Bron: officiële PDOK/BAG';
+        result.append(title, line, source);
+      };
+
       const lookup = async () => {
         if (!valid()) {
           clearResolved();
@@ -85,9 +98,7 @@
           hidden.pdok_x.value = address.coordinates?.x ?? '';
           hidden.pdok_y.value = address.coordinates?.y ?? '';
 
-          result.hidden = false;
-          result.className = 'ek-address-result is-found';
-          result.innerHTML = `<strong>Adres gevonden</strong><span>${Drupal.checkPlain(address.display || '')}</span><small>Bron: officiële PDOK/BAG</small>`;
+          renderAddress(address);
           form.dispatchEvent(new Event('change', { bubbles: true }));
           root.dispatchEvent(new CustomEvent('ek:address-resolved', { bubbles: true, detail: payload }));
         }
