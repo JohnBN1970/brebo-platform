@@ -7,12 +7,14 @@ configurator:
       css/europakozijn-visual-picker.css: {}
       css/europakozijn-request-state.css: {}
       css/europakozijn-guided-journey.css: {}
+      css/europakozijn-address-lookup.css: {}
   js:
     js/europakozijn-visual-picker.js: {}
     js/europakozijn-configurator.js: {}
     js/europakozijn-dimensions.js: {}
     js/europakozijn-request-state.js: {}
     js/europakozijn-guided-journey.js: {}
+    js/europakozijn-address-lookup.js: {}
   dependencies:
     - core/drupal
     - core/once
