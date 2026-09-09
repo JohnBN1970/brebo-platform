@@ -10,3 +10,6 @@ services:
 
   brebo_europakozijn.wind_load_calculator:
     class: Drupal\brebo_europakozijn\Wind\WindLoadCalculator
+
+  brebo_europakozijn.glass_candidate_selector:
+    class: Drupal\brebo_europakozijn\Glass\GlassCandidateSelector
