@@ -27,11 +27,17 @@ final class BulkKnowledgeReviewForm extends FormBase {
     'field_knowledge_basis',
   ];
 
+  /**
+   * Constructs the bulk review form.
+   */
   public function __construct(
     private readonly EntityTypeManagerInterface $entityTypeManager,
     private readonly ReviewStatusStorage $statusStorage,
   ) {}
 
+  /**
+   * {@inheritdoc}
+   */
   public static function create(ContainerInterface $container): static {
     return new static(
       $container->get('entity_type.manager'),
@@ -39,10 +45,16 @@ final class BulkKnowledgeReviewForm extends FormBase {
     );
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function getFormId(): string {
     return 'brebo_knowledge_bulk_review_form';
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function buildForm(array $form, FormStateInterface $form_state): array {
     $nodes = $this->loadKnowledgeItems();
     $topics = [];
@@ -170,6 +182,9 @@ final class BulkKnowledgeReviewForm extends FormBase {
     return $form;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function validateForm(array &$form, FormStateInterface $form_state): void {
     if ((string) $form_state->getValue('selection_scope') === 'topic' && trim((string) $form_state->getValue('topic')) === '') {
       $form_state->setErrorByName('topic', $this->t('Kies een kennisgebied voor deze batch.'));
@@ -186,6 +201,9 @@ final class BulkKnowledgeReviewForm extends FormBase {
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function submitForm(array &$form, FormStateInterface $form_state): void {
     $selected = $this->selectedIds($form_state);
     $rows = $form_state->getValue('items') ?? [];
@@ -282,7 +300,10 @@ final class BulkKnowledgeReviewForm extends FormBase {
   }
 
   /**
+   * Loads all canonical KnowledgeItems for the cockpit.
+   *
    * @return \Drupal\node\NodeInterface[]
+   *   The KnowledgeItems sorted by title.
    */
   private function loadKnowledgeItems(): array {
     $storage = $this->entityTypeManager->getStorage('node');
@@ -298,6 +319,7 @@ final class BulkKnowledgeReviewForm extends FormBase {
    * Returns only node IDs that were actually rendered in this form instance.
    *
    * @return int[]
+   *   The selected node IDs.
    */
   private function selectedIds(FormStateInterface $form_state): array {
     $rows = $form_state->getValue('items') ?? [];
@@ -325,7 +347,10 @@ final class BulkKnowledgeReviewForm extends FormBase {
   }
 
   /**
+   * Performs the publication precheck for a KnowledgeItem.
+   *
    * @return array{label:string,publishable:bool,reasons:string[]}
+   *   The precheck label, publication flag and blocking reasons.
    */
   private function precheck(NodeInterface $node, ?string $sourceOverride = NULL, ?string $validityOverride = NULL): array {
     $reasons = [];
@@ -367,6 +392,9 @@ final class BulkKnowledgeReviewForm extends FormBase {
     return ['label' => '🟠 Controle nodig', 'publishable' => FALSE, 'reasons' => $reasons];
   }
 
+  /**
+   * Returns the human-readable label for a review status.
+   */
   private function statusLabel(string $status): string {
     return match ($status) {
       'approved' => 'Goedgekeurd',
@@ -376,6 +404,9 @@ final class BulkKnowledgeReviewForm extends FormBase {
     };
   }
 
+  /**
+   * Reads a prefixed metadata line from the basis text.
+   */
   private function lineValue(string $text, string $prefix): ?string {
     foreach (preg_split('/\R/', $text) ?: [] as $line) {
       $line = trim($line);
@@ -387,6 +418,9 @@ final class BulkKnowledgeReviewForm extends FormBase {
     return NULL;
   }
 
+  /**
+   * Normalizes placeholder metadata to an empty value.
+   */
   private function meaningfulValue(?string $value): ?string {
     if ($value === NULL) {
       return NULL;
@@ -400,6 +434,9 @@ final class BulkKnowledgeReviewForm extends FormBase {
     return trim($value) !== '' ? trim($value) : NULL;
   }
 
+  /**
+   * Replaces or appends a prefixed metadata line.
+   */
   private function setLine(string $text, string $prefix, string $value): string {
     $lines = preg_split('/\R/', $text) ?: [];
     $replacement = $prefix . ' ' . trim($value);
