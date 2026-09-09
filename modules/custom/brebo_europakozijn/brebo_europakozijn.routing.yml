@@ -21,3 +21,11 @@ brebo_europakozijn.rule_validate:
   requirements:
     _permission: 'access content'
   methods: [POST]
+
+brebo_europakozijn.address_lookup:
+  path: '/europakozijn/api/address'
+  defaults:
+    _controller: '\Drupal\brebo_europakozijn\Controller\EuropakozijnAddressLookupController::lookup'
+  requirements:
+    _permission: 'access content'
+  methods: [GET]
