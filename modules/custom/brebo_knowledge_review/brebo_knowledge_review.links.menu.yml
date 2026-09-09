@@ -1,0 +1,6 @@
+brebo_knowledge_review.bulk:
+  title: 'BREBO Knowledge Review'
+  description: 'Bulk-reviewcockpit voor canonieke BREBO KnowledgeItems.'
+  route_name: brebo_knowledge_review.bulk
+  parent: system.admin_content
+  weight: 30
