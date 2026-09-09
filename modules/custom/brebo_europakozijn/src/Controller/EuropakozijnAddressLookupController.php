@@ -65,8 +65,9 @@ final class EuropakozijnAddressLookupController extends ControllerBase {
           'filter-lang' => 'cql2-text',
         ],
         'headers' => ['Accept' => 'application/geo+json, application/json'],
-        'connect_timeout' => 2,
-        'timeout' => 5,
+        // Reliability first: PDOK can legitimately need several seconds for an
+        // uncached filtered BAG request. Successful lookups are cached below.
+        'timeout' => 10,
       ]);
       $payload = json_decode((string) $response->getBody(), TRUE, 512, JSON_THROW_ON_ERROR);
     }
