@@ -12,11 +12,15 @@
         const layoutBody=layoutStep.querySelector('.ek-step__body');
         const layoutTools=document.createElement('section');
         layoutTools.className='ek-layout-workspace';
-        layoutTools.innerHTML='<div class="ek-layout-workspace__head"><div><strong>Tekening bewerken</strong><span>Voeg alleen profielen toe wanneer uw kozijn extra vakken nodig heeft.</span></div></div><div class="ek-layout-workspace__controls" data-ek-layout-controls></div>';
+        layoutTools.innerHTML='<div class="ek-layout-workspace__head"><div><strong>Tekening bewerken</strong><span>Voeg alleen profielen toe wanneer uw kozijn extra vakken nodig heeft.</span></div><label class="ek-view-side">Aanzicht <select data-ek-view-side aria-label="Aanzicht van het kozijn"><option value="exterior" selected>Van buiten gezien</option><option value="interior">Van binnen gezien</option></select></label></div><div class="ek-view-side__label" data-ek-view-side-label>AANZICHT BUITENZIJDE</div><div class="ek-layout-workspace__controls" data-ek-layout-controls></div>';
         const controls=layoutTools.querySelector('[data-ek-layout-controls]');
         [...layoutBody.children].forEach(child=>{if(child.matches('h2,.ek-step__intro'))return;controls.appendChild(child);});
         workspace.querySelector('.ek-canvas')?.before(layoutTools);
         layoutStep.remove();
+        const viewSide=layoutTools.querySelector('[data-ek-view-side]');
+        const viewLabel=layoutTools.querySelector('[data-ek-view-side-label]');
+        viewSide?.addEventListener('change',()=>{const exterior=viewSide.value==='exterior';viewLabel.textContent=exterior?'AANZICHT BUITENZIJDE':'AANZICHT BINNENZIJDE';root.dataset.ekViewSide=viewSide.value;root.dispatchEvent(new CustomEvent('ek:view-side-changed',{bubbles:true,detail:{view_side:viewSide.value}}));});
+        root.dataset.ekViewSide='exterior';
       }
 
       const steps=[...form.querySelectorAll('.ek-step')];
