@@ -16,13 +16,19 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 #[RunTestsInSeparateProcesses]
 final class BulkKnowledgeReviewFormTest extends BrowserTestBase {
 
-  /** {@inheritdoc} */
+  /**
+   * {@inheritdoc}
+   */
   protected static $modules = ['node', 'text', 'brebo_knowledge', 'brebo_knowledge_review'];
 
-  /** {@inheritdoc} */
+  /**
+   * {@inheritdoc}
+   */
   protected $defaultTheme = 'stark';
 
-  /** Tests that bulk approval requires explicit confirmation. */
+  /**
+   * Tests that bulk approval requires explicit confirmation.
+   */
   public function testBulkApprovalPublishesOnlyAfterExplicitConfirmation(): void {
     $knowledgeItem = $this->createKnowledgeItem();
     $path = '/admin/content/brebo-knowledge/review';
@@ -55,7 +61,9 @@ final class BulkKnowledgeReviewFormTest extends BrowserTestBase {
     $this->assertSame('approved', $decision['status']);
   }
 
-  /** Tests that a POST rebuild cannot replace the rendered revision snapshot. */
+  /**
+   * Tests that a POST rebuild cannot replace the rendered revision snapshot.
+   */
   public function testBulkApprovalRejectsRevisionChangedAfterRender(): void {
     $knowledgeItem = $this->createKnowledgeItem();
     $originalRevision = (int) $knowledgeItem->getRevisionId();
@@ -80,7 +88,9 @@ final class BulkKnowledgeReviewFormTest extends BrowserTestBase {
     $this->assertSame('Inhoud gewijzigd nadat de cockpit was geopend.', (string) $reloaded->get('field_knowledge_observation')->value);
   }
 
-  /** Tests shared source and validity metadata during in-review. */
+  /**
+   * Tests shared source and validity metadata during in-review.
+   */
   public function testInReviewStoresSharedSourceAndValidityMetadata(): void {
     $knowledgeItem = $this->createKnowledgeItem();
     $reviewer = $this->drupalCreateUser(['review brebo knowledge items']);
@@ -101,7 +111,9 @@ final class BulkKnowledgeReviewFormTest extends BrowserTestBase {
     $this->assertStringContainsString('AI-vrijgave: nee', $basis);
   }
 
-  /** Creates a canonical KnowledgeItem fixture for the tests. */
+  /**
+   * Creates a canonical KnowledgeItem fixture for the tests.
+   */
   private function createKnowledgeItem(): Node {
     $knowledgeItem = Node::create([
       'type' => 'brebo_knowledge_item',
