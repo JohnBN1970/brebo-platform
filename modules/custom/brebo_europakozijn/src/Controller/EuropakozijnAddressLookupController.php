@@ -14,7 +14,11 @@ use Throwable;
 /** Resolves a public configurator address against official PDOK BAG data. */
 final class EuropakozijnAddressLookupController extends ControllerBase {
 
-  private const ADDRESSES_URL = 'https://api.pdok.nl/kadaster/bag/ogc/v2/collections/adres/items';
+  /**
+   * PDOK introduced CQL2 filtering on the BAG v2 demo endpoint in September 2026.
+   * Keep this endpoint isolated here so switching to production v2 later is one line.
+   */
+  private const ADDRESSES_URL = 'https://api.pdok.nl/kadaster/bag/ogc/v2-demo/collections/adres/items';
 
   public function __construct(
     private readonly ClientInterface $httpClient,
@@ -36,7 +40,7 @@ final class EuropakozijnAddressLookupController extends ControllerBase {
     }
 
     $houseNumber = (int) $match[1];
-    $suffix = strtoupper(trim((string) ($match[2] ?? '')));
+    $suffix = strtoupper(preg_replace('/[^A-Z0-9]/', '', trim((string) ($match[2] ?? ''))) ?? '');
     $filter = sprintf("postcode='%s' AND huisnummer=%d", str_replace("'", "''", $postcode), $houseNumber);
 
     try {
@@ -67,22 +71,22 @@ final class EuropakozijnAddressLookupController extends ControllerBase {
       }
 
       $houseLetter = strtoupper(trim((string) ($properties['huisletter'] ?? '')));
-      $addition = strtoupper(trim((string) ($properties['huisnummertoevoeging'] ?? '')));
-      $candidateSuffix = trim($houseLetter . $addition);
-      if ($suffix !== '' && $candidateSuffix !== '' && $candidateSuffix !== $suffix) {
+      $addition = strtoupper(trim((string) ($properties['toevoeging'] ?? '')));
+      $candidateSuffix = preg_replace('/[^A-Z0-9]/', '', $houseLetter . $addition) ?? '';
+      if ($suffix !== '' && $candidateSuffix !== $suffix) {
         continue;
       }
 
       $geometry = $feature['geometry']['coordinates'] ?? NULL;
       $candidates[] = [
-        'street' => $properties['straatnaam'] ?? NULL,
+        'street' => $properties['openbare_ruimte_naam'] ?? NULL,
         'house_number' => (string) $houseNumber,
         'house_letter' => $properties['huisletter'] ?? NULL,
-        'addition' => $properties['huisnummertoevoeging'] ?? NULL,
+        'addition' => $properties['toevoeging'] ?? NULL,
         'postal_code' => $properties['postcode'] ?? $postcode,
-        'city' => $properties['woonplaats'] ?? NULL,
-        'bag_nummeraanduiding_id' => $properties['nummeraanduidingIdentificatie'] ?? $properties['nummeraanduiding_id'] ?? NULL,
-        'bag_adresseerbaar_object_id' => $properties['adresseerbaarObjectIdentificatie'] ?? $properties['adresseerbaar_object_id'] ?? NULL,
+        'city' => $properties['woonplaats_naam'] ?? NULL,
+        'bag_nummeraanduiding_id' => $properties['identificatie'] ?? NULL,
+        'bag_adresseerbaar_object_id' => $properties['adresseerbaar_object_identificatie'] ?? NULL,
         'coordinates' => is_array($geometry) && count($geometry) >= 2 ? [
           'x' => $geometry[0],
           'y' => $geometry[1],
@@ -98,7 +102,7 @@ final class EuropakozijnAddressLookupController extends ControllerBase {
     }
 
     $address = $candidates[0];
-    $displayNumber = $address['house_number'] . ($address['house_letter'] ?? '') . ($address['addition'] ?? '');
+    $displayNumber = $address['house_number'] . ($address['house_letter'] ?? '') . (($address['addition'] ?? '') !== '' ? '-' . $address['addition'] : '');
     $address['display'] = trim(sprintf('%s %s, %s %s', $address['street'] ?? '', $displayNumber, $address['postal_code'] ?? '', $address['city'] ?? ''));
 
     return new JsonResponse([
