@@ -1,0 +1,1 @@
+Scope marker: this change does not add or invent wind, glass, safety, ventilation, manufacturer, or pricing rules. It only prevents unresolved checks from being represented as completed and binds the product-rule card to the existing server-side rule endpoint.

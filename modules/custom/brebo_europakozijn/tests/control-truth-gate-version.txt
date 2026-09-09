@@ -1,0 +1,1 @@
+Introduced after PR #137 to harden the visual Controle step without changing schema v4 or adding unverified domain rules.

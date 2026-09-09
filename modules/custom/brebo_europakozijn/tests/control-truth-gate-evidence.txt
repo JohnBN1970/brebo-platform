@@ -1,0 +1,1 @@
+Existing verified executable evidence used by this change: ProductRuleEngine ruleset 2026-09-08.1 and /europakozijn/api/rules. No other engineering domain is promoted to verified status by this change.
