@@ -17,6 +17,7 @@ configurator:
     js/europakozijn-guided-journey.js: {}
     js/europakozijn-address-lookup.js: {}
     js/europakozijn-control-truth-gate.js: {}
+    js/europakozijn-office-submit.js: {}
   dependencies:
     - core/drupal
     - core/once
