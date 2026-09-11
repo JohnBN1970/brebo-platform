@@ -18,28 +18,27 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Verify PDOK BAG query
+      - name: Verify PDOK Locatieserver query
         shell: bash
         run: |
           set -euo pipefail
           body=/tmp/pdok-address.json
           code="$(curl -sS --get \
             --max-time 20 \
-            -H 'Accept: application/geo+json, application/json' \
+            -H 'Accept: application/json' \
             -o "$body" \
             -w '%{http_code}' \
-            --data-urlencode 'limit=25' \
-            --data-urlencode 'f=json' \
-            --data-urlencode "filter=postcode='6131BE' AND huisnummer=32" \
-            --data-urlencode 'filter-lang=cql2-text' \
-            'https://api.pdok.nl/kadaster/bag/ogc/v2/collections/adres/items')"
+            --data-urlencode 'q=6131BE 32A' \
+            --data-urlencode 'fq=type:adres' \
+            --data-urlencode 'rows=25' \
+            'https://api.pdok.nl/bzk/locatieserver/search/v3_1/free')"
 
           echo "PDOK_HTTP_CODE=$code"
           if [[ "$code" != "200" ]]; then
             echo '--- PDOK response ---'
             cat "$body"
             echo
-            echo "::error::Direct PDOK BAG address query failed."
+            echo "::error::Direct PDOK Locatieserver address query failed."
             exit 1
           fi
 
@@ -47,12 +46,12 @@ jobs:
           import json
           with open('/tmp/pdok-address.json', encoding='utf-8') as handle:
               payload = json.load(handle)
-          features = payload.get('features') or []
-          print(f'PDOK_FEATURE_COUNT={len(features)}')
-          if not features:
-              raise SystemExit('PDOK query returned no features')
-          if not any((f.get('properties') or {}).get('postcode') == '6131BE' and int((f.get('properties') or {}).get('huisnummer') or 0) == 32 for f in features):
-              raise SystemExit('PDOK response did not contain expected BAG address')
+          docs = ((payload.get('response') or {}).get('docs') or [])
+          print(f'PDOK_ADDRESS_COUNT={len(docs)}')
+          matches = [d for d in docs if (d.get('postcode') or '').replace(' ', '').upper() == '6131BE' and int(d.get('huisnummer') or 0) == 32 and (d.get('huisletter') or '').upper() == 'A']
+          if not matches:
+              raise SystemExit('PDOK Locatieserver did not contain expected BAG address')
+          print('PDOK_ADDRESS_FOUND=1')
           PY
 
       - name: Verify BREBO public address endpoint
@@ -87,6 +86,8 @@ jobs:
           print('BREBO_ADDRESS_SOURCE=' + str(payload.get('source') or ''))
           if payload.get('found') is not True:
               raise SystemExit('BREBO address endpoint did not confirm address')
-          if address.get('postal_code') != '6131BE':
-              raise SystemExit('BREBO address endpoint returned unexpected postcode')
+          if address.get('postal_code') != '6131BE' or address.get('house_number') != '32' or (address.get('house_letter') or '').upper() != 'A':
+              raise SystemExit('BREBO address endpoint returned unexpected address')
+          if not address.get('bag_nummeraanduiding_id') or not address.get('bag_adresseerbaar_object_id'):
+              raise SystemExit('BREBO address endpoint did not preserve BAG identifiers')
           PY
