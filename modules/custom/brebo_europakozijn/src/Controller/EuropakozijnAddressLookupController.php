@@ -12,12 +12,10 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Throwable;
 
-/** Resolves a public configurator address against official PDOK BAG data. */
+/** Resolves a public configurator address against official PDOK data. */
 final class EuropakozijnAddressLookupController extends ControllerBase {
 
-  private const ADDRESSES_URL = 'https://api.pdok.nl/kadaster/bag/ogc/v2/collections/adres/items';
-  private const VBO_URL = 'https://api.pdok.nl/kadaster/bag/ogc/v2/collections/verblijfsobject/items';
-  private const BAG_V2_BASE = 'https://api.pdok.nl/kadaster/bag/ogc/v2/';
+  private const LOCATION_URL = 'https://api.pdok.nl/bzk/locatieserver/search/v3_1/free';
   private const CACHE_TTL = 86400;
 
   public function __construct(
@@ -51,17 +49,14 @@ final class EuropakozijnAddressLookupController extends ControllerBase {
       return new JsonResponse($cached->data, 200, ['X-BREBO-PDOK-Cache' => 'HIT']);
     }
 
-    $filter = sprintf("postcode='%s' AND huisnummer=%d", str_replace("'", "''", $postcode), $houseNumber);
-
     try {
-      $response = $this->httpClient->request('GET', self::ADDRESSES_URL, [
+      $response = $this->httpClient->request('GET', self::LOCATION_URL, [
         'query' => [
-          'limit' => 25,
-          'f' => 'json',
-          'filter' => $filter,
-          'filter-lang' => 'cql2-text',
+          'q' => trim($postcode . ' ' . $houseNumberInput),
+          'fq' => 'type:adres',
+          'rows' => 25,
         ],
-        'headers' => ['Accept' => 'application/geo+json, application/json'],
+        'headers' => ['Accept' => 'application/json'],
         'timeout' => 10,
       ]);
       $payload = json_decode((string) $response->getBody(), TRUE, 512, JSON_THROW_ON_ERROR);
@@ -74,33 +69,39 @@ final class EuropakozijnAddressLookupController extends ControllerBase {
     }
 
     $candidates = [];
-    foreach (($payload['features'] ?? []) as $feature) {
-      $properties = $feature['properties'] ?? [];
-      if ((int) ($properties['huisnummer'] ?? 0) !== $houseNumber) {
+    foreach (($payload['response']['docs'] ?? []) as $doc) {
+      if (!is_array($doc)) {
         continue;
       }
 
-      $houseLetter = strtoupper(trim((string) ($properties['huisletter'] ?? '')));
-      $addition = strtoupper(trim((string) ($properties['toevoeging'] ?? '')));
+      $candidatePostcode = strtoupper(preg_replace('/\s+/', '', (string) ($doc['postcode'] ?? '')) ?? '');
+      $candidateNumber = (int) ($doc['huisnummer'] ?? 0);
+      if ($candidatePostcode !== $postcode || $candidateNumber !== $houseNumber) {
+        continue;
+      }
+
+      $houseLetter = strtoupper(trim((string) ($doc['huisletter'] ?? '')));
+      $addition = strtoupper(trim((string) ($doc['huisnummertoevoeging'] ?? '')));
       $candidateSuffix = preg_replace('/[^A-Z0-9]/', '', $houseLetter . $addition) ?? '';
       if ($suffix !== '' && $candidateSuffix !== $suffix) {
         continue;
       }
 
-      $geometry = $feature['geometry']['coordinates'] ?? NULL;
+      $coordinates = NULL;
+      if (preg_match('/^POINT\(([-0-9.]+)\s+([-0-9.]+)\)$/', (string) ($doc['centroide_rd'] ?? ''), $point)) {
+        $coordinates = ['x' => (float) $point[1], 'y' => (float) $point[2]];
+      }
+
       $candidates[] = [
-        'street' => $properties['openbare_ruimte_naam'] ?? NULL,
+        'street' => $doc['straatnaam'] ?? NULL,
         'house_number' => (string) $houseNumber,
-        'house_letter' => $properties['huisletter'] ?? NULL,
-        'addition' => $properties['toevoeging'] ?? NULL,
-        'postal_code' => $properties['postcode'] ?? $postcode,
-        'city' => $properties['woonplaats_naam'] ?? NULL,
-        'bag_nummeraanduiding_id' => $properties['identificatie'] ?? NULL,
-        'bag_adresseerbaar_object_id' => $properties['adresseerbaar_object_identificatie'] ?? NULL,
-        'coordinates' => is_array($geometry) && count($geometry) >= 2 ? [
-          'x' => $geometry[0],
-          'y' => $geometry[1],
-        ] : NULL,
+        'house_letter' => $doc['huisletter'] ?? NULL,
+        'addition' => $doc['huisnummertoevoeging'] ?? NULL,
+        'postal_code' => $candidatePostcode,
+        'city' => $doc['woonplaatsnaam'] ?? NULL,
+        'bag_nummeraanduiding_id' => $doc['nummeraanduiding_id'] ?? NULL,
+        'bag_adresseerbaar_object_id' => $doc['adresseerbaarobject_id'] ?? NULL,
+        'coordinates' => $coordinates,
       ];
     }
 
@@ -119,88 +120,13 @@ final class EuropakozijnAddressLookupController extends ControllerBase {
       'found' => TRUE,
       'source' => 'PDOK/BAG',
       'address' => $address,
-      // Building enrichment is deliberately best-effort. An unavailable
-      // secondary BAG request must never make a valid address unusable.
-      'building_context' => $this->resolveBuildingContext((string) ($address['bag_adresseerbaar_object_id'] ?? '')),
+      // Richer building facts are deliberately resolved later. The website
+      // must not block a valid official address on optional enrichment.
+      'building_context' => NULL,
     ];
     $this->cache->set($cacheId, $result, time() + self::CACHE_TTL);
 
     return new JsonResponse($result, 200, ['X-BREBO-PDOK-Cache' => 'MISS']);
-  }
-
-  /**
-   * Returns source facts about the BAG verblijfsobject and related pand.
-   *
-   * No customer-facing building type is inferred here: corner/terrace/detached
-   * is not a canonical BAG fact. Those choices remain separate until proven.
-   *
-   * @return array<string, mixed>|null
-   */
-  private function resolveBuildingContext(string $adresseerbaarObjectId): ?array {
-    if ($adresseerbaarObjectId === '') {
-      return NULL;
-    }
-
-    try {
-      $filter = sprintf("identificatie='%s'", str_replace("'", "''", $adresseerbaarObjectId));
-      $response = $this->httpClient->request('GET', self::VBO_URL, [
-        'query' => [
-          'limit' => 1,
-          'f' => 'json',
-          'filter' => $filter,
-          'filter-lang' => 'cql2-text',
-        ],
-        'headers' => ['Accept' => 'application/geo+json, application/json'],
-        'timeout' => 10,
-      ]);
-      $payload = json_decode((string) $response->getBody(), TRUE, 512, JSON_THROW_ON_ERROR);
-      $feature = $payload['features'][0] ?? NULL;
-      if (!is_array($feature)) {
-        return NULL;
-      }
-
-      $properties = $feature['properties'] ?? [];
-      $context = [
-        'bag_verblijfsobject_id' => $properties['identificatie'] ?? $adresseerbaarObjectId,
-        'gebruiksdoel' => $properties['gebruiksdoel'] ?? NULL,
-        'oppervlakte_m2' => isset($properties['oppervlakte']) ? (int) $properties['oppervlakte'] : NULL,
-        'verblijfsobject_status' => $properties['status'] ?? NULL,
-        'bag_pand_id' => NULL,
-        'bouwjaar' => NULL,
-        'aantal_verblijfsobjecten' => NULL,
-        'pand_status' => NULL,
-      ];
-
-      $pandHref = NULL;
-      foreach (($properties['pand'] ?? []) as $relation) {
-        if (is_array($relation) && isset($relation['href']) && is_string($relation['href'])) {
-          $pandHref = $relation['href'];
-          break;
-        }
-      }
-
-      if ($pandHref === NULL || !str_starts_with($pandHref, self::BAG_V2_BASE . 'collections/pand/items/')) {
-        return $context;
-      }
-
-      $pandResponse = $this->httpClient->request('GET', $pandHref, [
-        'query' => ['f' => 'json'],
-        'headers' => ['Accept' => 'application/geo+json, application/json'],
-        'timeout' => 10,
-      ]);
-      $pandPayload = json_decode((string) $pandResponse->getBody(), TRUE, 512, JSON_THROW_ON_ERROR);
-      $pandProperties = $pandPayload['properties'] ?? [];
-
-      $context['bag_pand_id'] = $pandProperties['identificatie'] ?? NULL;
-      $context['bouwjaar'] = isset($pandProperties['bouwjaar']) ? (int) $pandProperties['bouwjaar'] : NULL;
-      $context['aantal_verblijfsobjecten'] = isset($pandProperties['aantal_verblijfsobjecten']) ? (int) $pandProperties['aantal_verblijfsobjecten'] : NULL;
-      $context['pand_status'] = $pandProperties['status'] ?? NULL;
-
-      return $context;
-    }
-    catch (Throwable $exception) {
-      return NULL;
-    }
   }
 
 }
