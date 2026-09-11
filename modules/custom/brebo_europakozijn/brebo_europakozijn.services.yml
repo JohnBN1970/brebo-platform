@@ -24,3 +24,6 @@ services:
 
   brebo_europakozijn.room_ventilation_zone_builder:
     class: Drupal\brebo_europakozijn\Ventilation\RoomVentilationZoneBuilder
+
+  brebo_europakozijn.ventilation_requirement_resolver:
+    class: Drupal\brebo_europakozijn\Ventilation\VentilationRequirementResolver
