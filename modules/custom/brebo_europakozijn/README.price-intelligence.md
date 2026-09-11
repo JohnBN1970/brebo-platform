@@ -15,3 +15,15 @@ Mullions, transoms, doors, HST systems, no-glass configurations and unverified o
 ## Model principle
 
 Technical configuration -> gross prediction -> uncertainty band -> BREBO discount -> expected net purchase price.
+
+## Website boundary
+
+The public configurator provides a price indication, not a technically validated quotation. It may explain the known price drivers and uncertainty, but it must not expose BREBO purchasing conditions, internal unit prices, margins, detailed recipe data or a supplier-ready specification that turns the configurator into a free quotation-comparison tool.
+
+The public journey is:
+
+Building/address -> rooms -> frames -> configuration -> relevant technical signals -> price indication with basis -> request.
+
+The request is then handed to BREBO Office. Office is authoritative for renewed validation and enrichment, final ventilation/glass/wind/product decisions, quantities, calculation, margin and the definitive quotation.
+
+Public observations and customer-entered facts must remain distinguishable from detected, calculated and finally selected/approved data. A website indication must therefore never be promoted to technical truth merely because it was shown to the customer.
