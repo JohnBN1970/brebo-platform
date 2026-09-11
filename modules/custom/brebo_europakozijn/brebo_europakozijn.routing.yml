@@ -45,3 +45,11 @@ brebo_europakozijn.address_lookup:
   requirements:
     _permission: 'access content'
   methods: [GET]
+
+brebo_europakozijn.office_handoff:
+  path: '/europakozijn/api/request'
+  defaults:
+    _controller: '\Drupal\brebo_europakozijn\Controller\EuropakozijnOfficeHandoffController::submit'
+  requirements:
+    _permission: 'access content'
+  methods: [POST]
