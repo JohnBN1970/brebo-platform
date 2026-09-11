@@ -32,17 +32,19 @@ final class VentilationRequirementResolver {
       'message' => 'Nog niet vastgesteld of ventilatietoevoer via het kozijn nodig is.',
     ];
 
+    $result = static fn(array $override): array => array_replace($base, $override);
+
     $existingVerified = ($context['existing_provision_verified'] ?? FALSE) === TRUE;
     $existingSufficient = ($context['existing_provision_sufficient'] ?? NULL);
 
     if ($existingVerified && $existingSufficient === TRUE) {
-      return $base + [
+      return $result([
         'status' => 'existing_provision_sufficient',
         'frame_supply_required' => FALSE,
         'authority' => $context['existing_provision_authority'] ?? NULL,
         'source_reference' => $context['existing_provision_source_reference'] ?? NULL,
         'message' => 'De bestaande geverifieerde ventilatievoorziening is toereikend; een extra rooster via het kozijn is niet nodig.',
-      ];
+      ]);
     }
 
     $requirementVerified = ($context['ventilation_requirement_verified'] ?? FALSE) === TRUE;
@@ -52,13 +54,13 @@ final class VentilationRequirementResolver {
 
     $required = $context['ventilation_required'] ?? NULL;
     if ($required === FALSE) {
-      return $base + [
+      return $result([
         'status' => 'not_required',
         'frame_supply_required' => FALSE,
         'authority' => $context['requirement_authority'] ?? NULL,
         'source_reference' => $context['requirement_source_reference'] ?? NULL,
         'message' => 'Op basis van de geverifieerde situatie is geen aanvullende ventilatie-eis vastgesteld.',
-      ];
+      ]);
     }
 
     if ($required !== TRUE) {
@@ -67,36 +69,36 @@ final class VentilationRequirementResolver {
 
     $routeVerified = ($context['frame_supply_route_verified'] ?? FALSE) === TRUE;
     if (!$routeVerified) {
-      return $base + [
+      return $result([
         'status' => 'requirement_verified_route_unknown',
         'authority' => $context['requirement_authority'] ?? NULL,
         'source_reference' => $context['requirement_source_reference'] ?? NULL,
         'message' => 'Een ventilatie-eis is geverifieerd, maar nog niet vastgesteld dat die via het kozijn moet worden ingevuld.',
-      ];
+      ]);
     }
 
     $viaFrame = $context['frame_supply_required'] ?? NULL;
     if ($viaFrame === FALSE) {
-      return $base + [
+      return $result([
         'status' => 'required_elsewhere',
         'frame_supply_required' => FALSE,
         'authority' => $context['requirement_authority'] ?? NULL,
         'source_reference' => $context['requirement_source_reference'] ?? NULL,
         'message' => 'Er is een geverifieerde ventilatie-eis, maar die wordt niet via het kozijn ingevuld.',
-      ];
+      ]);
     }
 
     if ($viaFrame !== TRUE) {
       return $base;
     }
 
-    return $base + [
+    return $result([
       'status' => 'required',
       'frame_supply_required' => TRUE,
       'authority' => $context['requirement_authority'] ?? NULL,
       'source_reference' => $context['requirement_source_reference'] ?? NULL,
       'message' => 'Ventilatietoevoer via het kozijn is geverifieerd vereist; de capaciteit mag nu in de volgende regelstap worden bepaald.',
-    ];
+    ]);
   }
 
 }
