@@ -12,6 +12,7 @@ configurator:
     js/europakozijn-visual-picker.js: {}
     js/europakozijn-configurator.js: {}
     js/europakozijn-dimensions.js: {}
+    js/europakozijn-room-state.js: {}
     js/europakozijn-request-state.js: {}
     js/europakozijn-guided-journey.js: {}
     js/europakozijn-address-lookup.js: {}
