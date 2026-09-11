@@ -9,12 +9,12 @@ namespace Drupal\brebo_europakozijn\Ventilation;
  *
  * This class is deliberately limited to structural facts already present in
  * the configurator: room identity, saved frames and fixed glazed fields.
- * Required ventilation capacity and product selection belong to later,
- * verified rule layers.
+ * Whether ventilation is required, its capacity and product selection belong
+ * to separate verified rule layers.
  */
 final class RoomVentilationZoneBuilder {
 
-  public const VERSION = '1.0.0';
+  public const VERSION = '1.0.1';
 
   /**
    * @param array<int, array<string, mixed>> $rooms
@@ -23,7 +23,7 @@ final class RoomVentilationZoneBuilder {
    *   Saved frame-state records.
    *
    * @return array<int, array<string, mixed>>
-   *   One ventilation zone per room.
+   *   One potential ventilation zone per room.
    */
   public function build(array $rooms, array $frames): array {
     $zones = [];
@@ -48,10 +48,11 @@ final class RoomVentilationZoneBuilder {
         'fixed_glass_candidate_count' => 0,
         'fixed_glass_candidates' => [],
         'assessment' => [
-          'status' => 'needs_verified_requirement',
+          'status' => 'needs_requirement_assessment',
+          'frame_supply_required' => NULL,
           'required_capacity_dm3_s' => NULL,
           'authority' => NULL,
-          'message' => 'Ruimte en geschikte vaste glasvakken zijn bekend; de vereiste ventilatiecapaciteit moet uit een geverifieerde regelbron worden bepaald.',
+          'message' => 'Ruimte en vaste glasvakken zijn bekend. Eerst moet worden vastgesteld of ventilatietoevoer via het kozijn voor deze situatie nodig is.',
         ],
       ];
     }
