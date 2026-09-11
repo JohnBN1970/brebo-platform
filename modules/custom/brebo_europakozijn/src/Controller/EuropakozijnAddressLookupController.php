@@ -15,8 +15,8 @@ use Throwable;
 /** Resolves a public configurator address against official PDOK BAG data. */
 final class EuropakozijnAddressLookupController extends ControllerBase {
 
-  private const ADDRESSES_URL = 'https://api.pdok.nl/kadaster/bag/ogc/v2-demo/collections/adres/items';
-  private const VBO_URL = 'https://api.pdok.nl/kadaster/bag/ogc/v2-demo/collections/verblijfsobject/items';
+  private const ADDRESSES_URL = 'https://api.pdok.nl/kadaster/bag/ogc/v2/collections/adres/items';
+  private const VBO_URL = 'https://api.pdok.nl/kadaster/bag/ogc/v2/collections/verblijfsobject/items';
   private const BAG_V2_BASE = 'https://api.pdok.nl/kadaster/bag/ogc/v2/';
   private const CACHE_TTL = 86400;
 
