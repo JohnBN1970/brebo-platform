@@ -47,6 +47,7 @@ final class BulkKnowledgeReviewFormTest extends BrowserTestBase {
     $this->assertSession()->pageTextContains('Bulk-reviewcockpit');
     $this->assertSession()->pageTextContains('Condens tussen de glasbladen');
     $this->assertSession()->pageTextContains('Controle nodig');
+    $this->assertSession()->elementExists('css', 'input[name="snapshot_nonce"]');
 
     $this->submitForm([
       'items[' . $knowledgeItem->id() . '][select]' => TRUE,
@@ -94,7 +95,7 @@ final class BulkKnowledgeReviewFormTest extends BrowserTestBase {
     $this->drupalLogin($reviewer);
     $path = '/admin/content/brebo-knowledge/review';
     $this->drupalGet($path);
-    $this->assertSession()->elementExists('css', 'input[name="form_build_id"]');
+    $this->assertSession()->elementExists('css', 'input[name="snapshot_nonce"]');
 
     $storage = $this->container->get('entity_type.manager')->getStorage('node');
     $storage->resetCache([$knowledgeItem->id()]);
