@@ -8,9 +8,11 @@ configurator:
       css/europakozijn-request-state.css: {}
       css/europakozijn-guided-journey.css: {}
       css/europakozijn-address-lookup.css: {}
+      css/europakozijn-customer-choice-cards.css: {}
   js:
     js/europakozijn-visual-picker.js: {}
     js/europakozijn-configurator.js: {}
+    js/europakozijn-customer-choice-cards.js: {}
     js/europakozijn-material-payload.js: {}
     js/europakozijn-dimensions.js: {}
     js/europakozijn-room-state.js: {}
