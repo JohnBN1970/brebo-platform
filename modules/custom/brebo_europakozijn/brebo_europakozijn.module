@@ -13,5 +13,8 @@ function brebo_europakozijn_theme($existing, $type, $theme, $path): array {
     'brebo_europakozijn_configurator' => [
       'template' => 'brebo-europakozijn-configurator',
     ],
+    'brebo_europakozijn_projectstukken' => [
+      'template' => 'brebo-europakozijn-projectstukken',
+    ],
   ];
 }
