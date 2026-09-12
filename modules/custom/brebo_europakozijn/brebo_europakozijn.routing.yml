@@ -46,6 +46,14 @@ brebo_europakozijn.address_lookup:
     _permission: 'access content'
   methods: [GET]
 
+brebo_europakozijn.project_upload:
+  path: '/europakozijn/api/project-upload'
+  defaults:
+    _controller: '\Drupal\brebo_europakozijn\Controller\EuropakozijnProjectUploadController::upload'
+  requirements:
+    _permission: 'access content'
+  methods: [POST]
+
 brebo_europakozijn.office_handoff:
   path: '/europakozijn/api/request'
   defaults:
