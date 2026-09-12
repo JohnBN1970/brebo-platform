@@ -18,6 +18,7 @@ final class EuropakozijnProjectUploadController extends ControllerBase {
 
   private const ALLOWED_EXTENSIONS = [
     'pdf', 'png', 'jpg', 'jpeg', 'webp', 'zip',
+    'xls', 'xlsx', 'doc', 'docx',
   ];
 
   public function __construct(
@@ -91,6 +92,14 @@ final class EuropakozijnProjectUploadController extends ControllerBase {
         'size' => (int) filesize($destination),
         'sha256' => hash_file('sha256', $destination),
         'package' => $extension === 'zip',
+        'document_type' => match ($extension) {
+          'xls', 'xlsx' => 'spreadsheet',
+          'doc', 'docx' => 'word_document',
+          'pdf' => 'pdf',
+          'png', 'jpg', 'jpeg', 'webp' => 'image',
+          'zip' => 'project_package',
+          default => 'unknown',
+        },
       ];
     }
 
