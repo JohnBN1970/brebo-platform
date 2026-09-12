@@ -1,5 +1,5 @@
 global:
-  version: 5.1.0
+  version: 5.1.1
   css:
     base:
       css/variables.css: {}
@@ -24,7 +24,7 @@ global:
     - core/once
 
 service-detail:
-  version: 5.1.0
+  version: 5.1.1
   css:
     component:
       css/service-detail.css: {}

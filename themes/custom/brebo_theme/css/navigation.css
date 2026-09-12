@@ -1,4 +1,5 @@
-.region-header .block-menu {
+.region-header .block-menu,
+.region-header > .main-navigation {
   flex: 0 1 auto;
   margin-left: 0;
 }
@@ -92,7 +93,8 @@
 }
 
 @media (max-width: 1023px) {
-  .region-header .block-menu {
+  .region-header .block-menu,
+  .region-header > .main-navigation {
     position: fixed;
     top: 0;
     right: 0;
@@ -110,7 +112,8 @@
     transition: transform 220ms ease, visibility 220ms ease;
   }
 
-  .site-header.is-menu-open .region-header .block-menu {
+  .site-header.is-menu-open .region-header .block-menu,
+  .site-header.is-menu-open .region-header > .main-navigation {
     transform: translateX(0);
     visibility: visible;
   }
