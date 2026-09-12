@@ -62,7 +62,6 @@
   width: 200px;
 }
 
-/* Drupal Site Branding may remain configured, but the theme owns the visible brand. */
 .region-header [id*="site-branding"],
 .region-header .block-system-branding-block {
   display: none !important;
@@ -246,6 +245,16 @@
 
   .site-header__toggle {
     display: inline-flex;
+  }
+
+  .site-header.is-menu-open .site-header__toggle {
+    position: fixed;
+    top: max(12px, env(safe-area-inset-top));
+    right: 16px;
+    z-index: 1010;
+    margin: 0;
+    background: var(--brebo-surface);
+    box-shadow: 0 6px 20px rgba(17, 24, 39, 0.16);
   }
 
   .brebo-back-to-top {
