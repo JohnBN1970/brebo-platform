@@ -7,11 +7,11 @@
         const input = panel.querySelector('input[name="project_drawing"]');
         if (!input) return;
 
-        input.accept = '.pdf,.png,.jpg,.jpeg,.webp,.zip,application/pdf,image/png,image/jpeg,image/webp,application/zip,application/x-zip-compressed';
+        input.accept = '.pdf,.png,.jpg,.jpeg,.webp,.zip,.xls,.xlsx,.doc,.docx,application/pdf,image/png,image/jpeg,image/webp,application/zip,application/x-zip-compressed,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document';
         input.multiple = true;
 
         const hint = panel.querySelector('.ek-intake-entry__hint');
-        if (hint) hint.textContent = 'PDF, afbeelding, duidelijke schets of ZIP-projectpakket. U kunt ook meerdere losse bestanden tegelijk kiezen. BREBO behandelt herkenning als voorstel: onzekere informatie blijft onzeker.';
+        if (hint) hint.textContent = 'PDF, afbeelding, schets, Excel-, Word-bestand of ZIP-projectpakket. U kunt ook meerdere losse bestanden tegelijk kiezen. BREBO behandelt herkenning als voorstel: onzekere informatie blijft onzeker.';
 
         const status = document.createElement('p');
         status.className = 'ek-intake-entry__hint';
