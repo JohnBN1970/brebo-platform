@@ -146,6 +146,24 @@
 
   .main-menu__item--mobile-contact {
     display: block;
+    margin-top: 1rem;
+    border-bottom: 0;
+  }
+
+  .main-menu__item--mobile-contact .main-menu__link {
+    justify-content: center;
+    min-height: 54px;
+    padding-inline: 1rem;
+    border-radius: var(--brebo-radius-sm);
+    background: var(--brebo-purple);
+    color: #ffffff;
+    font-weight: 700;
+  }
+
+  .main-menu__item--mobile-contact .main-menu__link:hover,
+  .main-menu__item--mobile-contact .main-menu__link:focus-visible,
+  .main-menu__item--mobile-contact .main-menu__link.is-active {
+    color: #ffffff;
   }
 
   .main-menu__link {
