@@ -12,9 +12,6 @@
         const navigation = header.querySelector('.block-menu, .main-navigation');
         const overlay = header.querySelector('.site-header__overlay');
 
-        // BigPipe can attach the header before the menu block itself arrives.
-        // Only mark the component initialized once all required elements exist,
-        // so a later Drupal behavior pass can still wire the hamburger menu.
         if (!toggle || !navigation || header.dataset.breboNavigationBound === 'true') {
           return;
         }
@@ -26,22 +23,28 @@
           header.classList.toggle('is-menu-open', open);
           document.body.classList.toggle('has-open-mobile-menu', open);
           toggle.setAttribute('aria-expanded', String(open));
+          toggle.setAttribute('aria-label', Drupal.t(open ? 'Menu sluiten' : 'Menu openen'));
 
           if (overlay) {
             overlay.hidden = !open;
           }
         };
 
+        const closeMenu = () => setMenuState(false);
+
         const setScrollState = () => {
           header.classList.toggle('is-scrolled', window.scrollY > 12);
         };
 
-        toggle.addEventListener('click', () => {
-          setMenuState(!header.classList.contains('is-menu-open'));
+        toggle.addEventListener('click', (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          const isOpen = toggle.getAttribute('aria-expanded') === 'true';
+          setMenuState(!isOpen);
         });
 
         if (overlay) {
-          overlay.addEventListener('click', () => setMenuState(false));
+          overlay.addEventListener('click', closeMenu);
         }
 
         navigation.addEventListener('click', (event) => {
@@ -49,20 +52,20 @@
             event.target.closest('a') &&
             window.matchMedia('(max-width: 1023px)').matches
           ) {
-            setMenuState(false);
+            closeMenu();
           }
         });
 
         document.addEventListener('keydown', (event) => {
-          if (event.key === 'Escape' && header.classList.contains('is-menu-open')) {
-            setMenuState(false);
+          if (event.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') {
+            closeMenu();
             toggle.focus();
           }
         });
 
         window.addEventListener('resize', () => {
           if (!window.matchMedia('(max-width: 1023px)').matches) {
-            setMenuState(false);
+            closeMenu();
           }
         });
 
