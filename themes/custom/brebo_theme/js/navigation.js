@@ -3,14 +3,22 @@
 
   Drupal.behaviors.breboNavigation = {
     attach(context) {
-      once('brebo-navigation', '.site-header', context).forEach((header) => {
+      const headers = context.matches?.('.site-header')
+        ? [context]
+        : Array.from(context.querySelectorAll?.('.site-header') || []);
+
+      headers.forEach((header) => {
         const toggle = header.querySelector('.site-header__toggle');
-        const navigation = header.querySelector('.block-menu');
+        const navigation = header.querySelector('.block-menu, .main-navigation');
         const overlay = header.querySelector('.site-header__overlay');
 
-        if (!toggle || !navigation) {
+        // BigPipe can attach the header before the menu block itself arrives.
+        // Only mark the component initialized once all required elements exist,
+        // so a later Drupal behavior pass can still wire the hamburger menu.
+        if (!toggle || !navigation || header.dataset.breboNavigationBound === 'true') {
           return;
         }
+        header.dataset.breboNavigationBound = 'true';
 
         navigation.id = 'brebo-mobile-navigation';
 
