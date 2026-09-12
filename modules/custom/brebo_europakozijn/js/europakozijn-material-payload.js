@@ -10,8 +10,10 @@
         if (!form || !calibration) return;
 
         const labels = { kunststof: 'Kunststof', aluminium: 'Aluminium', hout: 'Hout' };
+        let scheduled = false;
 
         const sync = () => {
+          scheduled = false;
           const material = form.elements.namedItem('material')?.value || 'kunststof';
           if (brandSummary) {
             brandSummary.textContent = labels[material] || labels.kunststof;
@@ -20,25 +22,32 @@
           }
 
           try {
-            const payload = JSON.parse(calibration.value || calibration.textContent || '{}');
+            const current = calibration.value || calibration.textContent || '{}';
+            const payload = JSON.parse(current);
             payload.product_selection = payload.product_selection || {};
             payload.product_selection.customer_material = material;
             payload.product_selection.brand_status = 'brebo_to_select';
             const json = JSON.stringify(payload);
-            calibration.value = json;
-            calibration.textContent = json;
+            if (json !== current) {
+              calibration.value = json;
+              calibration.textContent = json;
+            }
           }
           catch (error) {
             // The canonical configurator will populate the payload on its next render.
           }
         };
 
-        form.addEventListener('input', () => requestAnimationFrame(sync));
-        form.addEventListener('change', () => requestAnimationFrame(sync));
-        root.addEventListener('ek:configuration-loaded', () => requestAnimationFrame(sync));
-        const observer = new MutationObserver(() => requestAnimationFrame(sync));
-        observer.observe(calibration, { childList: true, characterData: true, subtree: true });
-        requestAnimationFrame(sync);
+        const scheduleSync = () => {
+          if (scheduled) return;
+          scheduled = true;
+          window.requestAnimationFrame(sync);
+        };
+
+        form.addEventListener('input', scheduleSync);
+        form.addEventListener('change', scheduleSync);
+        root.addEventListener('ek:configuration-loaded', scheduleSync);
+        scheduleSync();
       });
     },
   };
