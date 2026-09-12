@@ -14,6 +14,16 @@ brebo_europakozijn.projectstukken:
   requirements:
     _permission: 'access content'
 
+brebo_europakozijn.project_result:
+  path: '/europakozijn/projectstukken/resultaat/{intake_id}'
+  defaults:
+    _controller: '\Drupal\brebo_europakozijn\Controller\EuropakozijnProjectResultController::build'
+    _title: 'Herkende projectinformatie'
+  requirements:
+    _permission: 'access content'
+    intake_id: '[0-9a-fA-F-]{36}'
+  methods: [GET]
+
 brebo_europakozijn.validate:
   path: '/europakozijn/api/validate'
   defaults:
