@@ -9,6 +9,7 @@ configurator:
       css/europakozijn-guided-journey.css: {}
       css/europakozijn-address-lookup.css: {}
       css/europakozijn-customer-choice-cards.css: {}
+      css/europakozijn-intake-entry.css: {}
   js:
     js/europakozijn-visual-picker.js: {}
     js/europakozijn-configurator.js: {}
