@@ -93,8 +93,12 @@
 }
 
 @media (max-width: 1023px) {
-  .region-header .block-menu,
-  .region-header > .main-navigation {
+  .region-header .block-menu {
+    flex: 0 1 auto;
+    margin: 0;
+  }
+
+  #brebo-main-navigation.main-navigation {
     position: fixed;
     top: 0;
     right: 0;
@@ -107,15 +111,17 @@
     overflow-y: auto;
     background: #ffffff;
     box-shadow: -16px 0 40px rgba(17, 24, 39, 0.14);
-    transform: translateX(105%);
+    transform: translate3d(105%, 0, 0);
     visibility: hidden;
+    pointer-events: none;
     transition: transform 220ms ease, visibility 220ms ease;
+    will-change: transform;
   }
 
-  .site-header.is-menu-open .region-header .block-menu,
-  .site-header.is-menu-open .region-header > .main-navigation {
-    transform: translateX(0);
+  #brebo-main-navigation.main-navigation.is-mobile-open {
+    transform: translate3d(0, 0, 0);
     visibility: visible;
+    pointer-events: auto;
   }
 
   .site-header__toggle {
