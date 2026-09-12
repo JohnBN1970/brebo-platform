@@ -1,0 +1,73 @@
+<section class="ek-configurator ek-project-result">
+  <header class="ek-configurator__header">
+    <p class="ek-configurator__eyebrow">BREBO × Europakozijn</p>
+    <h1>Herkende projectinformatie</h1>
+    <p>Dit is wat BREBO als eerste voorstel uit de aangeleverde projectstukken heeft gehaald.</p>
+  </header>
+
+  <section class="ek-price-explanation">
+    <h2>Eerst controleren, dan pas gebruiken</h2>
+    <p><strong>{{ result.principle }}</strong></p>
+    <p>Ontbrekende of onduidelijke informatie blijft bewust open. De herkenning hieronder is dus geen definitieve kozijnstaat en nog geen technische goedkeuring.</p>
+  </section>
+
+  {% for file in result.files %}
+    {% set recognition = file.recognition ?? {} %}
+    {% set signals = recognition.signals ?? {} %}
+    <article class="ek-price-explanation ek-project-result__file">
+      <h2>{{ file.name }}</h2>
+      <p><strong>Type:</strong> {{ file.document_type }} · <strong>Status:</strong> {{ recognition.status|default('niet beoordeeld') }} · <strong>Zekerheid:</strong> {{ ((recognition.confidence|default(0)) * 100)|round }}%</p>
+      <p><strong>Uitlezing:</strong> {{ recognition.extraction_status|default('onbekend') }} via {{ recognition.extractor|default('geen extractor') }}</p>
+
+      {% if signals.references is defined and signals.references %}
+        <h3>Herkende kozijnreferenties</h3>
+        <p>{{ signals.references|join(', ') }}</p>
+      {% endif %}
+
+      {% if signals.dimensions is defined and signals.dimensions %}
+        <h3>Herkende maatcombinaties</h3>
+        <ul>
+          {% for dimension in signals.dimensions %}
+            <li>{{ dimension.width_mm }} × {{ dimension.height_mm }} mm <small>({{ dimension.basis }})</small></li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+
+      {% if signals.materials is defined and signals.materials %}
+        <h3>Materiaalverwijzingen</h3>
+        <p>{{ signals.materials|join(', ') }}</p>
+      {% endif %}
+
+      {% if signals.opening_types is defined and signals.opening_types %}
+        <h3>Herkende functies / openingstypen</h3>
+        <p>{{ signals.opening_types|join(', ') }}</p>
+      {% endif %}
+
+      {% if recognition.metadata.package_entries is defined and recognition.metadata.package_entries %}
+        <h3>Bestanden in het ZIP-projectpakket</h3>
+        <ul>
+          {% for entry in recognition.metadata.package_entries|slice(0, 30) %}
+            <li>{{ entry.name }} — {{ entry.document_type }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+
+      {% if not signals %}
+        <p><strong>Nog geen betrouwbare kozijninformatie herkend.</strong> Dat betekent niet dat er niets in het document staat; alleen dat BREBO het op dit moment niet met voldoende zekerheid als voorstel kan tonen.</p>
+      {% endif %}
+
+      {% if recognition.excerpt|default('') %}
+        <details>
+          <summary>Uitleesfragment bekijken</summary>
+          <p>{{ recognition.excerpt }}</p>
+        </details>
+      {% endif %}
+    </article>
+  {% endfor %}
+
+  <section class="ek-price-explanation">
+    <h2>Volgende stap</h2>
+    <p>BREBO gebruikt deze voorstellen om te bepalen welke kozijnen, maten en keuzes al duidelijk zijn en welke informatie nog gecontroleerd of aangevuld moet worden.</p>
+    <p><a class="ek-configurator__cta" href="/europakozijn/projectstukken">Andere projectstukken aanleveren</a></p>
+  </section>
+</section>

@@ -23,7 +23,7 @@
         const uploadButton = document.createElement('button');
         uploadButton.type = 'button';
         uploadButton.className = 'ek-configurator__cta';
-        uploadButton.textContent = 'Projectstukken uploaden';
+        uploadButton.textContent = 'Projectstukken uploaden en herkennen';
         uploadButton.disabled = true;
         status.insertAdjacentElement('afterend', uploadButton);
 
@@ -50,8 +50,8 @@
           const data = new FormData();
           files.forEach((file) => data.append('project_files[]', file, file.name));
           uploadButton.disabled = true;
-          uploadButton.textContent = 'Projectstukken veilig uploaden…';
-          status.textContent = 'De geselecteerde projectstukken worden veilig ontvangen.';
+          uploadButton.textContent = 'Uploaden en herkennen…';
+          status.textContent = 'BREBO ontvangt de projectstukken en probeert herkenbare kozijninformatie als voorstel uit te lezen.';
           try {
             const response = await fetch('/europakozijn/api/project-upload', {
               method: 'POST',
@@ -60,11 +60,16 @@
               headers: { 'Accept': 'application/json' },
             });
             const result = await response.json().catch(() => ({}));
-            if (!response.ok || !result.ok) throw new Error(result.message || 'Upload mislukt.');
+            if (!response.ok || !result.ok) throw new Error(result.message || 'Upload of herkenning mislukt.');
             panel.dataset.ekIntakeId = result.intake_id || '';
             const count = Array.isArray(result.files) ? result.files.length : files.length;
-            status.textContent = `${count} projectstuk${count === 1 ? '' : 'ken'} veilig ontvangen. BREBO kan deze nu als één intake verder verwerken.`;
-            uploadButton.textContent = 'Projectstukken ontvangen';
+            status.textContent = `${count} projectstuk${count === 1 ? '' : 'ken'} ontvangen. De herkende informatie wordt geopend.`;
+            uploadButton.textContent = 'Herkende informatie openen';
+            if (result.result_url) {
+              window.location.assign(result.result_url);
+              return;
+            }
+            uploadButton.disabled = false;
           }
           catch (error) {
             status.textContent = error.message || 'Upload mislukt. Probeer het opnieuw.';
