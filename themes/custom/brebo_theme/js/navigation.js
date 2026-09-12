@@ -9,7 +9,7 @@
 
       headers.forEach((header) => {
         const toggle = header.querySelector('.site-header__toggle');
-        const navigation = header.querySelector('.block-menu, .main-navigation');
+        const navigation = header.querySelector('#brebo-main-navigation');
         const overlay = header.querySelector('.site-header__overlay');
 
         if (!toggle || !navigation || header.dataset.breboNavigationBound === 'true') {
@@ -17,10 +17,12 @@
         }
         header.dataset.breboNavigationBound = 'true';
 
-        navigation.id = 'brebo-mobile-navigation';
+        toggle.setAttribute('aria-controls', navigation.id);
 
         const setMenuState = (open) => {
           header.classList.toggle('is-menu-open', open);
+          navigation.classList.toggle('is-mobile-open', open);
+          navigation.setAttribute('aria-hidden', String(!open));
           document.body.classList.toggle('has-open-mobile-menu', open);
           toggle.setAttribute('aria-expanded', String(open));
           toggle.setAttribute('aria-label', Drupal.t(open ? 'Menu sluiten' : 'Menu openen'));
@@ -38,9 +40,8 @@
 
         toggle.addEventListener('click', (event) => {
           event.preventDefault();
-          event.stopPropagation();
-          const isOpen = toggle.getAttribute('aria-expanded') === 'true';
-          setMenuState(!isOpen);
+          const open = toggle.getAttribute('aria-expanded') !== 'true';
+          setMenuState(open);
         });
 
         if (overlay) {
@@ -48,10 +49,7 @@
         }
 
         navigation.addEventListener('click', (event) => {
-          if (
-            event.target.closest('a') &&
-            window.matchMedia('(max-width: 1023px)').matches
-          ) {
+          if (event.target.closest('a') && window.matchMedia('(max-width: 1023px)').matches) {
             closeMenu();
           }
         });
@@ -66,10 +64,12 @@
         window.addEventListener('resize', () => {
           if (!window.matchMedia('(max-width: 1023px)').matches) {
             closeMenu();
+            navigation.removeAttribute('aria-hidden');
           }
         });
 
         window.addEventListener('scroll', setScrollState, { passive: true });
+        setMenuState(false);
         setScrollState();
       });
 
