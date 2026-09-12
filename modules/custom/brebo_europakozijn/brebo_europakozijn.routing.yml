@@ -6,6 +6,14 @@ brebo_europakozijn.configurator:
   requirements:
     _permission: 'access content'
 
+brebo_europakozijn.projectstukken:
+  path: '/europakozijn/projectstukken'
+  defaults:
+    _controller: '\Drupal\brebo_europakozijn\Controller\EuropakozijnProjectstukkenController::build'
+    _title: 'Kozijnen vanaf tekening of projectstukken'
+  requirements:
+    _permission: 'access content'
+
 brebo_europakozijn.validate:
   path: '/europakozijn/api/validate'
   defaults:
