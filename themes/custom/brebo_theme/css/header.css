@@ -172,25 +172,38 @@
 @media (max-width: 1023px) {
   .site-header__inner,
   .site-header.is-scrolled .site-header__inner {
-    min-height: 72px;
+    min-height: 62px;
   }
 
   .region-header {
     display: grid;
-    grid-template-columns: 1fr auto;
+    grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
-    gap: 0;
+    gap: 0.75rem;
+  }
+
+  /* There is exactly one visible brand in the closed mobile header. */
+  .region-header [id*="branding"],
+  .region-header [class*="branding"],
+  .region-header .block-system-branding-block,
+  .region-header img:not(.site-header__brand-logo) {
+    display: none !important;
   }
 
   .site-header__brand {
-    flex-basis: 170px;
-    width: 170px;
+    grid-column: 1;
+    grid-row: 1;
+    flex-basis: auto;
+    width: 124px;
+    max-width: 124px;
+    margin-right: 0;
   }
 
   .site-header__brand-logo,
   .site-header.is-scrolled .site-header__brand-logo {
-    width: 170px;
-    max-height: 44px;
+    width: 124px;
+    max-width: 124px;
+    max-height: 34px;
   }
 
   /* Mobile contact belongs exclusively inside the drawer menu. */
@@ -204,6 +217,8 @@
     display: inline-flex;
     grid-column: 2;
     grid-row: 1;
+    width: 42px;
+    height: 42px;
     margin-left: auto;
   }
 
