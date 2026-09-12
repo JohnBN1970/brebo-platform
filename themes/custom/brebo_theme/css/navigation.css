@@ -23,6 +23,10 @@
   margin: 0;
 }
 
+.main-menu__item--mobile-contact {
+  display: none;
+}
+
 .main-menu__link {
   position: relative;
   display: inline-flex;
@@ -138,6 +142,10 @@
 
   .main-menu__item {
     border-bottom: 1px solid var(--brebo-border);
+  }
+
+  .main-menu__item--mobile-contact {
+    display: block;
   }
 
   .main-menu__link {
