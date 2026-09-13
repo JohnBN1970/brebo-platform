@@ -11,6 +11,99 @@
     <p>Ontbrekende of onduidelijke informatie blijft bewust open. De herkenning hieronder is dus geen definitieve kozijnstaat en nog geen technische goedkeuring.</p>
   </section>
 
+  {% for context in result.context_analyses|default([]) %}
+    <section class="ek-price-explanation ek-project-result__context">
+      <p class="ek-configurator__eyebrow">SAMENHANG IN HET PROJECTPAKKET</p>
+      <h2>{{ context.package_name }}</h2>
+      <p><strong>{{ context.principle|default('BREBO koppelt informatie uit verschillende bronnen zonder die automatisch als waarheid vast te zetten.') }}</strong></p>
+
+      {% set summary = context.summary|default({}) %}
+      <p>
+        {{ summary.documents_read|default(0) }} van {{ summary.documents_indexed|default(0) }} bestanden inhoudelijk gelezen ·
+        {{ summary.types_correlated|default(0) }} kozijnreferenties over bronnen heen gekoppeld ·
+        {{ summary.conflicts|default(0) }} mogelijke conflicten
+      </p>
+
+      {% if context.types|default([]) %}
+        <h3>Voorlopige kozijnstaat uit meerdere bronnen</h3>
+        {% for type in context.types %}
+          <article class="ek-price-explanation ek-project-result__type">
+            <h3>Kozijn {{ type.reference }}</h3>
+
+            {% if type.actual_quantity is not null %}
+              <p><strong>Werkelijk aantal volgens documentatie:</strong> {{ type.actual_quantity }}</p>
+            {% else %}
+              <p><strong>Aantal:</strong> nog niet eenduidig vastgesteld.</p>
+            {% endif %}
+
+            {% if type.drawing_representation_only %}
+              <p><strong>Belangrijk:</strong> de tekening lijkt een representatief voorbeeld van dit type te tonen. Het aantal hierboven komt uit een andere projectbron en wordt dus niet afgeleid uit het aantal getekende kozijnen.</p>
+            {% endif %}
+
+            {% if type.dimension_candidates|default([]) %}
+              <p><strong>Gevonden maatvoering:</strong></p>
+              <ul>
+                {% for dimension in type.dimension_candidates %}
+                  <li>{{ dimension.width_mm }} × {{ dimension.height_mm }} mm — {{ dimension.source }} ({{ dimension.role }})</li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+
+            {% if type.quantity_candidates|default([]) %}
+              <p><strong>Bronnen voor aantallen:</strong></p>
+              <ul>
+                {% for quantity in type.quantity_candidates %}
+                  <li>{{ quantity.quantity }} stuks — {{ quantity.source }} ({{ quantity.role }}) · “{{ quantity.basis }}”</li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+
+            {% if type.materials|default([]) %}
+              <p><strong>Materiaal:</strong> {{ type.materials|join(', ') }}</p>
+            {% endif %}
+
+            {% if type.opening_types|default([]) %}
+              <p><strong>Functies / openingstypen:</strong> {{ type.opening_types|join(', ') }}</p>
+            {% endif %}
+
+            <p><strong>Status:</strong> {{ type.needs_review ? 'controle nodig' : 'bronnen zijn onderling consistent als voorstel' }}</p>
+
+            <details>
+              <summary>Gebruikte bronnen voor {{ type.reference }}</summary>
+              <ul>
+                {% for source in type.sources|default([]) %}
+                  <li>{{ source.file }} — {{ source.role }} — zekerheid uitlezing {{ (source.confidence * 100)|round }}%</li>
+                {% endfor %}
+              </ul>
+            </details>
+          </article>
+        {% endfor %}
+      {% else %}
+        <p><strong>Nog geen kozijnreferenties over bronnen heen kunnen koppelen.</strong> De losse documenten zijn hieronder wel zichtbaar zodat duidelijk blijft waar de herkenning stopt.</p>
+      {% endif %}
+
+      {% if context.conflicts|default([]) %}
+        <h3>Controlepunten</h3>
+        <ul>
+          {% for conflict in context.conflicts %}
+            <li><strong>{{ conflict.reference }} — {{ conflict.field }}:</strong> {{ conflict.message }} Gevonden: {{ conflict.values|join(', ') }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+
+      {% if context.unassigned_evidence|default([]) %}
+        <details>
+          <summary>Wel herkend, maar nog niet aan een kozijnreferentie gekoppeld</summary>
+          <ul>
+            {% for evidence in context.unassigned_evidence %}
+              <li>{{ evidence.file }} ({{ evidence.role }})</li>
+            {% endfor %}
+          </ul>
+        </details>
+      {% endif %}
+    </section>
+  {% endfor %}
+
   {% for file in result.files %}
     {% set recognition = file.recognition ?? {} %}
     {% set signals = recognition.signals ?? {} %}
@@ -67,7 +160,7 @@
 
   <section class="ek-price-explanation">
     <h2>Volgende stap</h2>
-    <p>BREBO gebruikt deze voorstellen om te bepalen welke kozijnen, maten en keuzes al duidelijk zijn en welke informatie nog gecontroleerd of aangevuld moet worden.</p>
+    <p>BREBO gebruikt deze voorstellen om te bepalen welke kozijnen, maten, aantallen en keuzes al duidelijk zijn en welke informatie nog gecontroleerd of aangevuld moet worden.</p>
     <p><a class="ek-configurator__cta" href="/europakozijn/projectstukken">Andere projectstukken aanleveren</a></p>
   </section>
 </section>

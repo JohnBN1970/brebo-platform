@@ -27,3 +27,8 @@ services:
 
   brebo_europakozijn.ventilation_requirement_resolver:
     class: Drupal\brebo_europakozijn\Ventilation\VentilationRequirementResolver
+
+  brebo_europakozijn.project_package_context_analyzer:
+    class: Drupal\brebo_europakozijn\Recognition\ProjectPackageContextAnalyzer
+    arguments:
+      - '@http_client'
