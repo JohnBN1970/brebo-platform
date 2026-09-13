@@ -10,7 +10,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final class EuropakozijnProjectResultController extends ControllerBase {
 
-  private const CONTEXT_ANALYSIS_VERSION = 1;
+  private const CONTEXT_ANALYSIS_VERSION = 2;
 
   public function __construct(
     private readonly FileSystemInterface $fileSystem,
