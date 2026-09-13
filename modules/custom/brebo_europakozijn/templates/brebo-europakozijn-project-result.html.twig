@@ -24,6 +24,21 @@
         {{ summary.conflicts|default(0) }} mogelijke conflicten
       </p>
 
+      {% if context.documents|default([]) %}
+        <details open>
+          <summary>Uitleesstatus per bestand</summary>
+          <ul>
+            {% for document in context.documents %}
+              <li>
+                <strong>{{ document.name }}</strong> — .{{ document.extension|default('?') }} — {{ document.role|default('other') }} —
+                <strong>{{ document.status|default('onbekend') }}</strong> — zekerheid {{ ((document.confidence|default(0)) * 100)|round }}%
+              </li>
+            {% endfor %}
+          </ul>
+          <p><small>Voor HEIC/HEIF moet hier na succesvolle conversie/uitlezing niet langer <code>indexed_only</code>, <code>managed_extraction_error</code> of <code>managed_extraction_unreachable</code> staan.</small></p>
+        </details>
+      {% endif %}
+
       {% if context.types|default([]) %}
         <h3>Voorlopige kozijnstaat uit meerdere bronnen</h3>
         {% for type in context.types %}
