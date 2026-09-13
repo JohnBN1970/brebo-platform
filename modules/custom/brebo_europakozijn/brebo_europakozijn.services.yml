@@ -32,3 +32,8 @@ services:
     class: Drupal\brebo_europakozijn\Recognition\ProjectPackageContextAnalyzer
     arguments:
       - '@http_client'
+
+  brebo_europakozijn.office_project_document_client:
+    class: Drupal\brebo_europakozijn\Service\EuropakozijnOfficeProjectDocumentClient
+    arguments:
+      - '@http_client'
