@@ -2,7 +2,6 @@
 
 namespace Drupal\brebo_europakozijn\Controller;
 
-use Drupal\brebo_europakozijn\Recognition\ProjectPackageContextAnalyzer;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\File\FileSystemInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -10,17 +9,13 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final class EuropakozijnProjectResultController extends ControllerBase {
 
-  private const CONTEXT_ANALYSIS_VERSION = 2;
-
   public function __construct(
     private readonly FileSystemInterface $fileSystem,
-    private readonly ProjectPackageContextAnalyzer $contextAnalyzer,
   ) {}
 
   public static function create(ContainerInterface $container): static {
     return new static(
       $container->get('file_system'),
-      $container->get('brebo_europakozijn.project_package_context_analyzer'),
     );
   }
 
@@ -45,32 +40,13 @@ final class EuropakozijnProjectResultController extends ControllerBase {
       throw new NotFoundHttpException();
     }
 
-    if ((int) ($decoded['context_analysis_version'] ?? 0) < self::CONTEXT_ANALYSIS_VERSION) {
-      $contextAnalyses = [];
-      foreach (($decoded['files'] ?? []) as $file) {
-        if (($file['extension'] ?? '') !== 'zip') {
-          continue;
-        }
-        $storedName = basename((string) ($file['stored_name'] ?? ''));
-        if ($storedName === '') {
-          continue;
-        }
-        $packagePath = $path . DIRECTORY_SEPARATOR . $storedName;
-        if (!is_file($packagePath)) {
-          continue;
-        }
-        $analysis = $this->contextAnalyzer->analyze($packagePath);
-        $analysis['package_name'] = (string) ($file['name'] ?? $storedName);
-        $contextAnalyses[] = $analysis;
-      }
-
-      $decoded['context_analysis_version'] = self::CONTEXT_ANALYSIS_VERSION;
-      $decoded['context_analyses'] = $contextAnalyses;
-      $decoded['context_analysis_created_at'] = gmdate('c');
-
-      @file_put_contents(
-        $resultFile,
-        json_encode($decoded, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+    // Office is the source of truth for website-originating project intakes.
+    // Never re-run a second local recognition pipeline on the result page.
+    if (($decoded['source_of_truth'] ?? '') === 'BREBO Office') {
+      unset(
+        $decoded['context_analyses'],
+        $decoded['context_analysis_version'],
+        $decoded['context_analysis_created_at'],
       );
     }
 
