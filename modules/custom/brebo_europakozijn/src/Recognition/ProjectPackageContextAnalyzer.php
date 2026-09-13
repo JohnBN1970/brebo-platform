@@ -101,7 +101,7 @@ final class ProjectPackageContextAnalyzer {
   }
 
   private function extractEntry(string $bytes, string $extension, string $filename): array {
-    if (in_array($extension, ['pdf', 'png', 'jpg', 'jpeg', 'webp'], TRUE)) {
+    if (in_array($extension, ['pdf', 'png', 'jpg', 'jpeg', 'webp', 'heic', 'heif'], TRUE)) {
       return $this->managedExtract($bytes, $extension, $filename);
     }
 
@@ -125,10 +125,38 @@ final class ProjectPackageContextAnalyzer {
       return ['status' => 'managed_extraction_not_configured', 'text' => '', 'confidence' => 0.0];
     }
 
-    $mime = match ($extension) {
+    $normalizedExtension = $extension;
+    $normalizedFilename = $filename;
+    $normalizedBytes = $bytes;
+
+    if (in_array($extension, ['heic', 'heif'], TRUE) && class_exists(\Imagick::class)) {
+      try {
+        $image = new \Imagick();
+        $image->readImageBlob($bytes);
+        $image->setIteratorIndex(0);
+        $image->setImageFormat('jpeg');
+        $image->setImageCompressionQuality(90);
+        $image->stripImage();
+        $converted = $image->getImageBlob();
+        $image->clear();
+        $image->destroy();
+        if (is_string($converted) && $converted !== '') {
+          $normalizedBytes = $converted;
+          $normalizedExtension = 'jpg';
+          $normalizedFilename = preg_replace('/\.(heic|heif)$/i', '.jpg', $filename) ?: ($filename . '.jpg');
+        }
+      }
+      catch (\Throwable) {
+        // Fall through and let the managed provider try the original HEIC/HEIF.
+      }
+    }
+
+    $mime = match ($normalizedExtension) {
       'pdf' => 'application/pdf',
       'png' => 'image/png',
       'webp' => 'image/webp',
+      'heic' => 'image/heic',
+      'heif' => 'image/heif',
       default => 'image/jpeg',
     };
 
@@ -141,8 +169,8 @@ final class ProjectPackageContextAnalyzer {
         ],
         'multipart' => [[
           'name' => 'document',
-          'contents' => $bytes,
-          'filename' => $filename,
+          'contents' => $normalizedBytes,
+          'filename' => $normalizedFilename,
           'headers' => ['Content-Type' => $mime],
         ]],
         'connect_timeout' => 5.0,
@@ -476,7 +504,7 @@ final class ProjectPackageContextAnalyzer {
   }
 
   private function isReadableExtension(string $extension): bool {
-    return in_array($extension, ['pdf', 'png', 'jpg', 'jpeg', 'webp', 'docx', 'xlsx'], TRUE);
+    return in_array($extension, ['pdf', 'png', 'jpg', 'jpeg', 'webp', 'heic', 'heif', 'docx', 'xlsx'], TRUE);
   }
 
   private function emptyResult(string $status): array {
