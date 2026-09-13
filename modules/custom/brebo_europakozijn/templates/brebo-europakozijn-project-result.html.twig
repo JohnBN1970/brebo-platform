@@ -8,9 +8,7 @@
     </div>
     <div class="ek-results__reference">
       <span class="ek-results__badge ek-results__badge--{{ view.state_tone }}">{{ view.state }}</span>
-      {% if view.reference %}
-        <dl><dt>Aanvraagreferentie</dt><dd>{{ view.reference }}</dd></dl>
-      {% endif %}
+      {% if view.reference %}<dl><dt>Aanvraagreferentie</dt><dd>{{ view.reference }}</dd></dl>{% endif %}
     </div>
   </div>
 
@@ -28,18 +26,18 @@
   {% endif %}
 
   {% if view.gallery %}
-    <section class="ek-results__section" aria-labelledby="project-previews-title">
+    <section class="ek-results__section ek-results__section--gallery" aria-labelledby="project-previews-title">
       <div class="ek-results__section-heading">
         <div><p class="ek-results__eyebrow">Uw aanlevering</p><h2 id="project-previews-title">De eerste stukken</h2></div>
         <a class="ek-results__text-link" href="#project-documents">Alle bestanden bekijken <span aria-hidden="true">&darr;</span></a>
       </div>
-      <p class="ek-results__muted">De eerste {{ view.gallery|length }} bestanden, in de volgorde van de aanlevering. Klik op een kaart voor de beschikbare documentinformatie.</p>
+      <p class="ek-results__muted">Direct zicht op de eerste {{ view.gallery|length }} bestanden uit uw aanlevering.</p>
       <div class="ek-results__gallery">
         {% for document in view.gallery %}
           <a class="ek-results__document-card" href="#{{ document.id }}">
             <div class="ek-results__preview">
               {% if document.thumbnail %}
-                <img src="{{ document.thumbnail }}" alt="Voorbeeld van {{ document.name }}" width="420" height="320" loading="lazy" decoding="async">
+                <img src="{{ document.thumbnail }}" alt="Voorbeeld van {{ document.name }}" width="520" height="390" loading="lazy" decoding="async">
               {% else %}
                 <div class="ek-results__placeholder">
                   <svg viewBox="0 0 48 58" width="48" height="58" fill="none" aria-hidden="true"><path d="M7 2h23l11 12v41H7z" stroke="currentColor" stroke-width="1.5"/><path d="M30 2v13h11M15 29h18M15 36h18M15 43h11" stroke="currentColor" stroke-width="1.5"/></svg>
@@ -55,7 +53,6 @@
           </a>
         {% endfor %}
       </div>
-      <p class="ek-results__caption">Een voorbeeld en een inhoudelijke uitlezing zijn verschillende dingen. Zonder beschikbaar voorbeeld tonen we het bestandsformaat.</p>
     </section>
   {% endif %}
 
@@ -67,35 +64,32 @@
     {% if view.documents %}
       <table class="ek-results__table" role="table">
         <caption class="ek-results__sr-only">Uw documenten, bestandsformaat, uitleesstatus en beschikbare brontekst</caption>
-        <thead role="rowgroup"><tr role="row"><th scope="col" role="columnheader">Document</th><th scope="col" role="columnheader">Formaat</th><th scope="col" role="columnheader">Verwerking</th><th scope="col" role="columnheader">Beschikbare informatie</th></tr></thead>
+        <thead role="rowgroup"><tr role="row"><th scope="col" role="columnheader">Document</th><th scope="col" role="columnheader">Formaat</th><th scope="col" role="columnheader">Status</th><th scope="col" role="columnheader">Inhoud</th></tr></thead>
         <tbody role="rowgroup">
           {% for document in view.documents %}
             <tr id="{{ document.id }}" tabindex="-1" role="row">
               <th scope="row" role="rowheader"><span class="ek-results__number">{{ '%02d'|format(document.number) }}</span><span class="ek-results__document-name">{{ document.name }}</span></th>
               <td data-label="Formaat" role="cell"><span class="ek-results__format-label">{{ document.format }}</span></td>
-              <td data-label="Verwerking" role="cell"><span class="ek-results__badge ek-results__badge--{{ document.tone }}">{{ document.status }}</span></td>
-              <td data-label="Informatie" role="cell">
+              <td data-label="Status" role="cell"><span class="ek-results__badge ek-results__badge--{{ document.tone }}">{{ document.status }}</span></td>
+              <td data-label="Inhoud" role="cell">
                 {% if document.excerpt %}
-                  <details class="ek-results__excerpt">
-                    <summary>Lees uitgelezen tekst<span class="ek-results__sr-only"> van {{ document.name }}</span></summary>
-                    <div class="ek-results__source-text"><p class="ek-results__source-note">Bronfragment &middot; nog geen gecontroleerde projectbeoordeling</p><p>{{ document.excerpt }}</p></div>
-                  </details>
-                {% else %}
-                  <span class="ek-results__muted">Nog geen uitgelezen tekst beschikbaar.</span>
-                {% endif %}
+                  <details class="ek-results__excerpt"><summary>Bekijk uitgelezen tekst<span class="ek-results__sr-only"> van {{ document.name }}</span></summary><div class="ek-results__source-text"><p class="ek-results__source-note">Bronfragment &middot; nog geen gecontroleerde projectbeoordeling</p><p>{{ document.excerpt }}</p></div></details>
+                {% else %}<span class="ek-results__muted">Nog geen tekst beschikbaar.</span>{% endif %}
               </td>
             </tr>
           {% endfor %}
         </tbody>
       </table>
-    {% else %}
-      <p class="ek-results__empty">Er zijn nog geen documentdetails beschikbaar. Zodra een uitleesresultaat beschikbaar is, kan het hier worden getoond.</p>
-    {% endif %}
+    {% else %}<p class="ek-results__empty">Er zijn nog geen documentdetails beschikbaar.</p>{% endif %}
     {% if view.missing_details %}<p class="ek-results__notice">Voor {{ view.missing_details }} gemelde bestanden zijn nog geen afzonderlijke documentdetails beschikbaar.</p>{% endif %}
   </section>
 
   <section class="ek-results__next" aria-labelledby="project-next-title">
-    <div><p class="ek-results__eyebrow">Eerst inzicht. Dan verder.</p><h2 id="project-next-title">Uitgelezen is nog niet gecontroleerd.</h2><p>Deze uitlezing is een eerste bron, geen definitieve kozijnstaat of technische goedkeuring. Aantallen, maatvoering en conclusies vragen een inhoudelijke beoordeling.</p></div>
-    <div class="ek-results__next-action"><a class="ek-results__button" href="/europakozijn/projectstukken">Andere projectstukken aanleveren <span aria-hidden="true">&rarr;</span></a><span>Dit start een nieuwe aanlevering.</span></div>
+    {% if not view.handoff_failed and not view.failed and not view.pending %}
+      <div><p class="ek-results__eyebrow">Van stukken naar inzicht</p><h2 id="project-next-title">Uw projectstukken staan klaar voor de volgende stap.</h2><p>De aangeleverde informatie is nu overzichtelijk bij elkaar gebracht. Vanuit hier kan de inhoud verder worden beoordeeld op aantallen, maatvoering, samenhang en aandachtspunten.</p></div>
+    {% else %}
+      <div><p class="ek-results__eyebrow">Uw projectstukken</p><h2 id="project-next-title">Dit is wat we nu uit uw aanlevering kunnen laten zien.</h2><p>De beschikbare informatie staat hierboven overzichtelijk bij elkaar. Bestanden die nog niet of niet volledig konden worden uitgelezen blijven zichtbaar gemarkeerd, zodat er geen zekerheid wordt gesuggereerd die er nog niet is.</p></div>
+    {% endif %}
+    <div class="ek-results__next-action"><a class="ek-results__button" href="/europakozijn/projectstukken">Andere projectstukken aanleveren <span aria-hidden="true">&rarr;</span></a><span>Start een nieuwe aanlevering.</span></div>
   </section>
 </article>
