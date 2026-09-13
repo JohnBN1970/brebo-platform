@@ -2,180 +2,75 @@
   <header class="ek-configurator__header">
     <p class="ek-configurator__eyebrow">BREBO × Europakozijn</p>
     <h1>Herkende projectinformatie</h1>
-    <p>Dit is wat BREBO als eerste voorstel uit de aangeleverde projectstukken heeft gehaald.</p>
+    <p>BREBO Office heeft de aangeleverde projectstukken ontvangen en inhoudelijk uitgelezen voor zover dat betrouwbaar kon.</p>
   </header>
 
   <section class="ek-price-explanation">
     <h2>Eerst controleren, dan pas gebruiken</h2>
     <p><strong>{{ result.principle }}</strong></p>
-    <p>Ontbrekende of onduidelijke informatie blijft bewust open. De herkenning hieronder is dus geen definitieve kozijnstaat en nog geen technische goedkeuring.</p>
+    <p>Ontbrekende of onduidelijke informatie blijft bewust open. De gegevens hieronder zijn voorlopige Office-resultaten en nog geen definitieve kozijnstaat of technische goedkeuring.</p>
   </section>
 
-  {% for context in result.context_analyses|default([]) %}
-    <section class="ek-price-explanation ek-project-result__context">
-      <p class="ek-configurator__eyebrow">SAMENHANG IN HET PROJECTPAKKET</p>
-      <h2>{{ context.package_name }}</h2>
-      <p><strong>{{ context.principle|default('BREBO koppelt informatie uit verschillende bronnen zonder die automatisch als waarheid vast te zetten.') }}</strong></p>
+  {% set office = result.office_summary|default({}) %}
+  <section class="ek-price-explanation ek-project-result__context">
+    <p class="ek-configurator__eyebrow">BREBO OFFICE INTAKE</p>
+    <h2>Uitleesstatus projectstukken</h2>
+    <p>
+      {{ office.documents_read|default(0) }} van {{ office.documents_indexed|default(0) }} documenten inhoudelijk uitgelezen.
+    </p>
 
-      {% set summary = context.summary|default({}) %}
-      <p>
-        {{ summary.documents_read|default(0) }} van {{ summary.documents_indexed|default(0) }} bestanden inhoudelijk gelezen ·
-        {{ summary.types_correlated|default(0) }} kozijnreferenties over bronnen heen gekoppeld ·
-        {{ summary.conflicts|default(0) }} mogelijke conflicten
-      </p>
+    {% if result.files|default([]) %}
+      {% for file in result.files %}
+        {% set office_response = file.office|default({}) %}
+        {% set recognition = office_response.recognition|default({}) %}
+        {% set documents = recognition.documents|default([]) %}
 
-      {% if context.documents|default([]) %}
-        <details open>
-          <summary>Uitleesstatus per bestand</summary>
-          <ul>
-            {% for document in context.documents %}
-              <li>
-                <strong>{{ document.name }}</strong> — .{{ document.extension|default('?') }} — {{ document.role|default('other') }} —
-                <strong>{{ document.status|default('onbekend') }}</strong> — zekerheid {{ ((document.confidence|default(0)) * 100)|round }}%
-              </li>
-            {% endfor %}
-          </ul>
-          <p><small>Voor HEIC/HEIF moet hier na succesvolle conversie/uitlezing niet langer <code>indexed_only</code>, <code>managed_extraction_error</code> of <code>managed_extraction_unreachable</code> staan.</small></p>
-        </details>
-      {% endif %}
+        <article class="ek-price-explanation ek-project-result__file">
+          <h3>{{ file.name }}</h3>
+          <p>
+            <strong>Overdracht aan Office:</strong>
+            {{ office_response.ok|default(false) ? 'ontvangen' : 'niet gelukt' }}
+            · <strong>Documenten:</strong> {{ recognition.document_count|default(0) }}
+            · <strong>Inhoudelijk uitgelezen:</strong> {{ recognition.extracted_count|default(0) }}
+          </p>
 
-      {% if context.types|default([]) %}
-        <h3>Voorlopige kozijnstaat uit meerdere bronnen</h3>
-        {% for type in context.types %}
-          <article class="ek-price-explanation ek-project-result__type">
-            <h3>Kozijn {{ type.reference }}</h3>
-
-            {% if type.actual_quantity is not null %}
-              <p><strong>Werkelijk aantal volgens documentatie:</strong> {{ type.actual_quantity }}</p>
-            {% else %}
-              <p><strong>Aantal:</strong> nog niet eenduidig vastgesteld.</p>
-            {% endif %}
-
-            {% if type.drawing_representation_only %}
-              <p><strong>Belangrijk:</strong> de tekening lijkt een representatief voorbeeld van dit type te tonen. Het aantal hierboven komt uit een andere projectbron en wordt dus niet afgeleid uit het aantal getekende kozijnen.</p>
-            {% endif %}
-
-            {% if type.dimension_candidates|default([]) %}
-              <p><strong>Gevonden maatvoering:</strong></p>
+          {% if documents %}
+            <details open>
+              <summary>Uitleesstatus per document</summary>
               <ul>
-                {% for dimension in type.dimension_candidates %}
-                  <li>{{ dimension.width_mm }} × {{ dimension.height_mm }} mm — {{ dimension.source }} ({{ dimension.role }})</li>
-                {% endfor %}
-              </ul>
-            {% endif %}
-
-            {% if type.quantity_candidates|default([]) %}
-              <p><strong>Bronnen voor aantallen:</strong></p>
-              <ul>
-                {% for quantity in type.quantity_candidates %}
-                  <li>{{ quantity.quantity }} stuks — {{ quantity.source }} ({{ quantity.role }}) · “{{ quantity.basis }}”</li>
-                {% endfor %}
-              </ul>
-            {% endif %}
-
-            {% if type.materials|default([]) %}
-              <p><strong>Materiaal:</strong> {{ type.materials|join(', ') }}</p>
-            {% endif %}
-
-            {% if type.opening_types|default([]) %}
-              <p><strong>Functies / openingstypen:</strong> {{ type.opening_types|join(', ') }}</p>
-            {% endif %}
-
-            <p><strong>Status:</strong> {{ type.needs_review ? 'controle nodig' : 'bronnen zijn onderling consistent als voorstel' }}</p>
-
-            <details>
-              <summary>Gebruikte bronnen voor {{ type.reference }}</summary>
-              <ul>
-                {% for source in type.sources|default([]) %}
-                  <li>{{ source.file }} — {{ source.role }} — zekerheid uitlezing {{ (source.confidence * 100)|round }}%</li>
+                {% for document in documents %}
+                  <li>
+                    <strong>{{ document.filename|default('document') }}</strong>
+                    — {{ document.mime_type|default('onbekend type') }}
+                    — <strong>{{ document.status|default('onbekend') }}</strong>
+                    — zekerheid {{ ((document.confidence|default(0)) * 100)|round }}%
+                    {% if document.extractor|default('') %}
+                      — {{ document.extractor }}
+                    {% endif %}
+                  </li>
                 {% endfor %}
               </ul>
             </details>
-          </article>
-        {% endfor %}
-      {% else %}
-        <p><strong>Nog geen kozijnreferenties over bronnen heen kunnen koppelen.</strong> De losse documenten zijn hieronder wel zichtbaar zodat duidelijk blijft waar de herkenning stopt.</p>
-      {% endif %}
 
-      {% if context.conflicts|default([]) %}
-        <h3>Controlepunten</h3>
-        <ul>
-          {% for conflict in context.conflicts %}
-            <li><strong>{{ conflict.reference }} — {{ conflict.field }}:</strong> {{ conflict.message }} Gevonden: {{ conflict.values|join(', ') }}</li>
-          {% endfor %}
-        </ul>
-      {% endif %}
-
-      {% if context.unassigned_evidence|default([]) %}
-        <details>
-          <summary>Wel herkend, maar nog niet aan een kozijnreferentie gekoppeld</summary>
-          <ul>
-            {% for evidence in context.unassigned_evidence %}
-              <li>{{ evidence.file }} ({{ evidence.role }})</li>
+            {% for document in documents %}
+              {% if document.excerpt|default('') %}
+                <details>
+                  <summary>Uitleesfragment — {{ document.filename|default('document') }}</summary>
+                  <p>{{ document.excerpt }}</p>
+                </details>
+              {% endif %}
             {% endfor %}
-          </ul>
-        </details>
-      {% endif %}
-    </section>
-  {% endfor %}
-
-  {% for file in result.files %}
-    {% set recognition = file.recognition ?? {} %}
-    {% set signals = recognition.signals ?? {} %}
-    <article class="ek-price-explanation ek-project-result__file">
-      <h2>{{ file.name }}</h2>
-      <p><strong>Type:</strong> {{ file.document_type }} · <strong>Status:</strong> {{ recognition.status|default('niet beoordeeld') }} · <strong>Zekerheid:</strong> {{ ((recognition.confidence|default(0)) * 100)|round }}%</p>
-      <p><strong>Uitlezing:</strong> {{ recognition.extraction_status|default('onbekend') }} via {{ recognition.extractor|default('geen extractor') }}</p>
-
-      {% if signals.references is defined and signals.references %}
-        <h3>Herkende kozijnreferenties</h3>
-        <p>{{ signals.references|join(', ') }}</p>
-      {% endif %}
-
-      {% if signals.dimensions is defined and signals.dimensions %}
-        <h3>Herkende maatcombinaties</h3>
-        <ul>
-          {% for dimension in signals.dimensions %}
-            <li>{{ dimension.width_mm }} × {{ dimension.height_mm }} mm <small>({{ dimension.basis }})</small></li>
-          {% endfor %}
-        </ul>
-      {% endif %}
-
-      {% if signals.materials is defined and signals.materials %}
-        <h3>Materiaalverwijzingen</h3>
-        <p>{{ signals.materials|join(', ') }}</p>
-      {% endif %}
-
-      {% if signals.opening_types is defined and signals.opening_types %}
-        <h3>Herkende functies / openingstypen</h3>
-        <p>{{ signals.opening_types|join(', ') }}</p>
-      {% endif %}
-
-      {% if recognition.metadata.package_entries is defined and recognition.metadata.package_entries %}
-        <h3>Bestanden in het ZIP-projectpakket</h3>
-        <ul>
-          {% for entry in recognition.metadata.package_entries|slice(0, 30) %}
-            <li>{{ entry.name }} — {{ entry.document_type }}</li>
-          {% endfor %}
-        </ul>
-      {% endif %}
-
-      {% if not signals %}
-        <p><strong>Nog geen betrouwbare kozijninformatie herkend.</strong> Dat betekent niet dat er niets in het document staat; alleen dat BREBO het op dit moment niet met voldoende zekerheid als voorstel kan tonen.</p>
-      {% endif %}
-
-      {% if recognition.excerpt|default('') %}
-        <details>
-          <summary>Uitleesfragment bekijken</summary>
-          <p>{{ recognition.excerpt }}</p>
-        </details>
-      {% endif %}
-    </article>
-  {% endfor %}
+          {% else %}
+            <p><strong>Nog geen inhoudelijke Office-resultaten beschikbaar.</strong></p>
+          {% endif %}
+        </article>
+      {% endfor %}
+    {% endif %}
+  </section>
 
   <section class="ek-price-explanation">
     <h2>Volgende stap</h2>
-    <p>BREBO gebruikt deze voorstellen om te bepalen welke kozijnen, maten, aantallen en keuzes al duidelijk zijn en welke informatie nog gecontroleerd of aangevuld moet worden.</p>
+    <p>BREBO Office gebruikt deze uitlezing als bron voor de voorlopige projectscope. Aantallen, maatvoering, typen en andere projectinformatie worden pas als voorstel getoond wanneer de bronnen voldoende betrouwbaar aan elkaar gekoppeld kunnen worden.</p>
     <p><a class="ek-configurator__cta" href="/europakozijn/projectstukken">Andere projectstukken aanleveren</a></p>
   </section>
 </section>
