@@ -2,6 +2,7 @@
 
 namespace Drupal\brebo_europakozijn\Controller;
 
+use Drupal\brebo_europakozijn\Service\ProjectResultPresenter;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\File\FileSystemInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -11,11 +12,13 @@ final class EuropakozijnProjectResultController extends ControllerBase {
 
   public function __construct(
     private readonly FileSystemInterface $fileSystem,
+    private readonly ProjectResultPresenter $presenter,
   ) {}
 
   public static function create(ContainerInterface $container): static {
     return new static(
       $container->get('file_system'),
+      $container->get('brebo_europakozijn.project_result_presenter'),
     );
   }
 
@@ -49,13 +52,14 @@ final class EuropakozijnProjectResultController extends ControllerBase {
         $decoded['context_analysis_created_at'],
       );
     }
+    $decoded['presentation'] = $this->presenter->present($decoded, $path);
 
     return [
       '#theme' => 'brebo_europakozijn_project_result',
       '#result' => $decoded,
       '#attached' => [
         'library' => [
-          'brebo_europakozijn/configurator',
+          'brebo_europakozijn/project_result',
         ],
       ],
       '#cache' => ['max-age' => 0],

@@ -26,3 +26,8 @@ configurator:
   dependencies:
     - core/drupal
     - core/once
+
+project_result:
+  css:
+    theme:
+      css/europakozijn-project-result.css: {}
