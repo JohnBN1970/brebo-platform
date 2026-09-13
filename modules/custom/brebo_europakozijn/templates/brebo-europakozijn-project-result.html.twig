@@ -85,7 +85,11 @@
   </section>
 
   <section class="ek-results__next" aria-labelledby="project-next-title">
-    <div><p class="ek-results__eyebrow">Van stukken naar inzicht</p><h2 id="project-next-title">Uw projectstukken staan klaar voor de volgende stap.</h2><p>De aangeleverde informatie is nu overzichtelijk bij elkaar gebracht. Vanuit hier kan de inhoud verder worden beoordeeld op aantallen, maatvoering, samenhang en aandachtspunten.</p></div>
+    {% if not view.handoff_failed and not view.failed and not view.pending %}
+      <div><p class="ek-results__eyebrow">Van stukken naar inzicht</p><h2 id="project-next-title">Uw projectstukken staan klaar voor de volgende stap.</h2><p>De aangeleverde informatie is nu overzichtelijk bij elkaar gebracht. Vanuit hier kan de inhoud verder worden beoordeeld op aantallen, maatvoering, samenhang en aandachtspunten.</p></div>
+    {% else %}
+      <div><p class="ek-results__eyebrow">Uw projectstukken</p><h2 id="project-next-title">Dit is wat we nu uit uw aanlevering kunnen laten zien.</h2><p>De beschikbare informatie staat hierboven overzichtelijk bij elkaar. Bestanden die nog niet of niet volledig konden worden uitgelezen blijven zichtbaar gemarkeerd, zodat er geen zekerheid wordt gesuggereerd die er nog niet is.</p></div>
+    {% endif %}
     <div class="ek-results__next-action"><a class="ek-results__button" href="/europakozijn/projectstukken">Andere projectstukken aanleveren <span aria-hidden="true">&rarr;</span></a><span>Start een nieuwe aanlevering.</span></div>
   </section>
 </article>
