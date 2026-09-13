@@ -1,0 +1,47 @@
+name: Europakozijn result layout
+
+on:
+  pull_request:
+    paths:
+      - 'modules/custom/brebo_europakozijn/**'
+      - '.github/workflows/europakozijn-result-layout.yml'
+  push:
+    branches: [develop]
+    paths:
+      - 'modules/custom/brebo_europakozijn/**'
+      - '.github/workflows/europakozijn-result-layout.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  presentation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: gd, zip
+          coverage: none
+          tools: composer:v2
+      - name: Lint module PHP
+        run: find modules/custom/brebo_europakozijn -name '*.php' -print0 | xargs -0 -n1 php -l
+      - name: Install isolated template test dependencies
+        run: |
+          mkdir -p /tmp/brebo-result-tests
+          composer require --working-dir=/tmp/brebo-result-tests --no-interaction --no-progress 'twig/twig:^3.21' 'symfony/yaml:^7.0'
+      - name: Test presentation, thumbnails and escaped Twig rendering
+        env:
+          REQUIRE_THUMBNAIL_EXTENSIONS: '1'
+          RESULT_TEST_AUTOLOAD: /tmp/brebo-result-tests/vendor/autoload.php
+          RESULT_TEST_HTML: /tmp/brebo-result-tests/result-fixture.html
+        run: |
+          php modules/custom/brebo_europakozijn/tests/project-result.php
+          php -r 'require getenv("RESULT_TEST_AUTOLOAD"); foreach (glob("modules/custom/brebo_europakozijn/*.yml") as $file) { \Symfony\Component\Yaml\Yaml::parseFile($file); }'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: result-layout-fixture
+          path: /tmp/brebo-result-tests/result-fixture.html

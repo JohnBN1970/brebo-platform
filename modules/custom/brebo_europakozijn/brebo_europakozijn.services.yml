@@ -37,3 +37,11 @@ services:
     class: Drupal\brebo_europakozijn\Service\EuropakozijnOfficeProjectDocumentClient
     arguments:
       - '@http_client'
+
+  brebo_europakozijn.project_result_thumbnail:
+    class: Drupal\brebo_europakozijn\Service\ProjectResultThumbnail
+
+  brebo_europakozijn.project_result_presenter:
+    class: Drupal\brebo_europakozijn\Service\ProjectResultPresenter
+    arguments:
+      - '@brebo_europakozijn.project_result_thumbnail'
