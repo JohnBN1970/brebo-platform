@@ -54,6 +54,8 @@ jobs:
           platform="$HOME/domains/brebobv.nl/public_html/platform"
           office_app="$HOME/domains/brebobv.nl/public_html/sboffice"
           office_webroot="$office_app/web"
+          office_settings="$office_webroot/sites/default/settings.php"
+          office_local="$office_webroot/sites/default/settings.local.php"
           php_bin=/opt/alt/php83/usr/bin/php
           [[ -x "$php_bin" ]] || php_bin="$(command -v php)"
 
@@ -61,7 +63,17 @@ jobs:
           [[ -f "$platform/vendor/drush/drush/drush.php" ]] || { echo "::error::Missing Platform Drush."; exit 1; }
           [[ -d "$office_webroot" ]] || { echo "::error::Missing Office Drupal webroot: $office_webroot"; exit 1; }
           [[ -f "$office_app/vendor/drush/drush/drush.php" ]] || { echo "::error::Missing Office Drush."; exit 1; }
-          [[ -f "$office_webroot/sites/default/settings.php" ]] || { echo "::error::Missing Office production settings.php."; exit 1; }
+          [[ -f "$office_settings" ]] || { echo "::error::Missing Office production settings.php."; exit 1; }
+
+          echo "OFFICE_SETTINGS_LOCAL_EXISTS=$([[ -f "$office_local" ]] && echo 1 || echo 0)"
+          echo "OFFICE_SETTINGS_LOCAL_READABLE=$([[ -r "$office_local" ]] && echo 1 || echo 0)"
+          echo "OFFICE_SETTINGS_HAS_SECRET_MARKER=$(grep -q 'brebo_shared_secret' "$office_settings" && echo 1 || echo 0)"
+          echo "OFFICE_SETTINGS_REFERENCES_LOCAL=$(grep -Eq 'settings\.local\.php|settings_local|settingsLocal' "$office_settings" && echo 1 || echo 0)"
+          if [[ -f "$office_local" ]]; then
+            echo "OFFICE_SETTINGS_LOCAL_HAS_SECRET_MARKER=$(grep -q 'brebo_shared_secret' "$office_local" && echo 1 || echo 0)"
+          else
+            echo "OFFICE_SETTINGS_LOCAL_HAS_SECRET_MARKER=0"
+          fi
 
           platform_drush=("$php_bin" -d memory_limit=512M "$platform/vendor/drush/drush/drush.php" --root="$platform" --no-ansi)
           office_drush=("$php_bin" -d memory_limit=512M "$office_app/vendor/drush/drush/drush.php" --root="$office_webroot" --no-ansi)
@@ -111,13 +123,12 @@ jobs:
           [[ "$platform_base_present" == "1" ]] || { echo "::error::Platform Office base URL is not configured."; exit 1; }
           [[ "$platform_base_https" == "1" ]] || { echo "::error::Platform Office base URL is not HTTPS."; exit 1; }
           [[ "$platform_secret_present" == "1" ]] || { echo "::error::Platform shared secret is not configured."; exit 1; }
-          [[ "$office_secret_present" == "1" ]] || { echo "::error::Office shared secret is not configured."; exit 1; }
+          [[ "$office_secret_present" == "1" ]] || { echo "::error::Office shared secret is not visible to Drupal runtime."; exit 1; }
           [[ "$secret_match" == "1" ]] || { echo "::error::Platform and Office shared secrets do not match."; exit 1; }
           [[ "$legacy_route_present" == "1" ]] || { echo "::error::Office legacy project-document route is unavailable."; exit 1; }
 
           code="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 20 "https://${platform_base_host}/brebo-internal/intake/europakozijn/project-document" || true)"
           echo "OFFICE_ROUTE_GET_HTTP_CODE=$code"
           [[ "$code" != "000" ]] || { echo "::error::Office route is not reachable over HTTPS."; exit 1; }
-
           echo "HANDOFF_RUNTIME_PREFLIGHT=PASS"
           REMOTE
