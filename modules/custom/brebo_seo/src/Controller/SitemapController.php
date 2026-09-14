@@ -32,7 +32,7 @@ final class SitemapController extends ControllerBase {
     foreach ($alias_storage->loadMultiple($ids) as $alias) {
       $public_path = (string) $alias->get('alias')->value;
       $internal_path = (string) $alias->get('path')->value;
-      if ($this->isPublicAlias($public_path, $internal_path)) {
+      if ($this->isPublishedNodeAlias($public_path, $internal_path)) {
         $paths[] = $public_path;
       }
     }
@@ -57,25 +57,19 @@ final class SitemapController extends ControllerBase {
   }
 
   /**
-   * Determines whether an alias belongs in the public sitemap.
+   * Allows only aliases that resolve to published content nodes.
    */
-  private function isPublicAlias(string $public_path, string $internal_path): bool {
+  private function isPublishedNodeAlias(string $public_path, string $internal_path): bool {
     if ($public_path === '' || $public_path === '/') {
       return FALSE;
     }
 
-    foreach (['/admin', '/user', '/search', '/media/', '/taxonomy/'] as $blocked) {
-      if (str_starts_with($public_path, $blocked)) {
-        return FALSE;
-      }
+    if (!preg_match('@^/node/(\d+)$@', $internal_path, $matches)) {
+      return FALSE;
     }
 
-    if (preg_match('@^/node/(\d+)$@', $internal_path, $matches)) {
-      $node = $this->entityTypeManager()->getStorage('node')->load((int) $matches[1]);
-      return $node !== NULL && $node->isPublished();
-    }
-
-    return TRUE;
+    $node = $this->entityTypeManager()->getStorage('node')->load((int) $matches[1]);
+    return $node !== NULL && $node->isPublished();
   }
 
 }
