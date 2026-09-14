@@ -1,0 +1,72 @@
+<?php
+
+/**
+ * @file
+ * Technical SEO attachments for the public BREBO website.
+ */
+
+use Drupal\Core\Url;
+
+/**
+ * Implements hook_page_attachments().
+ */
+function brebo_seo_page_attachments(array &$attachments): void {
+  if (PHP_SAPI === 'cli') {
+    return;
+  }
+
+  $request = \Drupal::request();
+  if (!$request->isMethodSafe()) {
+    return;
+  }
+
+  $path = $request->getPathInfo();
+  if (str_starts_with($path, '/admin') || str_starts_with($path, '/user')) {
+    return;
+  }
+
+  $canonical = Url::fromUserInput($path ?: '/', ['absolute' => TRUE])->toString();
+  $attachments['#attached']['html_head_link'][] = [
+    [
+      'rel' => 'canonical',
+      'href' => $canonical,
+    ],
+    TRUE,
+  ];
+
+  $descriptions = [
+    '/' => 'BREBO levert en plaatst kozijnen en glas en ondersteunt opdrachtgevers met technisch inzicht, voorbereiding, uitvoering en beheer.',
+    '/projecten' => 'Bekijk hoe BREBO onderhouds- en renovatievraagstukken rond kozijnen, glas en gebouwen technisch benadert en realiseert.',
+    '/bouwbegeleiding' => 'Onafhankelijke bouwbegeleiding bij onderhoud, renovatie en herstel: grip op kwaliteit, planning, afspraken, kosten en oplevering.',
+    '/europakozijn/samenstellen' => 'Stel uw kozijnsituatie samen en lever projectinformatie aan voor een gerichte beoordeling van kozijnen en glas.',
+    '/europakozijn/projectstukken' => 'Lever tekeningen, kozijnstaten, foto’s en andere projectstukken veilig aan voor beoordeling binnen het BREBO-proces.',
+  ];
+
+  if (isset($descriptions[$path])) {
+    $attachments['#attached']['html_head'][] = [
+      [
+        '#tag' => 'meta',
+        '#attributes' => [
+          'name' => 'description',
+          'content' => $descriptions[$path],
+        ],
+      ],
+      'brebo_seo_description',
+    ];
+  }
+
+  $attachments['#attached']['html_head'][] = [
+    [
+      '#tag' => 'script',
+      '#attributes' => ['type' => 'application/ld+json'],
+      '#value' => json_encode([
+        '@context' => 'https://schema.org',
+        '@type' => 'Organization',
+        'name' => 'BREBO Bouw en Advies BV',
+        'url' => 'https://brebobv.nl/',
+        'description' => 'Levering en plaatsing van kozijnen en glas, met technisch advies en begeleiding rond onderhoud en renovatie.',
+      ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
+    ],
+    'brebo_seo_organization_schema',
+  ];
+}
