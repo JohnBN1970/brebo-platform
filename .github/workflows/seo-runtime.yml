@@ -53,11 +53,13 @@ jobs:
           cmp -s "$platform/robots.txt" "$root/robots.txt" || { echo "::error::Public robots.txt differs from canonical source."; exit 1; }
           echo 'PUBLIC_ROBOTS_CURRENT=1'
 
-          drush=("$php_bin" -d memory_limit=512M vendor/drush/drush/drush.php --root="$platform" --no-ansi)
+          [[ -f vendor/drush/drush/drush.php ]] || { echo "::error::Drush entry point is missing."; exit 1; }
+          drush=("$php_bin" -d memory_limit=512M vendor/drush/drush/drush.php --no-ansi)
           "${drush[@]}" en -y brebo_seo
           "${drush[@]}" cr
           enabled="$("${drush[@]}" pml --type=module --status=enabled --format=list | grep -Fx 'brebo_seo' || true)"
           [[ "$enabled" == 'brebo_seo' ]] || { echo "::error::brebo_seo is not enabled."; exit 1; }
+
           sitemap_code="$(curl -sS -L -o /tmp/brebo-sitemap.xml -w '%{http_code}' --max-time 20 https://brebobv.nl/sitemap.xml)"
           robots_code="$(curl -sS -L -o /tmp/brebo-robots.txt -w '%{http_code}' --max-time 20 https://brebobv.nl/robots.txt)"
           home_code="$(curl -sS -L -o /tmp/brebo-home-seo.html -w '%{http_code}' --max-time 20 https://brebobv.nl/)"
