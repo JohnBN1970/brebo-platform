@@ -75,6 +75,15 @@ jobs:
             echo "OFFICE_SETTINGS_LOCAL_HAS_SECRET_MARKER=0"
           fi
 
+          echo "OFFICE_SECRET_FILE_CANDIDATES_BEGIN"
+          find "$HOME/domains/brebobv.nl/public_html" -maxdepth 6 -type f \( -name 'settings.php' -o -name 'settings.local.php' \) -readable 2>/dev/null | while IFS= read -r candidate; do
+            if grep -q 'brebo_shared_secret' "$candidate" 2>/dev/null; then
+              rel="${candidate#$HOME/domains/brebobv.nl/public_html/}"
+              echo "SECRET_MARKER_FILE=$rel"
+            fi
+          done
+          echo "OFFICE_SECRET_FILE_CANDIDATES_END"
+
           platform_drush=("$php_bin" -d memory_limit=512M "$platform/vendor/drush/drush/drush.php" --root="$platform" --no-ansi)
           office_drush=("$php_bin" -d memory_limit=512M "$office_app/vendor/drush/drush/drush.php" --root="$office_webroot" --no-ansi)
 
