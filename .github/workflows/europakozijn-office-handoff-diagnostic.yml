@@ -1,0 +1,121 @@
+name: Europakozijn Office handoff diagnostic
+
+on:
+  pull_request:
+    branches:
+      - develop
+    paths:
+      - '.github/workflows/europakozijn-office-handoff-diagnostic.yml'
+      - 'modules/custom/brebo_europakozijn/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    name: Diagnose website to Office handoff
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      DEPLOY_HOST: 77.37.34.160
+      DEPLOY_PORT: '65002'
+      DEPLOY_USER: u213420663
+
+    steps:
+      - name: Validate SSH secret
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ -n "$DEPLOY_SSH_KEY" ]] || { echo "::error::DEPLOY_SSH_KEY missing"; exit 1; }
+
+      - name: Configure SSH
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          : > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+          ssh -o BatchMode=yes -o ConnectTimeout=15 -o StrictHostKeyChecking=accept-new -o UserKnownHostsFile="$HOME/.ssh/known_hosts" -i ~/.ssh/deploy_key -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" 'true'
+
+      - name: Inspect production handoff contract without exposing secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          ssh -o ConnectTimeout=15 -i ~/.ssh/deploy_key -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" 'bash -se' <<'REMOTE'
+          set -euo pipefail
+
+          platform="$HOME/domains/brebobv.nl/public_html/platform"
+          office="$HOME/domains/brebobv.nl/public_html/sboffice"
+          php_bin=/opt/alt/php83/usr/bin/php
+          [[ -x "$php_bin" ]] || php_bin="$(command -v php)"
+
+          for root in "$platform" "$office"; do
+            [[ -d "$root" ]] || { echo "::error::Missing runtime root: $root"; exit 1; }
+            [[ -f "$root/vendor/drush/drush/drush.php" ]] || { echo "::error::Missing Drush in: $root"; exit 1; }
+          done
+
+          platform_drush=("$php_bin" -d memory_limit=512M "$platform/vendor/drush/drush/drush.php" --root="$platform" --no-ansi)
+          office_drush=("$php_bin" -d memory_limit=512M "$office/vendor/drush/drush/drush.php" --root="$office" --no-ansi)
+
+          platform_values="$("${platform_drush[@]}" php:eval '
+            $base = rtrim(trim((string) \Drupal\Core\Site\Settings::get("brebo_office_base_url", getenv("BREBO_OFFICE_BASE_URL") ?: "")), "/");
+            $secret = trim((string) \Drupal\Core\Site\Settings::get("brebo_shared_secret", getenv("BREBO_SHARED_SECRET") ?: ""));
+            print "BASE_PRESENT=" . ($base !== "" ? "1" : "0") . "\n";
+            print "BASE_HTTPS=" . (str_starts_with($base, "https://") ? "1" : "0") . "\n";
+            print "BASE_HOST=" . (parse_url($base, PHP_URL_HOST) ?: "") . "\n";
+            print "SECRET_PRESENT=" . ($secret !== "" ? "1" : "0") . "\n";
+            print "SECRET_HASH=" . ($secret !== "" ? hash("sha256", $secret) : "") . "\n";
+          ' 2>&1)"
+
+          office_values="$("${office_drush[@]}" php:eval '
+            $secret = trim((string) \Drupal\Core\Site\Settings::get("brebo_shared_secret", getenv("BREBO_SHARED_SECRET") ?: ""));
+            $provider = \Drupal::service("router.route_provider");
+            $legacy = TRUE;
+            try { $provider->getRouteByName("brebo_data_intake.website_europakozijn_project_document"); } catch (\Throwable $e) { $legacy = FALSE; }
+            print "SECRET_PRESENT=" . ($secret !== "" ? "1" : "0") . "\n";
+            print "SECRET_HASH=" . ($secret !== "" ? hash("sha256", $secret) : "") . "\n";
+            print "LEGACY_ROUTE_PRESENT=" . ($legacy ? "1" : "0") . "\n";
+          ' 2>&1)"
+
+          platform_base_present="$(printf '%s\n' "$platform_values" | sed -n 's/^BASE_PRESENT=//p' | tail -1)"
+          platform_base_https="$(printf '%s\n' "$platform_values" | sed -n 's/^BASE_HTTPS=//p' | tail -1)"
+          platform_base_host="$(printf '%s\n' "$platform_values" | sed -n 's/^BASE_HOST=//p' | tail -1)"
+          platform_secret_present="$(printf '%s\n' "$platform_values" | sed -n 's/^SECRET_PRESENT=//p' | tail -1)"
+          platform_secret_hash="$(printf '%s\n' "$platform_values" | sed -n 's/^SECRET_HASH=//p' | tail -1)"
+          office_secret_present="$(printf '%s\n' "$office_values" | sed -n 's/^SECRET_PRESENT=//p' | tail -1)"
+          office_secret_hash="$(printf '%s\n' "$office_values" | sed -n 's/^SECRET_HASH=//p' | tail -1)"
+          legacy_route_present="$(printf '%s\n' "$office_values" | sed -n 's/^LEGACY_ROUTE_PRESENT=//p' | tail -1)"
+
+          echo "PLATFORM_BASE_PRESENT=${platform_base_present:-0}"
+          echo "PLATFORM_BASE_HTTPS=${platform_base_https:-0}"
+          echo "PLATFORM_BASE_HOST=${platform_base_host:-missing}"
+          echo "PLATFORM_SECRET_PRESENT=${platform_secret_present:-0}"
+          echo "OFFICE_SECRET_PRESENT=${office_secret_present:-0}"
+          echo "OFFICE_LEGACY_PROJECT_DOCUMENT_ROUTE_PRESENT=${legacy_route_present:-0}"
+
+          secret_match=0
+          if [[ -n "$platform_secret_hash" && -n "$office_secret_hash" && "$platform_secret_hash" == "$office_secret_hash" ]]; then
+            secret_match=1
+          fi
+          echo "SHARED_SECRET_MATCH=$secret_match"
+
+          [[ "$platform_base_present" == "1" ]] || { echo "::error::Platform Office base URL is not configured."; exit 1; }
+          [[ "$platform_base_https" == "1" ]] || { echo "::error::Platform Office base URL is not HTTPS."; exit 1; }
+          [[ "$platform_secret_present" == "1" ]] || { echo "::error::Platform shared secret is not configured."; exit 1; }
+          [[ "$office_secret_present" == "1" ]] || { echo "::error::Office shared secret is not configured."; exit 1; }
+          [[ "$secret_match" == "1" ]] || { echo "::error::Platform and Office shared secrets do not match."; exit 1; }
+          [[ "$legacy_route_present" == "1" ]] || { echo "::error::Office legacy project-document route is unavailable."; exit 1; }
+
+          code="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 20 "https://${platform_base_host}/brebo-internal/intake/europakozijn/project-document" || true)"
+          echo "OFFICE_ROUTE_GET_HTTP_CODE=$code"
+          [[ "$code" != "000" ]] || { echo "::error::Office route is not reachable over HTTPS."; exit 1; }
+
+          echo "HANDOFF_RUNTIME_PREFLIGHT=PASS"
+          REMOTE
