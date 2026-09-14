@@ -1,0 +1,6 @@
+name: BREBO SEO
+
+type: module
+description: 'Technical SEO foundation for brebobv.nl: canonicals, metadata, structured data and XML sitemap.'
+package: BREBO
+core_version_requirement: ^11

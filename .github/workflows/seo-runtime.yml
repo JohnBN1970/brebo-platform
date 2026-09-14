@@ -1,0 +1,72 @@
+name: BREBO SEO runtime
+
+on:
+  workflow_run:
+    workflows:
+      - 'BREBO Website deploy'
+    types:
+      - completed
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'develop'
+    name: Enable and verify SEO runtime
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      DEPLOY_HOST: 77.37.34.160
+      DEPLOY_PORT: '65002'
+      DEPLOY_USER: u213420663
+
+    steps:
+      - name: Configure SSH
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ -n "$DEPLOY_SSH_KEY" ]] || { echo "::error::DEPLOY_SSH_KEY missing"; exit 1; }
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          : > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+          ssh -o BatchMode=yes -o ConnectTimeout=15 -o StrictHostKeyChecking=accept-new -o UserKnownHostsFile="$HOME/.ssh/known_hosts" -i ~/.ssh/deploy_key -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" 'true'
+
+      - name: Publish SEO root files, enable module and verify public endpoints
+        shell: bash
+        run: |
+          set -euo pipefail
+          ssh -o ConnectTimeout=15 -i ~/.ssh/deploy_key -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" 'bash -se' <<'REMOTE'
+          set -euo pipefail
+          root="$HOME/domains/brebobv.nl/public_html"
+          platform="$root/platform"
+          php_bin=/opt/alt/php83/usr/bin/php
+          [[ -x "$php_bin" ]] || php_bin="$(command -v php)"
+          cd "$platform"
+
+          [[ -f "$platform/robots.txt" ]] || { echo "::error::Canonical robots.txt is missing."; exit 1; }
+          install -m 0644 "$platform/robots.txt" "$root/robots.txt"
+          cmp -s "$platform/robots.txt" "$root/robots.txt" || { echo "::error::Public robots.txt differs from canonical source."; exit 1; }
+          echo 'PUBLIC_ROBOTS_CURRENT=1'
+
+          drush=("$php_bin" -d memory_limit=512M vendor/drush/drush/drush.php --root="$platform" --no-ansi)
+          "${drush[@]}" en -y brebo_seo
+          "${drush[@]}" cr
+          enabled="$("${drush[@]}" pml --type=module --status=enabled --format=list | grep -Fx 'brebo_seo' || true)"
+          [[ "$enabled" == 'brebo_seo' ]] || { echo "::error::brebo_seo is not enabled."; exit 1; }
+          sitemap_code="$(curl -sS -L -o /tmp/brebo-sitemap.xml -w '%{http_code}' --max-time 20 https://brebobv.nl/sitemap.xml)"
+          robots_code="$(curl -sS -L -o /tmp/brebo-robots.txt -w '%{http_code}' --max-time 20 https://brebobv.nl/robots.txt)"
+          home_code="$(curl -sS -L -o /tmp/brebo-home-seo.html -w '%{http_code}' --max-time 20 https://brebobv.nl/)"
+          [[ "$sitemap_code" == '200' ]] || { echo "::error::sitemap.xml returned $sitemap_code"; exit 1; }
+          [[ "$robots_code" == '200' ]] || { echo "::error::robots.txt returned $robots_code"; exit 1; }
+          [[ "$home_code" == '200' ]] || { echo "::error::Homepage returned $home_code"; exit 1; }
+          grep -Fq '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' /tmp/brebo-sitemap.xml
+          grep -Fq 'Sitemap: https://brebobv.nl/sitemap.xml' /tmp/brebo-robots.txt
+          grep -Fq 'rel="canonical"' /tmp/brebo-home-seo.html
+          grep -Fq 'application/ld+json' /tmp/brebo-home-seo.html
+          echo 'SEO_RUNTIME=PASS'
+          REMOTE
