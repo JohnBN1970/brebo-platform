@@ -20,6 +20,11 @@ function brebo_seo_page_attachments(array &$attachments): void {
     return;
   }
 
+  $route_name = (string) \Drupal::routeMatch()->getRouteName();
+  if (in_array($route_name, ['system.403', 'system.404'], TRUE)) {
+    return;
+  }
+
   $path = $request->getPathInfo();
   if (str_starts_with($path, '/admin') || str_starts_with($path, '/user')) {
     return;
