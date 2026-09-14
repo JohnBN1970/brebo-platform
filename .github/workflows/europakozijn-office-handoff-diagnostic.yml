@@ -52,17 +52,19 @@ jobs:
           set -euo pipefail
 
           platform="$HOME/domains/brebobv.nl/public_html/platform"
-          office="$HOME/domains/brebobv.nl/public_html/sboffice"
+          office_app="$HOME/domains/brebobv.nl/public_html/sboffice"
+          office_webroot="$office_app/web"
           php_bin=/opt/alt/php83/usr/bin/php
           [[ -x "$php_bin" ]] || php_bin="$(command -v php)"
 
-          for root in "$platform" "$office"; do
-            [[ -d "$root" ]] || { echo "::error::Missing runtime root: $root"; exit 1; }
-            [[ -f "$root/vendor/drush/drush/drush.php" ]] || { echo "::error::Missing Drush in: $root"; exit 1; }
-          done
+          [[ -d "$platform" ]] || { echo "::error::Missing Platform runtime root: $platform"; exit 1; }
+          [[ -f "$platform/vendor/drush/drush/drush.php" ]] || { echo "::error::Missing Platform Drush."; exit 1; }
+          [[ -d "$office_webroot" ]] || { echo "::error::Missing Office Drupal webroot: $office_webroot"; exit 1; }
+          [[ -f "$office_app/vendor/drush/drush/drush.php" ]] || { echo "::error::Missing Office Drush."; exit 1; }
+          [[ -f "$office_webroot/sites/default/settings.php" ]] || { echo "::error::Missing Office production settings.php."; exit 1; }
 
           platform_drush=("$php_bin" -d memory_limit=512M "$platform/vendor/drush/drush/drush.php" --root="$platform" --no-ansi)
-          office_drush=("$php_bin" -d memory_limit=512M "$office/vendor/drush/drush/drush.php" --root="$office" --no-ansi)
+          office_drush=("$php_bin" -d memory_limit=512M "$office_app/vendor/drush/drush/drush.php" --root="$office_webroot" --no-ansi)
 
           platform_values="$("${platform_drush[@]}" php:eval '
             $base = rtrim(trim((string) \Drupal\Core\Site\Settings::get("brebo_office_base_url", getenv("BREBO_OFFICE_BASE_URL") ?: "")), "/");
