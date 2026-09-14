@@ -1,0 +1,32 @@
+name: BREBO SEO foundation
+
+on:
+  pull_request:
+    branches:
+      - develop
+    paths:
+      - 'modules/custom/brebo_seo/**'
+      - 'robots.txt'
+      - '.github/workflows/seo-foundation.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate SEO foundation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate PHP and SEO contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          php -l modules/custom/brebo_seo/brebo_seo.module
+          php -l modules/custom/brebo_seo/src/Controller/SitemapController.php
+          grep -Fq 'Sitemap: https://brebobv.nl/sitemap.xml' robots.txt
+          grep -Fq "path: '/sitemap.xml'" modules/custom/brebo_seo/brebo_seo.routing.yml
+          grep -Fq "'rel' => 'canonical'" modules/custom/brebo_seo/brebo_seo.module
+          grep -Fq "application/ld+json" modules/custom/brebo_seo/brebo_seo.module
+          echo 'SEO_FOUNDATION_STATIC_CHECK=PASS'
