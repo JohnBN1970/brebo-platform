@@ -30,6 +30,28 @@ function brebo_seo_page_attachments(array &$attachments): void {
     return;
   }
 
+  // Project intake and result pages support the customer journey, but should
+  // not compete with BREBO's public service pages in search results.
+  $noindex_prefixes = [
+    '/europakozijn/samenstellen',
+    '/europakozijn/projectstukken',
+  ];
+  foreach ($noindex_prefixes as $prefix) {
+    if ($path === $prefix || str_starts_with($path, $prefix . '/')) {
+      $attachments['#attached']['html_head'][] = [
+        [
+          '#tag' => 'meta',
+          '#attributes' => [
+            'name' => 'robots',
+            'content' => 'noindex,follow',
+          ],
+        ],
+        'brebo_seo_robots',
+      ];
+      return;
+    }
+  }
+
   $canonical = Url::fromUserInput($path ?: '/', ['absolute' => TRUE])->toString();
   $attachments['#attached']['html_head_link'][] = [
     [
@@ -40,11 +62,9 @@ function brebo_seo_page_attachments(array &$attachments): void {
   ];
 
   $descriptions = [
-    '/' => 'BREBO levert en plaatst kozijnen en glas en ondersteunt opdrachtgevers met technisch inzicht, voorbereiding, uitvoering en beheer.',
-    '/projecten' => 'Bekijk hoe BREBO onderhouds- en renovatievraagstukken rond kozijnen, glas en gebouwen technisch benadert en realiseert.',
-    '/bouwbegeleiding' => 'Onafhankelijke bouwbegeleiding bij onderhoud, renovatie en herstel: grip op kwaliteit, planning, afspraken, kosten en oplevering.',
-    '/europakozijn/samenstellen' => 'Stel uw kozijnsituatie samen en lever projectinformatie aan voor een gerichte beoordeling van kozijnen en glas.',
-    '/europakozijn/projectstukken' => 'Lever tekeningen, kozijnstaten, foto’s en andere projectstukken veilig aan voor beoordeling binnen het BREBO-proces.',
+    '/' => 'BREBO levert en plaatst kozijnen en glas voor onderhoud en renovatie, met technisch inzicht van voorbereiding tot uitvoering en beheer.',
+    '/projecten' => 'Bekijk BREBO-projecten in onderhoud en renovatie, met focus op kozijnen, glas, technische voorbereiding en uitvoering.',
+    '/bouwbegeleiding' => 'Onafhankelijke bouwbegeleiding bij onderhoud en renovatie: grip op kwaliteit, planning, afspraken, kosten, uitvoering en oplevering.',
   ];
 
   if (isset($descriptions[$path])) {
