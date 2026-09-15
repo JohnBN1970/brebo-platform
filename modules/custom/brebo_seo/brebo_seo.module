@@ -19,6 +19,17 @@ function brebo_seo_titles(): array {
 }
 
 /**
+ * Returns focused meta descriptions for public landing pages.
+ */
+function brebo_seo_descriptions(): array {
+  return [
+    '/' => 'BREBO levert en plaatst kozijnen en glas voor onderhoud en renovatie, met technisch inzicht van voorbereiding tot uitvoering en beheer.',
+    '/projecten' => 'Bekijk BREBO-projecten in onderhoud en renovatie, met focus op kozijnen, glas, technische voorbereiding en uitvoering.',
+    '/bouwbegeleiding' => 'Onafhankelijke bouwbegeleiding bij onderhoud en renovatie: grip op kwaliteit, planning, afspraken, kosten, uitvoering en oplevering.',
+  ];
+}
+
+/**
  * Implements hook_preprocess_HOOK() for html.html.twig.
  */
 function brebo_seo_preprocess_html(array &$variables): void {
@@ -102,11 +113,8 @@ function brebo_seo_page_attachments(array &$attachments): void {
     TRUE,
   ];
 
-  $descriptions = [
-    '/' => 'BREBO levert en plaatst kozijnen en glas voor onderhoud en renovatie, met technisch inzicht van voorbereiding tot uitvoering en beheer.',
-    '/projecten' => 'Bekijk BREBO-projecten in onderhoud en renovatie, met focus op kozijnen, glas, technische voorbereiding en uitvoering.',
-    '/bouwbegeleiding' => 'Onafhankelijke bouwbegeleiding bij onderhoud en renovatie: grip op kwaliteit, planning, afspraken, kosten, uitvoering en oplevering.',
-  ];
+  $titles = brebo_seo_titles();
+  $descriptions = brebo_seo_descriptions();
 
   if (isset($descriptions[$path])) {
     $attachments['#attached']['html_head'][] = [
@@ -118,6 +126,41 @@ function brebo_seo_page_attachments(array &$attachments): void {
         ],
       ],
       'brebo_seo_description',
+    ];
+  }
+
+  // Keep social previews aligned with the same page-specific SEO signals.
+  if (isset($titles[$path], $descriptions[$path])) {
+    $open_graph = [
+      'og:type' => 'website',
+      'og:site_name' => 'BREBO',
+      'og:locale' => 'nl_NL',
+      'og:title' => $titles[$path],
+      'og:description' => $descriptions[$path],
+      'og:url' => $canonical,
+    ];
+    foreach ($open_graph as $property => $content) {
+      $attachments['#attached']['html_head'][] = [
+        [
+          '#tag' => 'meta',
+          '#attributes' => [
+            'property' => $property,
+            'content' => $content,
+          ],
+        ],
+        'brebo_seo_' . str_replace(':', '_', $property),
+      ];
+    }
+
+    $attachments['#attached']['html_head'][] = [
+      [
+        '#tag' => 'meta',
+        '#attributes' => [
+          'name' => 'twitter:card',
+          'content' => 'summary',
+        ],
+      ],
+      'brebo_seo_twitter_card',
     ];
   }
 
