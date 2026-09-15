@@ -30,6 +30,56 @@ function brebo_seo_descriptions(): array {
 }
 
 /**
+ * Returns page-aware schema.org data without adding unsupported claims.
+ */
+function brebo_seo_structured_data(string $path, string $canonical): array {
+  $organization_id = 'https://brebobv.nl/#organization';
+
+  $graph = [
+    [
+      '@type' => 'Organization',
+      '@id' => $organization_id,
+      'name' => 'BREBO Bouw en Advies BV',
+      'url' => 'https://brebobv.nl/',
+      'description' => 'Levering en plaatsing van kozijnen en glas, met technisch advies en begeleiding rond onderhoud en renovatie.',
+    ],
+  ];
+
+  if ($path === '/') {
+    $graph[] = [
+      '@type' => 'WebSite',
+      '@id' => 'https://brebobv.nl/#website',
+      'url' => 'https://brebobv.nl/',
+      'name' => 'BREBO',
+      'publisher' => ['@id' => $organization_id],
+    ];
+    $graph[] = [
+      '@type' => 'Service',
+      '@id' => 'https://brebobv.nl/#kozijnen-glas-service',
+      'name' => 'Kozijnen en glas leveren en plaatsen',
+      'description' => 'Levering en plaatsing van kozijnen en glas voor onderhoud en renovatie.',
+      'provider' => ['@id' => $organization_id],
+      'url' => $canonical,
+    ];
+  }
+  elseif ($path === '/bouwbegeleiding') {
+    $graph[] = [
+      '@type' => 'Service',
+      '@id' => 'https://brebobv.nl/bouwbegeleiding#service',
+      'name' => 'Onafhankelijke bouwbegeleiding',
+      'description' => 'Bouwbegeleiding bij onderhoud en renovatie met aandacht voor kwaliteit, planning, afspraken, kosten, uitvoering en oplevering.',
+      'provider' => ['@id' => $organization_id],
+      'url' => $canonical,
+    ];
+  }
+
+  return [
+    '@context' => 'https://schema.org',
+    '@graph' => $graph,
+  ];
+}
+
+/**
  * Implements hook_preprocess_HOOK() for html.html.twig.
  */
 function brebo_seo_preprocess_html(array &$variables): void {
@@ -168,14 +218,11 @@ function brebo_seo_page_attachments(array &$attachments): void {
     [
       '#tag' => 'script',
       '#attributes' => ['type' => 'application/ld+json'],
-      '#value' => json_encode([
-        '@context' => 'https://schema.org',
-        '@type' => 'Organization',
-        'name' => 'BREBO Bouw en Advies BV',
-        'url' => 'https://brebobv.nl/',
-        'description' => 'Levering en plaatsing van kozijnen en glas, met technisch advies en begeleiding rond onderhoud en renovatie.',
-      ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
+      '#value' => json_encode(
+        brebo_seo_structured_data($path, $canonical),
+        JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE,
+      ),
     ],
-    'brebo_seo_organization_schema',
+    'brebo_seo_structured_data',
   ];
 }
