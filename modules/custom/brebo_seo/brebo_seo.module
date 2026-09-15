@@ -13,8 +13,13 @@ use Drupal\Core\Url;
 function brebo_seo_titles(): array {
   return [
     '/' => 'Kozijnen en glas leveren en plaatsen | BREBO',
+    '/uw-gebouw' => 'Inzicht in uw gebouw, onderhoud en renovatie | BREBO',
+    '/onderhoud-renovatie' => 'Onderhoud en renovatie van gebouwen | BREBO',
     '/projecten' => 'Projecten in kozijnen, glas en renovatie | BREBO',
+    '/kennis-advies' => 'Kennis en technisch advies voor gebouwen | BREBO',
     '/bouwbegeleiding' => 'Onafhankelijke bouwbegeleiding bij renovatie | BREBO',
+    '/klantenservice' => 'Klantenservice voor uw gebouw en project | BREBO',
+    '/contact' => 'Contact over kozijnen, glas en renovatie | BREBO',
   ];
 }
 
@@ -24,8 +29,13 @@ function brebo_seo_titles(): array {
 function brebo_seo_descriptions(): array {
   return [
     '/' => 'BREBO levert en plaatst kozijnen en glas voor onderhoud en renovatie, met technisch inzicht van voorbereiding tot uitvoering en beheer.',
+    '/uw-gebouw' => 'Krijg grip op de technische staat van uw gebouw en bepaal gericht wat nu aandacht vraagt en wat later kan.',
+    '/onderhoud-renovatie' => 'BREBO ondersteunt onderhoud en renovatie van gebouwen met technisch inzicht, voorbereiding, regie en gerichte realisatie.',
     '/projecten' => 'Bekijk BREBO-projecten in onderhoud en renovatie, met focus op kozijnen, glas, technische voorbereiding en uitvoering.',
+    '/kennis-advies' => 'Technische kennis en praktisch advies over kozijnen, glas, gevels, onderhoud, renovatie en de samenhang binnen uw gebouw.',
     '/bouwbegeleiding' => 'Onafhankelijke bouwbegeleiding bij onderhoud en renovatie: grip op kwaliteit, planning, afspraken, kosten, uitvoering en oplevering.',
+    '/klantenservice' => 'Vind praktische informatie en ondersteuning rond uw gebouw, project, kozijnen, glas, onderhoud en uitvoering bij BREBO.',
+    '/contact' => 'Neem contact op met BREBO over kozijnen en glas leveren en plaatsen, onderhoud, renovatie, bouwbegeleiding of technisch advies.',
   ];
 }
 
