@@ -61,6 +61,22 @@ function brebo_seo_page_attachments(array &$attachments): void {
     TRUE,
   ];
 
+  $titles = [
+    '/' => 'Kozijnen en glas leveren en plaatsen | BREBO',
+    '/projecten' => 'Projecten in kozijnen, glas en renovatie | BREBO',
+    '/bouwbegeleiding' => 'Onafhankelijke bouwbegeleiding bij renovatie | BREBO',
+  ];
+
+  if (isset($titles[$path])) {
+    $attachments['#attached']['html_head'][] = [
+      [
+        '#tag' => 'title',
+        '#value' => $titles[$path],
+      ],
+      'brebo_seo_title',
+    ];
+  }
+
   $descriptions = [
     '/' => 'BREBO levert en plaatst kozijnen en glas voor onderhoud en renovatie, met technisch inzicht van voorbereiding tot uitvoering en beheer.',
     '/projecten' => 'Bekijk BREBO-projecten in onderhoud en renovatie, met focus op kozijnen, glas, technische voorbereiding en uitvoering.',
