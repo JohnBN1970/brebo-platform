@@ -18,8 +18,12 @@ final class SitemapController extends ControllerBase {
     // intake/result routes are deliberately noindex and therefore stay out.
     $paths = [
       '/',
+      '/uw-gebouw',
+      '/onderhoud-renovatie',
       '/projecten',
+      '/kennis-advies',
       '/bouwbegeleiding',
+      '/klantenservice',
       '/contact',
     ];
 
