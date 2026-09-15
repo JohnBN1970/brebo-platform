@@ -14,12 +14,12 @@ final class SitemapController extends ControllerBase {
    * Returns the XML sitemap.
    */
   public function build(): Response {
+    // Only include pages intended for indexing. Transactional Europakozijn
+    // intake/result routes are deliberately noindex and therefore stay out.
     $paths = [
       '/',
       '/projecten',
       '/bouwbegeleiding',
-      '/europakozijn/samenstellen',
-      '/europakozijn/projectstukken',
       '/contact',
     ];
 
