@@ -16,12 +16,11 @@ final class SitemapController extends ControllerBase {
   public function build(): Response {
     // Only include pages intended for indexing. Transactional Europakozijn
     // intake/result routes are deliberately noindex and therefore stay out.
+    // Alias-backed landing pages are added below only when their node is
+    // published, so unpublished or deleted content cannot remain advertised.
     $paths = [
       '/',
-      '/uw-gebouw',
-      '/onderhoud-renovatie',
       '/projecten',
-      '/kennis-advies',
       '/bouwbegeleiding',
       '/klantenservice',
       '/contact',
