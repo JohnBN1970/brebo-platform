@@ -8,6 +8,47 @@
 use Drupal\Core\Url;
 
 /**
+ * Returns focused SEO document titles for public landing pages.
+ */
+function brebo_seo_titles(): array {
+  return [
+    '/' => 'Kozijnen en glas leveren en plaatsen | BREBO',
+    '/projecten' => 'Projecten in kozijnen, glas en renovatie | BREBO',
+    '/bouwbegeleiding' => 'Onafhankelijke bouwbegeleiding bij renovatie | BREBO',
+  ];
+}
+
+/**
+ * Implements hook_preprocess_HOOK() for html.html.twig.
+ */
+function brebo_seo_preprocess_html(array &$variables): void {
+  if (PHP_SAPI === 'cli') {
+    return;
+  }
+
+  $request = \Drupal::request();
+  if (!$request->isMethodSafe()) {
+    return;
+  }
+
+  $route_name = (string) \Drupal::routeMatch()->getRouteName();
+  if (in_array($route_name, ['system.403', 'system.404'], TRUE)) {
+    return;
+  }
+
+  $path = $request->getPathInfo();
+  $titles = brebo_seo_titles();
+  if (isset($titles[$path])) {
+    // Drupal renders the one document <title> from head_title. Replacing its
+    // title part avoids emitting a second title element and leaves the H1
+    // and other visible page content untouched.
+    $variables['head_title']['title'] = $titles[$path];
+    $variables['head_title']['name'] = '';
+    $variables['head_title']['slogan'] = '';
+  }
+}
+
+/**
  * Implements hook_page_attachments().
  */
 function brebo_seo_page_attachments(array &$attachments): void {
@@ -60,22 +101,6 @@ function brebo_seo_page_attachments(array &$attachments): void {
     ],
     TRUE,
   ];
-
-  $titles = [
-    '/' => 'Kozijnen en glas leveren en plaatsen | BREBO',
-    '/projecten' => 'Projecten in kozijnen, glas en renovatie | BREBO',
-    '/bouwbegeleiding' => 'Onafhankelijke bouwbegeleiding bij renovatie | BREBO',
-  ];
-
-  if (isset($titles[$path])) {
-    $attachments['#attached']['html_head'][] = [
-      [
-        '#tag' => 'title',
-        '#value' => $titles[$path],
-      ],
-      'brebo_seo_title',
-    ];
-  }
 
   $descriptions = [
     '/' => 'BREBO levert en plaatst kozijnen en glas voor onderhoud en renovatie, met technisch inzicht van voorbereiding tot uitvoering en beheer.',
