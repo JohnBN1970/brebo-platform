@@ -142,11 +142,12 @@ function brebo_seo_page_attachments(array &$attachments): void {
     return;
   }
 
-  // Project intake and result pages support the customer journey, but should
-  // not compete with BREBO's public service pages in search results.
+  // Transactional customer-journey routes should remain crawlable for links,
+  // but should not compete with BREBO's public landing pages in search.
   $noindex_prefixes = [
     '/europakozijn/samenstellen',
     '/europakozijn/projectstukken',
+    '/contact/bericht',
   ];
   foreach ($noindex_prefixes as $prefix) {
     if ($path === $prefix || str_starts_with($path, $prefix . '/')) {
