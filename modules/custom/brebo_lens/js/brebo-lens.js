@@ -134,17 +134,25 @@
         let selectedContext = '';
         let selectedContextLabel = '';
 
-        const showJourneyStep = (stepNumber) => {
+        const showJourneyStep = (stepNumber, moveFocus = true) => {
+          let activeStep = null;
           steps.forEach((step) => {
             const selected = step.dataset.journeyStep === String(stepNumber);
             step.hidden = !selected;
             step.classList.toggle('is-active', selected);
+            if (selected) activeStep = step;
           });
           progress.forEach((item) => {
             const itemStep = Number(item.dataset.journeyProgress || 0);
             item.classList.toggle('is-active', itemStep === stepNumber);
             item.classList.toggle('is-complete', itemStep < stepNumber);
           });
+          if (moveFocus && activeStep) {
+            window.requestAnimationFrame(() => {
+              const focusTarget = activeStep.querySelector('button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])');
+              focusTarget?.focus({ preventScroll: true });
+            });
+          }
         };
 
         const renderContexts = (routeKey) => {
