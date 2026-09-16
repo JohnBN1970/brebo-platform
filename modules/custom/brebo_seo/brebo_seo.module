@@ -165,7 +165,11 @@ function brebo_seo_page_attachments(array &$attachments): void {
     }
   }
 
-  $canonical = Url::fromUserInput($path ?: '/', ['absolute' => TRUE])->toString();
+  // Let Drupal resolve the preferred outbound alias first, then pin only the
+  // scheme and host so alternate request hosts cannot become canonical.
+  $normalized = Url::fromUserInput($path ?: '/')->toString();
+  $normalized_path = parse_url($normalized, PHP_URL_PATH) ?: '/';
+  $canonical = 'https://brebobv.nl' . $normalized_path;
   $attachments['#attached']['html_head_link'][] = [
     [
       'rel' => 'canonical',
