@@ -68,7 +68,7 @@ jobs:
           [[ "$home_code" == '200' ]] || { echo "::error::Homepage returned $home_code"; exit 1; }
           grep -Fq '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' /tmp/brebo-sitemap.xml
           grep -Fq 'Sitemap: https://brebobv.nl/sitemap.xml' /tmp/brebo-robots.txt
-          grep -Fq 'rel="canonical"' /tmp/brebo-home-seo.html
+          grep -Fq '<link rel="canonical" href="https://brebobv.nl/"' /tmp/brebo-home-seo.html
           grep -Fq 'application/ld+json' /tmp/brebo-home-seo.html
           echo 'SEO_RUNTIME=PASS'
           REMOTE
