@@ -92,7 +92,15 @@ final class ContactMessageForm extends FormBase {
       'uitvoering-toezicht' => 'Uitvoering, toezicht en kwaliteitsbewaking',
       'oplevering-nazorg' => 'Oplevering, restpunten en nazorg',
     ];
-    $journeyActive = isset($routeLabels[$journeyRoute]) && isset($contextLabels[$journeyContext]);
+    $routeContexts = [
+      'orientatie' => ['staat-inzicht', 'onderhoudsplanning', 'keuze-onduidelijk', 'risico-kosten'],
+      'probleem' => ['lekkage-tocht', 'schade-slijtage', 'glas-condens', 'functioneren'],
+      'kozijnen-glas' => ['kozijnen', 'glas', 'kozijnen-glas', 'ventilatie'],
+      'documenten' => ['mjop-rapport', 'tekening-kozijnstaat', 'offerte-bestek', 'fotos-overig'],
+      'bouwbegeleiding' => ['voorbereiding', 'inkoop-aanbesteding', 'uitvoering-toezicht', 'oplevering-nazorg'],
+    ];
+    $journeyActive = isset($routeLabels[$journeyRoute], $contextLabels[$journeyContext])
+      && in_array($journeyContext, $routeContexts[$journeyRoute] ?? [], TRUE);
 
     $form['intro'] = [
       '#type' => 'container',
