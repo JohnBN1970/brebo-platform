@@ -108,7 +108,7 @@ final class ContactMessageForm extends FormBase {
       '#attributes' => ['class' => ['brebo-contact-message__intro']],
       'eyebrow' => ['#markup' => '<p class="brebo-contact__eyebrow">Contact</p>'],
       'title' => ['#markup' => $journeyActive ? '<h2>Vertel ons om welk gebouw het gaat.</h2>' : '<h2>Vertel kort wat er speelt.</h2>'],
-      'lead' => ['#markup' => $journeyActive ? '<p>Uw gebouwvraag is al meegenomen. Vul het gebouw en uw contactgegevens aan; daarna bekijken wij welke volgende stap logisch is.</p>' : '<p>Meer hoeft voor een eerste contact niet. We luisteren eerst naar uw vraag en bepalen van daaruit wat een logische volgende stap is.</p>'],
+      'lead' => ['#markup' => $journeyActive ? '<p>We weten waar uw vraag over gaat. Vertel ons alleen nog om welk gebouw het gaat en hoe we u kunnen bereiken.</p>' : '<p>Meer hoeft voor een eerste contact niet. We luisteren eerst naar uw vraag en bepalen van daaruit wat een logische volgende stap is.</p>'],
     ];
 
     if ($journeyActive) {
@@ -155,7 +155,7 @@ final class ContactMessageForm extends FormBase {
     $form['message'] = [
       '#type' => 'textarea',
       '#title' => $journeyActive ? $this->t('Aanvulling (optioneel)') : $this->t('Uw bericht'),
-      '#description' => $journeyActive ? $this->t('Alleen als u nog iets wilt meegeven. Uw gekozen gebouwvraag is al bekend.') : NULL,
+      '#description' => $journeyActive ? $this->t('Alleen als u nog iets wilt meegeven.') : NULL,
       '#required' => !$journeyActive,
       '#rows' => $journeyActive ? 5 : 7,
       '#maxlength' => 5000,
@@ -173,9 +173,11 @@ final class ContactMessageForm extends FormBase {
       '#button_type' => 'primary',
     ];
 
-    $form['aftercare'] = [
-      '#markup' => '<p class="brebo-contact-message__note">Na uw eerste bericht kunnen we gericht aangeven welke aanvullende informatie eventueel nuttig is. Heeft u al een lopend project bij BREBO? Gebruik dan de <a href="/klantenservice">Klantenservice</a>.</p>',
-    ];
+    if (!$journeyActive) {
+      $form['aftercare'] = [
+        '#markup' => '<p class="brebo-contact-message__note">Na uw eerste bericht kunnen we gericht aangeven welke aanvullende informatie eventueel nuttig is. Heeft u al een lopend project bij BREBO? Gebruik dan de <a href="/klantenservice">Klantenservice</a>.</p>',
+      ];
+    }
 
     return $form;
   }
