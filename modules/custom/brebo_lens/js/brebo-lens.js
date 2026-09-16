@@ -94,7 +94,6 @@
           'kozijnen-glas': {
             label: 'Ik wil kozijnen of glas aanpakken',
             question: 'Wat wilt u bereiken?',
-            choiceLabel: 'Kies dit doel',
             contexts: [
               ['vervangen-verduurzamen', 'Vervangen of verduurzamen'],
               ['probleem-oplossen', 'Een probleem of gebrek oplossen'],
@@ -129,12 +128,7 @@
         const progress = Array.from(journey.querySelectorAll('[data-journey-progress]'));
         const contextRoot = journey.querySelector('[data-journey-contexts]');
         const question = journey.querySelector('[data-journey-question]');
-        const routeSummary = journey.querySelector('[data-journey-route-summary]');
-        const contextSummary = journey.querySelector('[data-journey-context-summary]');
-        const cta = journey.querySelector('[data-journey-cta]');
         let selectedRoute = '';
-        let selectedContext = '';
-        let selectedContextLabel = '';
 
         const showJourneyStep = (stepNumber, moveFocus = true) => {
           let activeStep = null;
@@ -169,19 +163,10 @@
             button.dataset.journeyContext = value;
             const strong = document.createElement('strong');
             strong.textContent = label;
-            const span = document.createElement('span');
-            span.textContent = config.choiceLabel || 'Kies deze situatie';
-            button.append(strong, span);
+            button.append(strong);
             button.addEventListener('click', () => {
-              selectedContext = value;
-              selectedContextLabel = label;
-              if (routeSummary) routeSummary.textContent = config.label;
-              if (contextSummary) contextSummary.textContent = label;
-              if (cta) {
-                const params = new URLSearchParams({ route: selectedRoute, context: selectedContext });
-                cta.href = '/contact/bericht?' + params.toString();
-              }
-              showJourneyStep(3);
+              const params = new URLSearchParams({ route: selectedRoute, context: value });
+              window.location.assign('/contact/bericht?' + params.toString());
             });
             contextRoot.appendChild(button);
           });
@@ -190,8 +175,6 @@
         journey.querySelectorAll('[data-journey-route]').forEach((button) => {
           button.addEventListener('click', () => {
             selectedRoute = button.dataset.journeyRoute || '';
-            selectedContext = '';
-            selectedContextLabel = '';
             renderContexts(selectedRoute);
             showJourneyStep(2);
           });
