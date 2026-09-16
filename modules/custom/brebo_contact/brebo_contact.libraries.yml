@@ -2,3 +2,4 @@ contact:
   css:
     theme:
       css/brebo-contact.css: {}
+      css/brebo-contact-journey.css: {}

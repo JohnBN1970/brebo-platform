@@ -64,5 +64,52 @@
         <div class="brebo-lens__dots" aria-hidden="true"><span class="is-active"></span><span></span><span></span></div>
       </aside>
     </div>
+
+    <section class="brebo-journey" data-brebo-journey aria-labelledby="brebo-journey-title">
+      <div class="brebo-journey__intro">
+        <p class="brebo-lens__eyebrow">Uw gebouw</p>
+        <h2 id="brebo-journey-title">Waar kunnen we u mee helpen?</h2>
+        <p>U hoeft vooraf niet te weten welke oplossing of dienst nodig is. Kies wat het dichtst bij uw situatie komt; wij leiden u van daaruit verder.</p>
+      </div>
+
+      <div class="brebo-journey__progress" aria-label="Voortgang">
+        <span class="is-active" data-journey-progress="1">1. Uw vraag</span>
+        <span data-journey-progress="2">2. De situatie</span>
+        <span data-journey-progress="3">3. Uw gebouw</span>
+      </div>
+
+      <div class="brebo-journey__step is-active" data-journey-step="1">
+        <div class="brebo-journey__choices" role="group" aria-label="Wat speelt er bij uw gebouw?">
+          <button type="button" class="brebo-journey__choice" data-journey-route="orientatie"><strong>Ik weet nog niet wat er nodig is</strong><span>Er speelt iets aan het gebouw, maar de juiste aanpak is nog niet duidelijk.</span></button>
+          <button type="button" class="brebo-journey__choice" data-journey-route="probleem"><strong>Ik heb een concreet onderhoudsprobleem</strong><span>Er is schade, lekkage, tocht, slijtage of een ander zichtbaar probleem.</span></button>
+          <button type="button" class="brebo-journey__choice" data-journey-route="kozijnen-glas"><strong>Ik wil kozijnen of glas aanpakken</strong><span>Vervangen, verbeteren of eerst vaststellen wat technisch nodig is.</span></button>
+          <button type="button" class="brebo-journey__choice" data-journey-route="documenten"><strong>Ik heb al plannen of documenten</strong><span>Bijvoorbeeld een MJOP, rapport, tekening, kozijnstaat of offerte.</span></button>
+          <button type="button" class="brebo-journey__choice" data-journey-route="bouwbegeleiding"><strong>Ik zoek begeleiding bij een project</strong><span>Van voorbereiding en inkoop tot toezicht, oplevering en nazorg.</span></button>
+        </div>
+      </div>
+
+      <div class="brebo-journey__step" data-journey-step="2" hidden>
+        <div class="brebo-journey__step-head">
+          <button type="button" class="brebo-journey__back" data-journey-back="1">← Terug</button>
+          <p class="brebo-journey__question" data-journey-question>Wat past het beste bij uw situatie?</p>
+        </div>
+        <div class="brebo-journey__choices brebo-journey__choices--context" data-journey-contexts></div>
+      </div>
+
+      <div class="brebo-journey__step" data-journey-step="3" hidden>
+        <div class="brebo-journey__step-head">
+          <button type="button" class="brebo-journey__back" data-journey-back="2">← Terug</button>
+          <p class="brebo-journey__question">Dit nemen we mee naar uw eerste contact.</p>
+        </div>
+        <div class="brebo-journey__summary" aria-live="polite">
+          <div><span>Uw vraag</span><strong data-journey-route-summary></strong></div>
+          <div><span>Situatie</span><strong data-journey-context-summary></strong></div>
+        </div>
+        <div class="brebo-journey__next">
+          <p>Vertel ons nu alleen nog om welk gebouw het gaat en hoe we u kunnen bereiken. U hoeft uw technische oplossing nog niet zelf te bepalen.</p>
+          <a class="brebo-journey__cta" href="/contact/bericht" data-journey-cta>Verder met mijn gebouw <span aria-hidden="true">→</span></a>
+        </div>
+      </div>
+    </section>
   </div>
 </section>
