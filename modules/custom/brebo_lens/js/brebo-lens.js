@@ -93,12 +93,14 @@
           },
           'kozijnen-glas': {
             label: 'Ik wil kozijnen of glas aanpakken',
-            question: 'Wat wilt u als eerste laten beoordelen?',
+            question: 'Wat wilt u bereiken?',
+            choiceLabel: 'Kies dit doel',
             contexts: [
-              ['kozijnen', 'Kozijnen'],
-              ['glas', 'Glas'],
-              ['kozijnen-glas', 'Kozijnen én glas in samenhang'],
-              ['ventilatie', 'Kozijnen, glas en ventilatie samen'],
+              ['vervangen-verduurzamen', 'Vervangen of verduurzamen'],
+              ['probleem-oplossen', 'Een probleem of gebrek oplossen'],
+              ['onderhoud-herstel', 'Onderhoud of herstel uitvoeren'],
+              ['advies-nodig', 'Weten wat verstandig of technisch nodig is'],
+              ['doel-onduidelijk', 'Ik weet het nog niet'],
             ],
           },
           'documenten': {
@@ -168,7 +170,7 @@
             const strong = document.createElement('strong');
             strong.textContent = label;
             const span = document.createElement('span');
-            span.textContent = 'Kies deze situatie';
+            span.textContent = config.choiceLabel || 'Kies deze situatie';
             button.append(strong, span);
             button.addEventListener('click', () => {
               selectedContext = value;
