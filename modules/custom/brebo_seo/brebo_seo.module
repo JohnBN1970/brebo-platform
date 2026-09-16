@@ -5,8 +5,6 @@
  * Technical SEO attachments for the public BREBO website.
  */
 
-use Drupal\Core\Url;
-
 /**
  * Returns focused SEO document titles for public landing pages.
  */
@@ -165,7 +163,9 @@ function brebo_seo_page_attachments(array &$attachments): void {
     }
   }
 
-  $canonical = Url::fromUserInput($path ?: '/', ['absolute' => TRUE])->toString();
+  // Canonicals must always point to BREBO's single preferred public host,
+  // regardless of the hostname used for the incoming request.
+  $canonical = 'https://brebobv.nl' . ($path === '/' ? '/' : $path);
   $attachments['#attached']['html_head_link'][] = [
     [
       'rel' => 'canonical',
