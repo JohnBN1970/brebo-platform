@@ -63,7 +63,7 @@ final class SitemapController extends ControllerBase {
    * Allows only aliases that resolve to published content nodes.
    */
   private function isPublishedNodeAlias(string $public_path, string $internal_path): bool {
-    if ($public_path === '' || $public_path === '/') {
+    if ($public_path === '' || $public_path === '/' || $public_path === '/home') {
       return FALSE;
     }
 
