@@ -61,12 +61,70 @@ final class ContactMessageForm extends FormBase {
       return $form;
     }
 
+    $journeyRoute = trim((string) ($request?->query->get('route') ?? ''));
+    $journeyContext = trim((string) ($request?->query->get('context') ?? ''));
+    $routeLabels = [
+      'orientatie' => 'Ik weet nog niet wat er nodig is',
+      'probleem' => 'Ik heb een concreet onderhoudsprobleem',
+      'kozijnen-glas' => 'Ik wil kozijnen of glas aanpakken',
+      'documenten' => 'Ik heb al plannen of documenten',
+      'bouwbegeleiding' => 'Ik zoek begeleiding bij een project',
+    ];
+    $contextLabels = [
+      'staat-inzicht' => 'Ik wil eerst weten wat de staat van het gebouw is',
+      'onderhoudsplanning' => 'Ik wil onderhoud of investeringen beter kunnen plannen',
+      'keuze-onduidelijk' => 'Ik twijfel tussen meerdere technische oplossingen',
+      'risico-kosten' => 'Ik wil risico, kosten en prioriteiten eerst helder krijgen',
+      'lekkage-tocht' => 'Lekkage, tocht of vocht',
+      'schade-slijtage' => 'Schade, slijtage of houtrot',
+      'glas-condens' => 'Glas, condens of doorzicht',
+      'functioneren' => 'Ramen, deuren of onderdelen functioneren niet goed',
+      'kozijnen' => 'Kozijnen',
+      'glas' => 'Glas',
+      'kozijnen-glas' => 'Kozijnen én glas in samenhang',
+      'ventilatie' => 'Kozijnen, glas en ventilatie samen',
+      'mjop-rapport' => 'MJOP, inspectie of technisch rapport',
+      'tekening-kozijnstaat' => 'Tekeningen of kozijnstaat',
+      'offerte-bestek' => 'Offerte, bestek of aanvraagstukken',
+      'fotos-overig' => 'Foto’s of andere projectinformatie',
+      'voorbereiding' => 'Planvorming en voorbereiding',
+      'inkoop-aanbesteding' => 'Inkoop, aanbesteding of contractvorming',
+      'uitvoering-toezicht' => 'Uitvoering, toezicht en kwaliteitsbewaking',
+      'oplevering-nazorg' => 'Oplevering, restpunten en nazorg',
+    ];
+    $journeyActive = isset($routeLabels[$journeyRoute]) && isset($contextLabels[$journeyContext]);
+
     $form['intro'] = [
       '#type' => 'container',
       '#attributes' => ['class' => ['brebo-contact-message__intro']],
       'eyebrow' => ['#markup' => '<p class="brebo-contact__eyebrow">Contact</p>'],
-      'title' => ['#markup' => '<h2>Vertel kort wat er speelt.</h2>'],
-      'lead' => ['#markup' => '<p>Meer hoeft voor een eerste contact niet. We luisteren eerst naar uw vraag en bepalen van daaruit wat een logische volgende stap is.</p>'],
+      'title' => ['#markup' => $journeyActive ? '<h2>Vertel ons om welk gebouw het gaat.</h2>' : '<h2>Vertel kort wat er speelt.</h2>'],
+      'lead' => ['#markup' => $journeyActive ? '<p>Uw gebouwvraag is al meegenomen. Vul het gebouw en uw contactgegevens aan; daarna bekijken wij welke volgende stap logisch is.</p>' : '<p>Meer hoeft voor een eerste contact niet. We luisteren eerst naar uw vraag en bepalen van daaruit wat een logische volgende stap is.</p>'],
+    ];
+
+    if ($journeyActive) {
+      $safeRoute = htmlspecialchars($routeLabels[$journeyRoute], ENT_QUOTES, 'UTF-8');
+      $safeContext = htmlspecialchars($contextLabels[$journeyContext], ENT_QUOTES, 'UTF-8');
+      $form['journey_summary'] = [
+        '#markup' => '<div class="brebo-contact-message__journey"><span>Uw route</span><strong>' . $safeRoute . '</strong><small>' . $safeContext . '</small></div>',
+      ];
+    }
+
+    $form['journey_route'] = [
+      '#type' => 'hidden',
+      '#value' => $journeyActive ? $journeyRoute : '',
+    ];
+    $form['journey_context'] = [
+      '#type' => 'hidden',
+      '#value' => $journeyActive ? $journeyContext : '',
+    ];
+
+    $form['building'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Adres of naam van het gebouw'),
+      '#description' => $this->t('Bijvoorbeeld straat + huisnummer en plaats. Als het adres nog niet bekend is, kunt u ook een project- of gebouwnaam invullen.'),
+      '#required' => $journeyActive,
+      '#maxlength' => 240,
     ];
 
     $form['name'] = [
@@ -87,9 +145,10 @@ final class ContactMessageForm extends FormBase {
 
     $form['message'] = [
       '#type' => 'textarea',
-      '#title' => $this->t('Uw bericht'),
-      '#required' => TRUE,
-      '#rows' => 7,
+      '#title' => $journeyActive ? $this->t('Aanvulling (optioneel)') : $this->t('Uw bericht'),
+      '#description' => $journeyActive ? $this->t('Alleen als u nog iets wilt meegeven. Uw gekozen gebouwvraag is al bekend.') : NULL,
+      '#required' => !$journeyActive,
+      '#rows' => $journeyActive ? 5 : 7,
       '#maxlength' => 5000,
     ];
 
@@ -101,7 +160,7 @@ final class ContactMessageForm extends FormBase {
     $form['actions'] = ['#type' => 'actions'];
     $form['actions']['submit'] = [
       '#type' => 'submit',
-      '#value' => $this->t('Stuur mijn bericht'),
+      '#value' => $journeyActive ? $this->t('Stuur mijn gebouwvraag') : $this->t('Stuur mijn bericht'),
       '#button_type' => 'primary',
     ];
 
@@ -137,7 +196,10 @@ final class ContactMessageForm extends FormBase {
     $tracking = 'BREBO-WEB-' . date('Ymd') . '-' . $reference;
     $name = trim((string) $form_state->getValue('name'));
     $contact = trim((string) $form_state->getValue('contact'));
+    $building = trim((string) $form_state->getValue('building'));
     $text = trim((string) $form_state->getValue('message'));
+    $journeyRoute = trim((string) $form_state->getValue('journey_route'));
+    $journeyContext = trim((string) $form_state->getValue('journey_context'));
     $sourcePath = $request?->getPathInfo() ?? '/contact/bericht';
     $referer = $request?->headers->get('referer') ?? '-';
     $replyTo = filter_var($contact, FILTER_VALIDATE_EMAIL) ? $contact : NULL;
@@ -148,11 +210,14 @@ final class ContactMessageForm extends FormBase {
       'Kenmerk: ' . $tracking,
       'Route: ' . $sourcePath,
       'Verwijzer: ' . $referer,
+      'Gebouw: ' . ($building !== '' ? $building : '-'),
+      'Klantreis: ' . ($journeyRoute !== '' ? $journeyRoute : '-'),
+      'Situatie: ' . ($journeyContext !== '' ? $journeyContext : '-'),
       'Naam: ' . $name,
       'Bereikbaar via: ' . $contact,
       '',
       'Bericht:',
-      $text,
+      $text !== '' ? $text : '-',
       '',
       'Vervolgprincipe: eerste contact ontvangen; aanvullende scope/informatie pas gericht uitvragen in fase 2.',
     ]);
