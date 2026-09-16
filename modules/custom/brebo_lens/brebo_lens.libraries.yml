@@ -1,5 +1,5 @@
 lens:
-  version: 4.0.1
+  version: 4.0.2
   css:
     theme:
       css/brebo-lens.css: {}
