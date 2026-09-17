@@ -7,7 +7,8 @@ use GuzzleHttp\ClientInterface;
 
 final class EuropakozijnOfficeProjectDocumentClient {
 
-  private const PATH = '/brebo-internal/intake/europakozijn/project-document';
+  private const PATH = '/brebo-internal/intake/v1/project-document';
+  private const SOURCE = 'brebo-platform.europakozijn';
 
   public function __construct(private readonly ClientInterface $httpClient) {}
 
@@ -43,19 +44,17 @@ final class EuropakozijnOfficeProjectDocumentClient {
       default => 'application/octet-stream',
     };
 
+    $metadata = ['source' => self::SOURCE, 'source_label' => 'Website - Europakozijn'] + $metadata;
     $multipart = [[
       'name' => 'document',
       'contents' => $contents,
       'filename' => $originalName,
       'headers' => ['Content-Type' => $mime],
+    ], [
+      'name' => 'metadata',
+      'contents' => json_encode($metadata, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR),
+      'headers' => ['Content-Type' => 'application/json'],
     ]];
-    if ($metadata !== []) {
-      $multipart[] = [
-        'name' => 'metadata',
-        'contents' => json_encode($metadata, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR),
-        'headers' => ['Content-Type' => 'application/json'],
-      ];
-    }
 
     try {
       $response = $this->httpClient->request('POST', $baseUrl . self::PATH, [
