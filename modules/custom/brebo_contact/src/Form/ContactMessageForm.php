@@ -102,24 +102,24 @@ final class ContactMessageForm extends FormBase {
     ];
 
     // The second journey choice describes where the visitor actually is.
-    // Use that context, not the first route choice, to select the most useful
-    // page to revisit before submitting the building question.
+    // Route concrete defects and execution-ready information to realisation,
+    // uncertainty/assessment to knowledge, and project control to supervision.
     $contextDestination = [
       'staat-inzicht' => 'knowledge',
       'onderhoudsplanning' => 'knowledge',
       'keuze-onduidelijk' => 'knowledge',
       'risico-kosten' => 'knowledge',
-      'lekkage-tocht' => 'knowledge',
-      'schade-slijtage' => 'knowledge',
-      'glas-condens' => 'knowledge',
-      'functioneren' => 'knowledge',
+      'lekkage-tocht' => 'realisation',
+      'schade-slijtage' => 'realisation',
+      'glas-condens' => 'realisation',
+      'functioneren' => 'realisation',
       'vervangen-verduurzamen' => 'realisation',
       'probleem-oplossen' => 'realisation',
       'onderhoud-herstel' => 'realisation',
       'advies-nodig' => 'knowledge',
       'doel-onduidelijk' => 'knowledge',
       'mjop-rapport' => 'knowledge',
-      'tekening-kozijnstaat' => 'knowledge',
+      'tekening-kozijnstaat' => 'realisation',
       'offerte-bestek' => 'supervision',
       'fotos-overig' => 'knowledge',
       'voorbereiding' => 'supervision',
@@ -142,7 +142,7 @@ final class ContactMessageForm extends FormBase {
       ],
       'realisation' => [
         'title' => 'Van duidelijke opgave naar herstel, vervanging of renovatie.',
-        'summary' => 'Onderhoud & renovatie past wanneer duidelijk is dat er daadwerkelijk moet worden uitgevoerd, hersteld, vervangen of verbeterd.',
+        'summary' => 'Onderhoud & renovatie past wanneer er een concreet gebrek, herstelvraag of uitvoeringsopgave ligt.',
         'url' => '/onderhoud-renovatie',
         'link' => 'Bekijk Onderhoud & renovatie',
       ],
