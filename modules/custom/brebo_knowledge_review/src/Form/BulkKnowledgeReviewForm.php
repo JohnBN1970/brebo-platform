@@ -13,6 +13,7 @@ use Drupal\Core\Link;
 use Drupal\Core\Url;
 use Drupal\node\NodeInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * Bulk review cockpit for canonical BREBO KnowledgeItems.
@@ -33,6 +34,7 @@ final class BulkKnowledgeReviewForm extends FormBase {
   public function __construct(
     private readonly EntityTypeManagerInterface $entityTypeManager,
     private readonly ReviewStatusStorage $statusStorage,
+    private readonly RequestStack $requestStack,
   ) {}
 
   /**
@@ -42,6 +44,7 @@ final class BulkKnowledgeReviewForm extends FormBase {
     return new static(
       $container->get('entity_type.manager'),
       $container->get('brebo_knowledge_review.status_storage'),
+      $container->get('request_stack'),
     );
   }
 
@@ -56,16 +59,8 @@ final class BulkKnowledgeReviewForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state): array {
-    $form_state->setCached(TRUE);
     $nodes = $this->loadKnowledgeItems();
-    $snapshot = $form_state->get('revision_snapshot');
-    if (!is_array($snapshot)) {
-      $snapshot = [];
-      foreach ($nodes as $node) {
-        $snapshot[(int) $node->id()] = (int) $node->getRevisionId();
-      }
-      $form_state->set('revision_snapshot', $snapshot);
-    }
+    [$snapshotNonce, $snapshot] = $this->ensureRevisionSnapshot($form_state, $nodes);
 
     $topics = [];
     foreach ($nodes as $node) {
@@ -77,6 +72,10 @@ final class BulkKnowledgeReviewForm extends FormBase {
     }
     ksort($topics);
 
+    $form['snapshot_nonce'] = [
+      '#type' => 'hidden',
+      '#default_value' => $snapshotNonce,
+    ];
     $form['intro'] = [
       '#markup' => '<p><strong>Bulk-reviewcockpit.</strong> Werk per selectie of per kennisgebied. De automatische voorcontrole blokkeert publieke vrijgave als verplichte inhoud, bron of geldigheidscontrole ontbreekt. Goedkeuring is gebonden aan exact de revisie die op dit scherm is beoordeeld. AI-vrijgave blijft altijd uit.</p>',
     ];
@@ -172,6 +171,7 @@ final class BulkKnowledgeReviewForm extends FormBase {
         '#markup' => Link::fromTextAndUrl('Open', Url::fromRoute('brebo_knowledge_review.review', ['node' => $nid]))->toString(),
       ];
     }
+
     $form['actions'] = ['#type' => 'actions'];
     $form['actions']['apply'] = [
       '#type' => 'submit',
@@ -186,6 +186,10 @@ final class BulkKnowledgeReviewForm extends FormBase {
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state): void {
+    if ($this->revisionSnapshot($form_state) === []) {
+      $form_state->setErrorByName('items', $this->t('De beveiligde revisiesnapshot ontbreekt of is verlopen. Laad de cockpit opnieuw.'));
+      return;
+    }
     if ((string) $form_state->getValue('selection_scope') === 'topic' && trim((string) $form_state->getValue('topic')) === '') {
       $form_state->setErrorByName('topic', $this->t('Kies een kennisgebied voor deze batch.'));
       return;
@@ -204,8 +208,7 @@ final class BulkKnowledgeReviewForm extends FormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state): void {
     $selected = $this->selectedIds($form_state);
-    $snapshot = $form_state->get('revision_snapshot');
-    $snapshot = is_array($snapshot) ? $snapshot : [];
+    $snapshot = $this->revisionSnapshot($form_state);
     $action = (string) $form_state->getValue('action');
     $bulkSources = trim((string) $form_state->getValue('sources'));
     $bulkValidity = trim((string) $form_state->getValue('validity_date'));
@@ -214,6 +217,7 @@ final class BulkKnowledgeReviewForm extends FormBase {
     $nodes = $storage->loadMultiple($selected);
     $updated = 0;
     $blocked = [];
+
     foreach ($nodes as $node) {
       if (!$node instanceof NodeInterface || $node->bundle() !== 'brebo_knowledge_item') {
         continue;
@@ -224,17 +228,20 @@ final class BulkKnowledgeReviewForm extends FormBase {
         $blocked[] = $node->label() . ': revisie is gewijzigd sinds deze cockpit is geopend; laad de pagina opnieuw en beoordeel de actuele revisie.';
         continue;
       }
+
       $basis = (string) $node->get('field_knowledge_basis')->value;
       $existingSources = $this->meaningfulValue($this->lineValue($basis, 'Bronnen:')) ?? '';
       $existingValidity = $this->meaningfulValue($this->lineValue($basis, 'Geldigheid:')) ?? '';
       $sources = $bulkSources !== '' ? ($this->meaningfulValue($bulkSources) ?? '') : $existingSources;
       $validity = $bulkValidity !== '' ? ($this->meaningfulValue($bulkValidity) ?? '') : $existingValidity;
+
       if ($bulkSources !== '') {
         $basis = $this->setLine($basis, 'Bronnen:', $sources);
       }
       if ($bulkValidity !== '') {
         $basis = $this->setLine($basis, 'Geldigheid:', $validity);
       }
+
       if ($action === 'approve_publish') {
         $check = $this->precheck($node, $sources, $validity);
         if (!$check['publishable']) {
@@ -263,6 +270,7 @@ final class BulkKnowledgeReviewForm extends FormBase {
         $node->setUnpublished();
         $reviewStatus = 'in_review';
       }
+
       $node->set('field_knowledge_basis', $basis);
       $node->setNewRevision(TRUE);
       $node->setRevisionUserId((int) $this->currentUser()->id());
@@ -278,6 +286,8 @@ final class BulkKnowledgeReviewForm extends FormBase {
       );
       $updated++;
     }
+
+    $this->clearRevisionSnapshot($form_state);
     Cache::invalidateTags(['brebo_public_knowledge']);
     if ($updated > 0) {
       $this->messenger()->addStatus($this->formatPlural($updated, '1 KnowledgeItem bijgewerkt.', '@count KnowledgeItems bijgewerkt.'));
@@ -305,6 +315,72 @@ final class BulkKnowledgeReviewForm extends FormBase {
   }
 
   /**
+   * Creates or restores a server-side revision snapshot for this form instance.
+   *
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   * @param \Drupal\node\NodeInterface[] $nodes
+   *   The rendered KnowledgeItems.
+   *
+   * @return array{0:string,1:array<int,int>}
+   *   The opaque nonce and the server-side revision snapshot.
+   */
+  private function ensureRevisionSnapshot(FormStateInterface $form_state, array $nodes): array {
+    $input = $form_state->getUserInput();
+    $nonce = is_string($input['snapshot_nonce'] ?? NULL) ? trim($input['snapshot_nonce']) : '';
+    $session = $this->requestStack->getSession();
+
+    if ($nonce !== '') {
+      $stored = $session->get($this->snapshotSessionKey($nonce));
+      return [$nonce, is_array($stored) ? $stored : []];
+    }
+
+    $nonce = bin2hex(random_bytes(16));
+    $snapshot = [];
+    foreach ($nodes as $node) {
+      $snapshot[(int) $node->id()] = (int) $node->getRevisionId();
+    }
+    $session->set($this->snapshotSessionKey($nonce), $snapshot);
+    return [$nonce, $snapshot];
+  }
+
+  /**
+   * Returns the integrity-protected revision snapshot from the user session.
+   *
+   * @return array<int,int>
+   *   Node IDs keyed to the exact rendered revision IDs.
+   */
+  private function revisionSnapshot(FormStateInterface $form_state): array {
+    $nonce = trim((string) $form_state->getValue('snapshot_nonce'));
+    if ($nonce === '') {
+      $input = $form_state->getUserInput();
+      $nonce = is_string($input['snapshot_nonce'] ?? NULL) ? trim($input['snapshot_nonce']) : '';
+    }
+    if ($nonce === '') {
+      return [];
+    }
+    $stored = $this->requestStack->getSession()->get($this->snapshotSessionKey($nonce));
+    return is_array($stored) ? $stored : [];
+  }
+
+  /**
+   * Removes the consumed revision snapshot from the session.
+   */
+  private function clearRevisionSnapshot(FormStateInterface $form_state): void {
+    $nonce = trim((string) $form_state->getValue('snapshot_nonce'));
+    if ($nonce !== '') {
+      $this->requestStack->getSession()->remove($this->snapshotSessionKey($nonce));
+    }
+  }
+
+  /**
+   * Builds the private session key for a cockpit snapshot.
+   */
+  private function snapshotSessionKey(string $nonce): string {
+    return 'brebo_knowledge_review.revision_snapshot.' . $nonce;
+  }
+
+  /**
    * Returns only node IDs that were rendered in this form instance.
    *
    * @return int[]
@@ -312,8 +388,7 @@ final class BulkKnowledgeReviewForm extends FormBase {
    */
   private function selectedIds(FormStateInterface $form_state): array {
     $rows = $form_state->getValue('items') ?? [];
-    $snapshot = $form_state->get('revision_snapshot');
-    $snapshot = is_array($snapshot) ? $snapshot : [];
+    $snapshot = $this->revisionSnapshot($form_state);
     if ((string) $form_state->getValue('selection_scope') === 'topic') {
       $topic = trim((string) $form_state->getValue('topic'));
       if ($topic === '') {
@@ -327,6 +402,7 @@ final class BulkKnowledgeReviewForm extends FormBase {
       }
       return $ids;
     }
+
     $ids = [];
     foreach ($rows as $nid => $row) {
       if (!empty($row['select']) && isset($snapshot[(int) $nid])) {
