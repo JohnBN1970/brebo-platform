@@ -15,10 +15,17 @@ final class JourneyContextRoutingTest extends TestCase {
     self::assertSame('knowledge', $this->contextDestination($source, 'staat-inzicht'));
     self::assertSame('knowledge', $this->contextDestination($source, 'advies-nodig'));
     self::assertSame('knowledge', $this->contextDestination($source, 'mjop-rapport'));
+
     self::assertSame('supervision', $this->contextDestination($source, 'offerte-bestek'));
     self::assertSame('supervision', $this->contextDestination($source, 'uitvoering-toezicht'));
+
+    self::assertSame('realisation', $this->contextDestination($source, 'lekkage-tocht'));
+    self::assertSame('realisation', $this->contextDestination($source, 'schade-slijtage'));
+    self::assertSame('realisation', $this->contextDestination($source, 'glas-condens'));
+    self::assertSame('realisation', $this->contextDestination($source, 'functioneren'));
     self::assertSame('realisation', $this->contextDestination($source, 'onderhoud-herstel'));
     self::assertSame('realisation', $this->contextDestination($source, 'vervangen-verduurzamen'));
+    self::assertSame('realisation', $this->contextDestination($source, 'tekening-kozijnstaat'));
   }
 
   public function testProductionJourneyDestinationUrls(): void {
