@@ -100,40 +100,59 @@ final class ContactMessageForm extends FormBase {
       'documenten' => ['mjop-rapport', 'tekening-kozijnstaat', 'offerte-bestek', 'fotos-overig'],
       'bouwbegeleiding' => ['voorbereiding', 'inkoop-aanbesteding', 'uitvoering-toezicht', 'oplevering-nazorg'],
     ];
-    $routeInfo = [
-      'orientatie' => [
-        'title' => 'Eerst begrijpen wat er aan uw gebouw speelt.',
-        'summary' => 'BREBO begint bij het gebouw en brengt eerst de situatie, risico’s en mogelijke vervolgstappen in beeld.',
-        'url' => '/uw-gebouw',
-        'link' => 'Bekijk Uw gebouw',
-      ],
-      'probleem' => [
-        'title' => 'Eerst de oorzaak, daarna de oplossing.',
-        'summary' => 'Bij onderhoud kijken we niet alleen naar het zichtbare gebrek, maar naar oorzaak, samenhang en een passende vervolgstap.',
-        'url' => '/onderhoud-renovatie',
-        'link' => 'Bekijk Onderhoud & renovatie',
-      ],
-      'kozijnen-glas' => [
-        'title' => 'Kozijnen en glas als onderdeel van het gebouw.',
-        'summary' => 'We kijken naar de bestaande situatie, het doel en de technische samenhang voordat een oplossing wordt gekozen.',
-        'url' => '/onderhoud-renovatie',
-        'link' => 'Bekijk Onderhoud & renovatie',
-      ],
-      'documenten' => [
-        'title' => 'Bestaande informatie is een goed vertrekpunt.',
-        'summary' => 'Plannen, rapporten, tekeningen en andere projectinformatie helpen om de gebouwvraag sneller en gerichter te begrijpen.',
+
+    // The second journey choice describes where the visitor actually is.
+    // Use that context, not the first route choice, to select the most useful
+    // page to revisit before submitting the building question.
+    $contextDestination = [
+      'staat-inzicht' => 'knowledge',
+      'onderhoudsplanning' => 'knowledge',
+      'keuze-onduidelijk' => 'knowledge',
+      'risico-kosten' => 'knowledge',
+      'lekkage-tocht' => 'knowledge',
+      'schade-slijtage' => 'knowledge',
+      'glas-condens' => 'knowledge',
+      'functioneren' => 'knowledge',
+      'vervangen-verduurzamen' => 'realisation',
+      'probleem-oplossen' => 'realisation',
+      'onderhoud-herstel' => 'realisation',
+      'advies-nodig' => 'knowledge',
+      'doel-onduidelijk' => 'knowledge',
+      'mjop-rapport' => 'knowledge',
+      'tekening-kozijnstaat' => 'knowledge',
+      'offerte-bestek' => 'supervision',
+      'fotos-overig' => 'knowledge',
+      'voorbereiding' => 'supervision',
+      'inkoop-aanbesteding' => 'supervision',
+      'uitvoering-toezicht' => 'supervision',
+      'oplevering-nazorg' => 'supervision',
+    ];
+    $destinationInfo = [
+      'knowledge' => [
+        'title' => 'Eerst begrijpen wat er speelt en wat verstandig is.',
+        'summary' => 'Kennis & advies helpt om de technische situatie, oorzaak, risico’s, keuzes en prioriteiten helder te krijgen voordat een maatregel wordt gekozen.',
         'url' => '/kennis-advies',
         'link' => 'Bekijk Kennis & advies',
       ],
-      'bouwbegeleiding' => [
-        'title' => 'Begeleiding van voorbereiding tot oplevering.',
-        'summary' => 'BREBO kan ondersteunen bij voorbereiding, inkoop, uitvoering, kwaliteitsbewaking en oplevering.',
+      'supervision' => [
+        'title' => 'Grip houden op voorbereiding, afspraken en uitvoering.',
+        'summary' => 'Bouwbegeleiding sluit aan wanneer voorbereiding, inkoop, contractvorming, toezicht, kwaliteit of oplevering moet worden bewaakt.',
         'url' => '/bouwbegeleiding',
         'link' => 'Bekijk Bouwbegeleiding',
       ],
+      'realisation' => [
+        'title' => 'Van duidelijke opgave naar herstel, vervanging of renovatie.',
+        'summary' => 'Onderhoud & renovatie past wanneer duidelijk is dat er daadwerkelijk moet worden uitgevoerd, hersteld, vervangen of verbeterd.',
+        'url' => '/onderhoud-renovatie',
+        'link' => 'Bekijk Onderhoud & renovatie',
+      ],
     ];
-    $journeyActive = isset($routeLabels[$journeyRoute], $contextLabels[$journeyContext], $routeInfo[$journeyRoute])
-      && in_array($journeyContext, $routeContexts[$journeyRoute] ?? [], TRUE);
+    $journeyDestination = $contextDestination[$journeyContext] ?? '';
+    $journeyActive = isset(
+      $routeLabels[$journeyRoute],
+      $contextLabels[$journeyContext],
+      $destinationInfo[$journeyDestination],
+    ) && in_array($journeyContext, $routeContexts[$journeyRoute] ?? [], TRUE);
 
     $form['intro'] = [
       '#type' => 'container',
@@ -146,7 +165,7 @@ final class ContactMessageForm extends FormBase {
     if ($journeyActive) {
       $safeRoute = htmlspecialchars($routeLabels[$journeyRoute], ENT_QUOTES, 'UTF-8');
       $safeContext = htmlspecialchars($contextLabels[$journeyContext], ENT_QUOTES, 'UTF-8');
-      $info = $routeInfo[$journeyRoute];
+      $info = $destinationInfo[$journeyDestination];
       $safeInfoTitle = htmlspecialchars($info['title'], ENT_QUOTES, 'UTF-8');
       $safeInfoSummary = htmlspecialchars($info['summary'], ENT_QUOTES, 'UTF-8');
       $safeInfoUrl = htmlspecialchars($info['url'], ENT_QUOTES, 'UTF-8');
