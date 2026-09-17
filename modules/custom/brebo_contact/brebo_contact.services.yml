@@ -1,0 +1,5 @@
+services:
+  brebo_contact.office_website_document_client:
+    class: Drupal\brebo_contact\Service\OfficeWebsiteDocumentClient
+    arguments:
+      - '@http_client'
