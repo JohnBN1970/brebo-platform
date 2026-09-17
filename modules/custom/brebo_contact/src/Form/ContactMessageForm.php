@@ -100,7 +100,39 @@ final class ContactMessageForm extends FormBase {
       'documenten' => ['mjop-rapport', 'tekening-kozijnstaat', 'offerte-bestek', 'fotos-overig'],
       'bouwbegeleiding' => ['voorbereiding', 'inkoop-aanbesteding', 'uitvoering-toezicht', 'oplevering-nazorg'],
     ];
-    $journeyActive = isset($routeLabels[$journeyRoute], $contextLabels[$journeyContext])
+    $routeInfo = [
+      'orientatie' => [
+        'title' => 'Eerst begrijpen wat er aan uw gebouw speelt.',
+        'summary' => 'BREBO begint bij het gebouw en brengt eerst de situatie, risico’s en mogelijke vervolgstappen in beeld.',
+        'url' => '/uw-gebouw',
+        'link' => 'Bekijk Uw gebouw',
+      ],
+      'probleem' => [
+        'title' => 'Eerst de oorzaak, daarna de oplossing.',
+        'summary' => 'Bij onderhoud kijken we niet alleen naar het zichtbare gebrek, maar naar oorzaak, samenhang en een passende vervolgstap.',
+        'url' => '/onderhoud-renovatie',
+        'link' => 'Bekijk Onderhoud & renovatie',
+      ],
+      'kozijnen-glas' => [
+        'title' => 'Kozijnen en glas als onderdeel van het gebouw.',
+        'summary' => 'We kijken naar de bestaande situatie, het doel en de technische samenhang voordat een oplossing wordt gekozen.',
+        'url' => '/onderhoud-renovatie',
+        'link' => 'Bekijk Onderhoud & renovatie',
+      ],
+      'documenten' => [
+        'title' => 'Bestaande informatie is een goed vertrekpunt.',
+        'summary' => 'Plannen, rapporten, tekeningen en andere projectinformatie helpen om de gebouwvraag sneller en gerichter te begrijpen.',
+        'url' => '/kennis-advies',
+        'link' => 'Bekijk Kennis & advies',
+      ],
+      'bouwbegeleiding' => [
+        'title' => 'Begeleiding van voorbereiding tot oplevering.',
+        'summary' => 'BREBO kan ondersteunen bij voorbereiding, inkoop, uitvoering, kwaliteitsbewaking en oplevering.',
+        'url' => '/bouwbegeleiding',
+        'link' => 'Bekijk Bouwbegeleiding',
+      ],
+    ];
+    $journeyActive = isset($routeLabels[$journeyRoute], $contextLabels[$journeyContext], $routeInfo[$journeyRoute])
       && in_array($journeyContext, $routeContexts[$journeyRoute] ?? [], TRUE);
 
     $form['intro'] = [
@@ -114,6 +146,15 @@ final class ContactMessageForm extends FormBase {
     if ($journeyActive) {
       $safeRoute = htmlspecialchars($routeLabels[$journeyRoute], ENT_QUOTES, 'UTF-8');
       $safeContext = htmlspecialchars($contextLabels[$journeyContext], ENT_QUOTES, 'UTF-8');
+      $info = $routeInfo[$journeyRoute];
+      $safeInfoTitle = htmlspecialchars($info['title'], ENT_QUOTES, 'UTF-8');
+      $safeInfoSummary = htmlspecialchars($info['summary'], ENT_QUOTES, 'UTF-8');
+      $safeInfoUrl = htmlspecialchars($info['url'], ENT_QUOTES, 'UTF-8');
+      $safeInfoLink = htmlspecialchars($info['link'], ENT_QUOTES, 'UTF-8');
+
+      $form['journey_context_info'] = [
+        '#markup' => '<div class="brebo-contact-message__context"><span>Waar ging dit over?</span><strong>' . $safeInfoTitle . '</strong><p>' . $safeInfoSummary . '</p><a href="' . $safeInfoUrl . '">Nog even terugkijken? ' . $safeInfoLink . ' →</a></div>',
+      ];
       $form['journey_summary'] = [
         '#markup' => '<div class="brebo-contact-message__journey"><span>Uw route</span><strong>' . $safeRoute . '</strong><small>' . $safeContext . '</small></div>',
       ];
