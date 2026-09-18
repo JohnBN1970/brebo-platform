@@ -299,6 +299,9 @@ final class ContactMessageForm extends FormBase {
     $referer = $request?->headers->get('referer') ?? '-';
     $replyTo = filter_var($contact, FILTER_VALIDATE_EMAIL) ? $contact : NULL;
 
+    // Count the public submission attempt before any potentially expensive Office handoff.
+    $this->flood->register('brebo_contact.submit', 3600, $identifier);
+
     $documentIds = array_values(array_filter(array_map('intval', (array) $form_state->getValue('documents'))));
     if ($documentIds !== []) {
       $fileStorage = $this->entityTypeManager->getStorage('file');
@@ -324,7 +327,7 @@ final class ContactMessageForm extends FormBase {
         $handoff = $this->officeDocumentClient->send(
           (string) $file->getFileUri(),
           (string) $file->getFilename(),
-          $this->requestUuid(),
+          $this->documentRequestUuid($tracking, $fileId),
           $metadata,
         );
         if (empty($handoff['ok'])) {
@@ -333,8 +336,6 @@ final class ContactMessageForm extends FormBase {
         }
       }
     }
-
-    $this->flood->register('brebo_contact.submit', 3600, $identifier);
 
     $subject = sprintf('[BREBO-WEB][Contact][%s] Eerste contact – %s', $tracking, $name);
     $body = implode("\n", [
@@ -373,8 +374,9 @@ final class ContactMessageForm extends FormBase {
     $this->messenger()->addError($this->t('Het bericht kon niet worden verzonden. Bel BREBO via 085-5003838.'));
   }
 
-  private function requestUuid(): string {
-    $bytes = random_bytes(16);
+  private function documentRequestUuid(string $tracking, int $fileId): string {
+    $seed = hash('sha256', $tracking . '|' . $fileId, TRUE);
+    $bytes = substr($seed, 0, 16);
     $bytes[6] = chr((ord($bytes[6]) & 0x0f) | 0x40);
     $bytes[8] = chr((ord($bytes[8]) & 0x3f) | 0x80);
     $hex = bin2hex($bytes);
