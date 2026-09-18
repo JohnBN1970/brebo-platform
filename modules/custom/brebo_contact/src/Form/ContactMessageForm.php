@@ -219,7 +219,12 @@ final class ContactMessageForm extends FormBase {
     ];
 
     if ($journeyActive && $journeyRoute === 'documenten') {
-      $form['documents'] = [
+      $uploadIdentifier = $this->contactRequestStack->getCurrentRequest()?->getClientIp() ?? 'unknown';
+      if ($this->flood->isAllowed('brebo_contact.upload_form', 10, 3600, $uploadIdentifier)) {
+        // Count exposure of the anonymous upload control itself. This prevents
+        // repeatedly fetching fresh forms from bypassing submit flood control.
+        $this->flood->register('brebo_contact.upload_form', 3600, $uploadIdentifier);
+        $form['documents'] = [
         '#type' => 'managed_file',
         '#title' => $this->t('Documenten toevoegen (optioneel)'),
         '#upload_location' => 'temporary://brebo-contact/',
@@ -228,8 +233,14 @@ final class ContactMessageForm extends FormBase {
           'FileExtension' => ['extensions' => 'pdf doc docx xls xlsx jpg jpeg png webp heic heif zip'],
           'FileSizeLimit' => ['fileLimit' => 26214400],
         ],
-        '#description' => $this->t('Maximaal 5 bestanden van 25 MB per bestand. BREBO Office verwerkt de bestanden na verzending.'),
-      ];
+          '#description' => $this->t('Maximaal 5 bestanden van 25 MB per bestand. BREBO Office verwerkt de bestanden na verzending.'),
+        ];
+      }
+      else {
+        $form['documents_limit'] = [
+          '#markup' => '<p>' . $this->t('Documentupload is tijdelijk beperkt. Verstuur uw gegevens zonder bestand of neem contact op met BREBO.') . '</p>',
+        ];
+      }
     }
 
     $form['message'] = [
