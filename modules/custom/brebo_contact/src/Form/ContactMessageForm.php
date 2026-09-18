@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Drupal\brebo_contact\Form;
 
+use Drupal\brebo_contact\Service\OfficeWebsiteDocumentClient;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Flood\FloodInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
@@ -17,6 +19,8 @@ final class ContactMessageForm extends FormBase {
     private readonly MailManagerInterface $mailManager,
     private readonly FloodInterface $flood,
     private readonly RequestStack $contactRequestStack,
+    private readonly OfficeWebsiteDocumentClient $officeDocumentClient,
+    private readonly EntityTypeManagerInterface $entityTypeManager,
   ) {}
 
   public static function create(ContainerInterface $container): static {
@@ -24,6 +28,8 @@ final class ContactMessageForm extends FormBase {
       $container->get('plugin.manager.mail'),
       $container->get('flood'),
       $container->get('request_stack'),
+      $container->get('brebo_contact.office_website_document_client'),
+      $container->get('entity_type.manager'),
     );
   }
 
