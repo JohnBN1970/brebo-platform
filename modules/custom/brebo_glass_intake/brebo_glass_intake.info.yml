@@ -1,0 +1,5 @@
+name: 'BREBO Glas intake'
+type: module
+description: 'Publieke, klantgerichte intake voor glasvragen en glasvervanging.'
+package: BREBO
+core_version_requirement: ^10 || ^11
