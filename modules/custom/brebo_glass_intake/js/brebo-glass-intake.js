@@ -102,13 +102,15 @@
           }
           if (submitLink) {
             const params = new URLSearchParams({
-              onderwerp: 'Glasaanvraag',
-              aanleiding: labels.goals[selectedGoal] || '',
-              informatie: labels.sources[selectedSource] || '',
+              route: 'kozijnen-glas',
+              context: 'glas-aanvragen',
+              aanleiding: selectedGoal,
+              informatie: selectedSource,
             });
             if (building !== 'Nog niet opgegeven') params.set('gebouw', building);
             if (location) params.set('locatie', location);
             if (quantity) params.set('aantal', quantity);
+            if (frame?.value) params.set('kozijnmateriaal', frame.value);
             submitLink.href = '/contact/bericht?' + params.toString();
           }
 
