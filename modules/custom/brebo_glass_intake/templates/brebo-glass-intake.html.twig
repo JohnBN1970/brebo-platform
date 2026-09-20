@@ -1,0 +1,97 @@
+<section class="brebo-glass-intake" aria-labelledby="brebo-glass-intake-title" data-glass-intake>
+  <div class="site-container">
+    <header class="brebo-glass-intake__intro">
+      <p class="brebo-glass-intake__eyebrow">{{ 'Glas'|t }}</p>
+      <h1 id="brebo-glass-intake-title">{{ 'Vertel wat u met het glas wilt bereiken.'|t }}</h1>
+      <p>{{ 'U hoeft geen glastype, glasdikte of technische norm te kennen. Geef aan wat er speelt en wat u al weet; BREBO vraagt alleen verder waar dat echt nodig is.'|t }}</p>
+    </header>
+
+    <div class="brebo-glass-intake__principle">
+      <strong>{{ 'Geen technische vragen om het vragen.'|t }}</strong>
+      <span>{{ 'Wat uit adres, gebouw, foto’s, tekeningen of bestaande gegevens kan worden afgeleid, vragen we niet opnieuw aan u.'|t }}</span>
+    </div>
+
+    <nav class="brebo-glass-intake__progress" aria-label="{{ 'Voortgang glas-intake'|t }}">
+      <span class="is-active" data-glass-progress="1">1. {{ 'Aanleiding'|t }}</span>
+      <span data-glass-progress="2">2. {{ 'Wat u al weet'|t }}</span>
+      <span data-glass-progress="3">3. {{ 'Beschikbare informatie'|t }}</span>
+    </nav>
+
+    <section class="brebo-glass-intake__step is-active" aria-labelledby="glass-goal-title" data-glass-step="1">
+      <span class="brebo-glass-intake__number">01</span>
+      <div>
+        <h2 id="glass-goal-title">{{ 'Wat is de aanleiding?'|t }}</h2>
+        <p>{{ 'Kies wat het beste past. Daarmee bepalen we welke informatie daarna nog relevant is.'|t }}</p>
+        <div class="brebo-glass-intake__choices">
+          <button type="button" data-glass-goal="replace"><strong>{{ 'Bestaand glas vervangen of verduurzamen'|t }}</strong><span>{{ 'Bijvoorbeeld HR++/triple, comfort of energieprestatie verbeteren.'|t }}</span></button>
+          <button type="button" data-glass-goal="damage"><strong>{{ 'Condens, lekkage of beschadiging'|t }}</strong><span>{{ 'Er is een zichtbaar probleem dat u wilt laten oplossen.'|t }}</span></button>
+          <button type="button" data-glass-goal="comfort"><strong>{{ 'Meer comfort, minder geluid of minder zonbelasting'|t }}</strong><span>{{ 'Het glas functioneert, maar u wilt een betere prestatie.'|t }}</span></button>
+          <button type="button" data-glass-goal="special"><strong>{{ 'Veiligheid of bijzondere toepassing'|t }}</strong><span>{{ 'Bijvoorbeeld deur, lage borstwering of andere bijzondere situatie.'|t }}</span></button>
+          <button type="button" data-glass-goal="unknown"><strong>{{ 'Ik weet nog niet wat technisch nodig is'|t }}</strong><span>{{ 'U ziet of ervaart iets, maar wilt eerst weten wat verstandig is.'|t }}</span></button>
+        </div>
+        <div class="brebo-glass-intake__selection" data-glass-goal-summary hidden></div>
+      </div>
+    </section>
+
+    <section class="brebo-glass-intake__step" aria-labelledby="glass-known-title" data-glass-step="2" hidden>
+      <span class="brebo-glass-intake__number">02</span>
+      <div>
+        <h2 id="glass-known-title">{{ 'Wat weet u al?'|t }}</h2>
+        <p>{{ 'Alleen invullen wat bekend is. Onbekend is een geldig antwoord.'|t }}</p>
+        <div class="brebo-glass-intake__fields">
+          <label>{{ 'Adres of naam van het gebouw'|t }}<input type="text" data-glass-field="building" autocomplete="street-address"></label>
+          <label>{{ 'Waar zit het glas?'|t }}<input type="text" data-glass-field="location" placeholder="{{ 'Bijvoorbeeld voorgevel, woning 24, woonkamer'|t }}"></label>
+          <label>{{ 'Kozijnmateriaal'|t }}
+            <select data-glass-field="frame">
+              <option value="">{{ '- Onbekend -'|t }}</option>
+              <option value="wood">{{ 'Hout'|t }}</option>
+              <option value="plastic">{{ 'Kunststof'|t }}</option>
+              <option value="aluminium">{{ 'Aluminium'|t }}</option>
+              <option value="steel">{{ 'Staal'|t }}</option>
+              <option value="other">{{ 'Overig'|t }}</option>
+            </select>
+          </label>
+          <label>{{ 'Aantal ruiten of glasvakken'|t }}<input type="number" min="1" step="1" data-glass-field="quantity"></label>
+        </div>
+        <button class="brebo-glass-intake__continue" type="button" data-glass-continue>{{ 'Verder met wat ik weet'|t }} <span aria-hidden="true">→</span></button>
+      </div>
+    </section>
+
+    <section class="brebo-glass-intake__step" aria-labelledby="glass-source-title" data-glass-step="3" hidden>
+      <span class="brebo-glass-intake__number">03</span>
+      <div>
+        <h2 id="glass-source-title">{{ 'Heeft u al informatie?'|t }}</h2>
+        <p>{{ 'Foto’s, een glasstaat, tekening, bestek of bestaande maatvoering kunnen veel vragen overbodig maken.'|t }}</p>
+        <div class="brebo-glass-intake__source-cards">
+          <button type="button" data-glass-source="photos"><strong>{{ 'Foto’s'|t }}</strong><span>{{ 'Van het glas, de omgeving en het kozijn.'|t }}</span></button>
+          <button type="button" data-glass-source="documents"><strong>{{ 'Tekeningen of glasstaat'|t }}</strong><span>{{ 'Wat al vastligt hoeft niet opnieuw te worden uitgevraagd.'|t }}</span></button>
+          <button type="button" data-glass-source="none"><strong>{{ 'Nog niets beschikbaar'|t }}</strong><span>{{ 'Geen probleem. Dan bepalen we eerst welke opname nodig is.'|t }}</span></button>
+        </div>
+        <div class="brebo-glass-intake__selection" data-glass-source-summary hidden></div>
+      </div>
+    </section>
+
+    <section class="brebo-glass-intake__result" data-glass-result hidden aria-live="polite">
+      <p class="brebo-glass-intake__eyebrow">{{ 'Uw glasroute'|t }}</p>
+      <h2>{{ 'We hebben genoeg om gericht verder te gaan.'|t }}</h2>
+      <p data-glass-result-text></p>
+      <div class="brebo-glass-intake__result-grid">
+        <div><span>{{ 'Aanleiding'|t }}</span><strong data-glass-result-goal></strong></div>
+        <div><span>{{ 'Gebouw'|t }}</span><strong data-glass-result-building>{{ 'Nog niet opgegeven'|t }}</strong></div>
+        <div><span>{{ 'Informatie'|t }}</span><strong data-glass-result-source></strong></div>
+      </div>
+      <p>{{ 'Technische gegevens zoals glastype, opbouw, windbelasting en bestelmaat hoeft u hier niet zelf te bepalen. BREBO gebruikt die pas in de technische beoordeling.'|t }}</p>
+    </section>
+
+    <section class="brebo-glass-intake__technical">
+      <p class="brebo-glass-intake__eyebrow">{{ 'Wat BREBO daarna bepaalt'|t }}</p>
+      <h2>{{ 'De techniek hoort bij BREBO, niet bij het invulwerk van de klant.'|t }}</h2>
+      <div>
+        <span>{{ 'Welke opname of maatvoering nog nodig is'|t }}</span>
+        <span>{{ 'Toepassing en veiligheidsvereisten'|t }}</span>
+        <span>{{ 'Passende technische glaskeuze'|t }}</span>
+        <span>{{ 'Welke vervolgstap bij uw gebouw past'|t }}</span>
+      </div>
+    </section>
+  </div>
+</section>

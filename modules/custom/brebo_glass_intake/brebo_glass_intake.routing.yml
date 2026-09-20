@@ -1,0 +1,7 @@
+brebo_glass_intake.intake:
+  path: '/glas/aanvragen'
+  defaults:
+    _controller: '\Drupal\brebo_glass_intake\Controller\GlassIntakeController::build'
+    _title: 'Glas aanvragen'
+  requirements:
+    _permission: 'access content'

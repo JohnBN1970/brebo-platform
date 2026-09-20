@@ -148,6 +148,7 @@ function brebo_seo_page_attachments(array &$attachments): void {
     '/europakozijn/samenstellen',
     '/europakozijn/projectstukken',
     '/contact/bericht',
+    '/glas/aanvragen',
   ];
   foreach ($noindex_prefixes as $prefix) {
     if ($path === $prefix || str_starts_with($path, $prefix . '/')) {

@@ -1,0 +1,15 @@
+<?php
+
+/**
+ * @file
+ * Theme hooks for the public BREBO glass intake.
+ */
+
+function brebo_glass_intake_theme($existing, $type, $theme, $path): array {
+  return [
+    'brebo_glass_intake' => [
+      'variables' => [],
+      'template' => 'brebo-glass-intake',
+    ],
+  ];
+}
