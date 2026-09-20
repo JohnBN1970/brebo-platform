@@ -35,6 +35,12 @@
         let selectedGoal = '';
         let selectedSource = '';
 
+        const refreshResult = () => {
+          if (selectedGoal && selectedSource && result && !result.hidden) {
+            renderResult(false);
+          }
+        };
+
         const showStep = (number) => {
           steps.forEach((step) => {
             const active = Number(step.dataset.glassStep || 0) <= number;
@@ -56,6 +62,9 @@
               goalSummary.hidden = false;
               goalSummary.textContent = labels.goals[selectedGoal] || '';
             }
+            if (result && !result.hidden && selectedSource) {
+              renderResult(false);
+            }
             showStep(2);
             window.requestAnimationFrame(() => {
               root.querySelector('[data-glass-step="2"] input, [data-glass-step="2"] select')?.focus({ preventScroll: true });
@@ -70,7 +79,7 @@
           });
         });
 
-        const renderResult = () => {
+        const renderResult = (scroll = true) => {
           if (!selectedGoal || !selectedSource || !result) return;
           const building = root.querySelector('[data-glass-field="building"]')?.value?.trim() || 'Nog niet opgegeven';
           const location = root.querySelector('[data-glass-field="location"]')?.value?.trim();
@@ -91,8 +100,13 @@
               : 'BREBO gebruikt uw gekozen aanleiding en beschikbare informatie als uitgangspunt en vraagt alleen verder waar dat voor deze situatie nog nodig is.';
           }
           result.hidden = false;
-          result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          if (scroll) result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         };
+
+        root.querySelectorAll('[data-glass-field]').forEach((field) => {
+          field.addEventListener('input', refreshResult);
+          field.addEventListener('change', refreshResult);
+        });
 
         sourceButtons.forEach((button) => {
           button.addEventListener('click', () => {
