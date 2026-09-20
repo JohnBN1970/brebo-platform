@@ -130,6 +130,10 @@
             step.classList.remove('is-active');
             step.classList.add('is-complete');
           });
+          progress.forEach((item) => {
+            item.classList.remove('is-active');
+            item.classList.add('is-complete');
+          });
           if (technical) technical.hidden = false;
           if (scroll) {
             result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
