@@ -131,6 +131,11 @@ jobs:
             exit 1
           }
 
+          # Drush batch workers may redispatch through an env-php shebang.
+          # Put the validated PHP binary's directory first so workers use
+          # the same runtime as the parent Drush process.
+          export PATH="$(dirname "$php_bin"):$PATH"
+
           [[ -f vendor/drush/drush/drush.php ]] || {
             echo "::error::Drush entry point is missing."
             exit 1
