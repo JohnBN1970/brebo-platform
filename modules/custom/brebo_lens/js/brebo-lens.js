@@ -166,7 +166,7 @@
             strong.textContent = label;
             button.append(strong);
             button.addEventListener('click', () => {
-              if (selectedRoute === 'kozijnen-glas' && value === 'kozijnen-aanvragen') {
+              if (selectedRoute === 'kozijnen-glas' && ['kozijnen-aanvragen', 'glas-aanvragen'].includes(value)) {
                 const params = new URLSearchParams({ route: selectedRoute, context: value });
                 window.location.assign('/onderhoud-renovatie?' + params.toString());
                 return;
