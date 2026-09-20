@@ -58,6 +58,10 @@
             item.classList.toggle('is-active', n === number);
             item.classList.toggle('is-complete', n < number);
           });
+          changeButtons.forEach((button) => {
+            const n = Number(button.dataset.glassChange || 0);
+            button.hidden = n >= number;
+          });
         };
 
         goalButtons.forEach((button) => {
