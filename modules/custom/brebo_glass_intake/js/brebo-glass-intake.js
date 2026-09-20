@@ -63,9 +63,16 @@
               goalSummary.hidden = false;
               goalSummary.textContent = labels.goals[selectedGoal] || '';
             }
-            if (result && !result.hidden && selectedSource) {
-              renderResult(false);
+            // Changing the primary choice rewinds the journey. Downstream
+            // information must be chosen again so progress and result stay in sync.
+            selectedSource = '';
+            sourceButtons.forEach((candidate) => candidate.classList.remove('is-selected'));
+            if (sourceSummary) {
+              sourceSummary.hidden = true;
+              sourceSummary.textContent = '';
             }
+            if (result) result.hidden = true;
+            if (submitLink) submitLink.href = '/contact/bericht';
             showStep(2);
             window.requestAnimationFrame(() => {
               root.querySelector('[data-glass-step="2"] input, [data-glass-step="2"] select')?.focus({ preventScroll: true });
