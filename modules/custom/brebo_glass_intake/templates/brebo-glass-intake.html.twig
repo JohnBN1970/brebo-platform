@@ -1,0 +1,80 @@
+<section class="brebo-glass-intake" aria-labelledby="brebo-glass-intake-title">
+  <div class="site-container">
+    <header class="brebo-glass-intake__intro">
+      <p class="brebo-glass-intake__eyebrow">{{ 'Glas'|t }}</p>
+      <h1 id="brebo-glass-intake-title">{{ 'Vertel wat u met het glas wilt bereiken.'|t }}</h1>
+      <p>{{ 'U hoeft geen glastype, glasdikte of technische norm te kennen. Geef aan wat er speelt en wat u al weet; BREBO bepaalt daarna welke technische gegevens nog nodig zijn.'|t }}</p>
+    </header>
+
+    <div class="brebo-glass-intake__principle">
+      <strong>{{ 'Geen technische vragen om het vragen.'|t }}</strong>
+      <span>{{ 'Wat uit adres, gebouw, foto’s, tekeningen of bestaande gegevens kan worden afgeleid, vragen we niet opnieuw aan u.'|t }}</span>
+    </div>
+
+    <section class="brebo-glass-intake__step" aria-labelledby="glass-goal-title">
+      <span class="brebo-glass-intake__number">01</span>
+      <div>
+        <h2 id="glass-goal-title">{{ 'Wat is de aanleiding?'|t }}</h2>
+        <div class="brebo-glass-intake__choices">
+          <button type="button">{{ 'Bestaand glas vervangen of verduurzamen'|t }}</button>
+          <button type="button">{{ 'Condens, lekkage of beschadiging'|t }}</button>
+          <button type="button">{{ 'Meer comfort, minder geluid of minder zonbelasting'|t }}</button>
+          <button type="button">{{ 'Veiligheid of bijzondere toepassing'|t }}</button>
+          <button type="button">{{ 'Ik weet nog niet wat technisch nodig is'|t }}</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="brebo-glass-intake__step" aria-labelledby="glass-known-title">
+      <span class="brebo-glass-intake__number">02</span>
+      <div>
+        <h2 id="glass-known-title">{{ 'Wat weet u al?'|t }}</h2>
+        <p>{{ 'Alleen invullen wat bekend is. Onbekend is een geldig antwoord.'|t }}</p>
+        <div class="brebo-glass-intake__fields">
+          <label>{{ 'Adres of naam van het gebouw'|t }}<input type="text" autocomplete="street-address"></label>
+          <label>{{ 'Waar zit het glas?'|t }}<input type="text" placeholder="{{ 'Bijvoorbeeld voorgevel, woning 24, woonkamer'|t }}"></label>
+          <label>{{ 'Kozijnmateriaal'|t }}
+            <select>
+              <option>{{ '- Onbekend -'|t }}</option>
+              <option>{{ 'Hout'|t }}</option>
+              <option>{{ 'Kunststof'|t }}</option>
+              <option>{{ 'Aluminium'|t }}</option>
+              <option>{{ 'Staal'|t }}</option>
+              <option>{{ 'Overig'|t }}</option>
+            </select>
+          </label>
+          <label>{{ 'Aantal ruiten of glasvakken'|t }}<input type="number" min="1" step="1"></label>
+        </div>
+      </div>
+    </section>
+
+    <section class="brebo-glass-intake__step" aria-labelledby="glass-source-title">
+      <span class="brebo-glass-intake__number">03</span>
+      <div>
+        <h2 id="glass-source-title">{{ 'Heeft u al informatie?'|t }}</h2>
+        <p>{{ 'Foto’s, een glasstaat, tekening, bestek of bestaande maatvoering kunnen veel vragen overbodig maken.'|t }}</p>
+        <div class="brebo-glass-intake__source-cards">
+          <article><strong>{{ 'Foto’s'|t }}</strong><span>{{ 'Van het glas, de omgeving en het kozijn.'|t }}</span></article>
+          <article><strong>{{ 'Tekeningen of glasstaat'|t }}</strong><span>{{ 'BREBO gebruikt herkenning als voorstel; onzekere gegevens blijven onzeker.'|t }}</span></article>
+          <article><strong>{{ 'Nog niets beschikbaar'|t }}</strong><span>{{ 'Geen probleem. Dan bepalen we eerst welke opname nodig is.'|t }}</span></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="brebo-glass-intake__technical">
+      <p class="brebo-glass-intake__eyebrow">{{ 'Wat BREBO daarna bepaalt'|t }}</p>
+      <h2>{{ 'De techniek hoort bij onze glasmodule, niet bij het invulwerk van de klant.'|t }}</h2>
+      <div>
+        <span>{{ 'Bestelmaat uit gecontroleerde maatvoering'|t }}</span>
+        <span>{{ 'Toepassing en veiligheidsvereisten'|t }}</span>
+        <span>{{ 'Windbelasting en technische glaskeuze'|t }}</span>
+        <span>{{ 'Passend geverifieerd glasproduct'|t }}</span>
+      </div>
+    </section>
+
+    <div class="brebo-glass-intake__status">
+      <strong>{{ 'Publieke intake wordt nu gekoppeld aan BREBO Office.'|t }}</strong>
+      <p>{{ 'Deze eerste laag legt de klantlogica vast. Verzenden wordt pas vrijgegeven zodra de overdracht naar de centrale intake en brebo_glass technisch is geborgd.'|t }}</p>
+    </div>
+  </div>
+</section>
