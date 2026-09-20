@@ -13,6 +13,7 @@
         const sourceSummary = root.querySelector('[data-glass-source-summary]');
         const result = root.querySelector('[data-glass-result]');
         const resultText = root.querySelector('[data-glass-result-text]');
+        const resultHeading = root.querySelector('[data-glass-result-heading]');
         const resultGoal = root.querySelector('[data-glass-result-goal]');
         const resultBuilding = root.querySelector('[data-glass-result-building]');
         const resultSource = root.querySelector('[data-glass-result-source]');
@@ -126,7 +127,10 @@
             step.classList.add('is-complete');
           });
           if (technical) technical.hidden = false;
-          if (scroll) result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          if (scroll) {
+            result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            window.requestAnimationFrame(() => resultHeading?.focus({ preventScroll: true }));
+          }
         };
 
         root.querySelectorAll('[data-glass-field]').forEach((field) => {
