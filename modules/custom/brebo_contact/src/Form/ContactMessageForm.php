@@ -63,6 +63,12 @@ final class ContactMessageForm extends FormBase {
 
     $journeyRoute = trim((string) ($request?->query->get('route') ?? ''));
     $journeyContext = trim((string) ($request?->query->get('context') ?? ''));
+    $glassGoal = trim((string) ($request?->query->get('aanleiding') ?? ''));
+    $glassSource = trim((string) ($request?->query->get('informatie') ?? ''));
+    $glassBuilding = trim((string) ($request?->query->get('gebouw') ?? ''));
+    $glassLocation = trim((string) ($request?->query->get('locatie') ?? ''));
+    $glassQuantity = trim((string) ($request?->query->get('aantal') ?? ''));
+    $glassFrame = trim((string) ($request?->query->get('kozijnmateriaal') ?? ''));
     $routeLabels = [
       'orientatie' => 'Ik weet nog niet wat er nodig is',
       'probleem' => 'Ik heb een concreet onderhoudsprobleem',
@@ -80,6 +86,7 @@ final class ContactMessageForm extends FormBase {
       'glas-condens' => 'Glas, condens of doorzicht',
       'functioneren' => 'Ramen, deuren of onderdelen functioneren niet goed',
       'vervangen-verduurzamen' => 'Vervangen of verduurzamen',
+      'glas-aanvragen' => 'Glas vervangen, verbeteren of beoordelen',
       'probleem-oplossen' => 'Een probleem of gebrek oplossen',
       'onderhoud-herstel' => 'Onderhoud of herstel uitvoeren',
       'advies-nodig' => 'Weten wat verstandig of technisch nodig is',
@@ -96,7 +103,7 @@ final class ContactMessageForm extends FormBase {
     $routeContexts = [
       'orientatie' => ['staat-inzicht', 'onderhoudsplanning', 'keuze-onduidelijk', 'risico-kosten'],
       'probleem' => ['lekkage-tocht', 'schade-slijtage', 'glas-condens', 'functioneren'],
-      'kozijnen-glas' => ['vervangen-verduurzamen', 'probleem-oplossen', 'onderhoud-herstel', 'advies-nodig', 'doel-onduidelijk'],
+      'kozijnen-glas' => ['vervangen-verduurzamen', 'glas-aanvragen', 'probleem-oplossen', 'onderhoud-herstel', 'advies-nodig', 'doel-onduidelijk'],
       'documenten' => ['mjop-rapport', 'tekening-kozijnstaat', 'offerte-bestek', 'fotos-overig'],
       'bouwbegeleiding' => ['voorbereiding', 'inkoop-aanbesteding', 'uitvoering-toezicht', 'oplevering-nazorg'],
     ];
@@ -114,6 +121,7 @@ final class ContactMessageForm extends FormBase {
       'glas-condens' => 'realisation',
       'functioneren' => 'realisation',
       'vervangen-verduurzamen' => 'realisation',
+      'glas-aanvragen' => 'realisation',
       'probleem-oplossen' => 'realisation',
       'onderhoud-herstel' => 'realisation',
       'advies-nodig' => 'knowledge',
@@ -148,6 +156,9 @@ final class ContactMessageForm extends FormBase {
       ],
     ];
     $journeyDestination = $contextDestination[$journeyContext] ?? '';
+    if ($journeyRoute === 'kozijnen-glas' && $journeyContext === 'glas-aanvragen' && $glassGoal === 'unknown') {
+      $journeyDestination = 'knowledge';
+    }
     $journeyActive = isset(
       $routeLabels[$journeyRoute],
       $contextLabels[$journeyContext],
@@ -188,12 +199,46 @@ final class ContactMessageForm extends FormBase {
       '#value' => $journeyActive ? $journeyContext : '',
     ];
 
+    $glassActive = $journeyRoute === 'kozijnen-glas' && $journeyContext === 'glas-aanvragen';
+    $glassGoalLabels = [
+      'replace' => 'Bestaand glas vervangen of verduurzamen',
+      'damage' => 'Condens, lekkage of beschadiging',
+      'comfort' => 'Meer comfort, minder geluid of minder zonbelasting',
+      'special' => 'Veiligheid of bijzondere toepassing',
+      'unknown' => 'Nog niet duidelijk wat technisch nodig is',
+    ];
+    $glassSourceLabels = [
+      'photos' => 'Foto’s beschikbaar',
+      'documents' => 'Tekeningen of glasstaat beschikbaar',
+      'none' => 'Nog geen aanvullende informatie beschikbaar',
+    ];
+    $glassFrameLabels = [
+      'wood' => 'Hout',
+      'plastic' => 'Kunststof',
+      'aluminium' => 'Aluminium',
+      'steel' => 'Staal',
+      'other' => 'Overig',
+    ];
+    if ($glassActive) {
+      $parts = [];
+      if (isset($glassGoalLabels[$glassGoal])) $parts[] = 'Aanleiding: ' . $glassGoalLabels[$glassGoal];
+      if ($glassLocation !== '') $parts[] = 'Locatie: ' . $glassLocation;
+      if ($glassQuantity !== '') $parts[] = 'Aantal glasvakken: ' . $glassQuantity;
+      if (isset($glassFrameLabels[$glassFrame])) $parts[] = 'Kozijnmateriaal: ' . $glassFrameLabels[$glassFrame];
+      if (isset($glassSourceLabels[$glassSource])) $parts[] = 'Beschikbare informatie: ' . $glassSourceLabels[$glassSource];
+      if ($parts) {
+        $safeGlassSummary = htmlspecialchars(implode(' · ', $parts), ENT_QUOTES, 'UTF-8');
+        $form['glass_summary'] = ['#markup' => '<div class="brebo-contact-message__journey"><span>Uw glasinformatie</span><strong>' . $safeGlassSummary . '</strong></div>'];
+      }
+    }
+
     $form['building'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Adres of naam van het gebouw'),
       '#description' => $this->t('Bijvoorbeeld straat + huisnummer en plaats. Als het adres nog niet bekend is, kunt u ook een project- of gebouwnaam invullen.'),
-      '#required' => $journeyActive,
+      '#required' => $journeyActive && !$glassActive,
       '#maxlength' => 240,
+      '#default_value' => $glassActive ? $glassBuilding : '',
     ];
 
     $form['name'] = [
@@ -219,6 +264,13 @@ final class ContactMessageForm extends FormBase {
       '#required' => !$journeyActive,
       '#rows' => $journeyActive ? 5 : 7,
       '#maxlength' => 5000,
+      '#default_value' => $glassActive ? implode("\n", array_filter([
+        isset($glassGoalLabels[$glassGoal]) ? 'Aanleiding: ' . $glassGoalLabels[$glassGoal] : '',
+        $glassLocation !== '' ? 'Locatie: ' . $glassLocation : '',
+        $glassQuantity !== '' ? 'Aantal glasvakken: ' . $glassQuantity : '',
+        isset($glassFrameLabels[$glassFrame]) ? 'Kozijnmateriaal: ' . $glassFrameLabels[$glassFrame] : '',
+        isset($glassSourceLabels[$glassSource]) ? 'Beschikbare informatie: ' . $glassSourceLabels[$glassSource] : '',
+      ])) : '',
     ];
 
     $form['company_website'] = [

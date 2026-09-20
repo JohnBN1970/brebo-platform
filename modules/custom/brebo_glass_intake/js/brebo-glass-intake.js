@@ -16,6 +16,7 @@
         const resultGoal = root.querySelector('[data-glass-result-goal]');
         const resultBuilding = root.querySelector('[data-glass-result-building]');
         const resultSource = root.querySelector('[data-glass-result-source]');
+        const submitLink = root.querySelector('[data-glass-submit]');
 
         const labels = {
           goals: {
@@ -99,6 +100,20 @@
               ? 'U heeft al ' + details.join(' en ') + ' aangegeven. BREBO gebruikt dit als uitgangspunt en vraagt alleen verder waar dat voor deze situatie nog nodig is.'
               : 'BREBO gebruikt uw gekozen aanleiding en beschikbare informatie als uitgangspunt en vraagt alleen verder waar dat voor deze situatie nog nodig is.';
           }
+          if (submitLink) {
+            const params = new URLSearchParams({
+              route: 'kozijnen-glas',
+              context: 'glas-aanvragen',
+              aanleiding: selectedGoal,
+              informatie: selectedSource,
+            });
+            if (building !== 'Nog niet opgegeven') params.set('gebouw', building);
+            if (location) params.set('locatie', location);
+            if (quantity) params.set('aantal', quantity);
+            if (frame?.value) params.set('kozijnmateriaal', frame.value);
+            submitLink.href = '/contact/bericht?' + params.toString();
+          }
+
           result.hidden = false;
           if (scroll) result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         };
