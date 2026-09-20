@@ -3,3 +3,5 @@ type: module
 description: 'Opdrachtgevergerichte contactinhoud voor de BREBO website.'
 package: BREBO
 core_version_requirement: ^10 || ^11
+dependencies:
+  - drupal:file

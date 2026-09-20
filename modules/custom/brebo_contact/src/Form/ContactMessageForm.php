@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Drupal\brebo_contact\Form;
 
+use Drupal\brebo_contact\Service\OfficeWebsiteDocumentClient;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Flood\FloodInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
@@ -17,6 +19,8 @@ final class ContactMessageForm extends FormBase {
     private readonly MailManagerInterface $mailManager,
     private readonly FloodInterface $flood,
     private readonly RequestStack $contactRequestStack,
+    private readonly OfficeWebsiteDocumentClient $officeDocumentClient,
+    private readonly EntityTypeManagerInterface $entityTypeManager,
   ) {}
 
   public static function create(ContainerInterface $container): static {
@@ -24,6 +28,8 @@ final class ContactMessageForm extends FormBase {
       $container->get('plugin.manager.mail'),
       $container->get('flood'),
       $container->get('request_stack'),
+      $container->get('brebo_contact.office_website_document_client'),
+      $container->get('entity_type.manager'),
     );
   }
 
@@ -257,6 +263,22 @@ final class ContactMessageForm extends FormBase {
       '#maxlength' => 160,
     ];
 
+    if ($journeyActive && $journeyRoute === 'documenten') {
+      // Keep the element present across AJAX rebuilds and final submission.
+      // Submit flood control still protects the expensive Office handoff.
+      $form['documents'] = [
+        '#type' => 'managed_file',
+        '#title' => $this->t('Documenten toevoegen (optioneel)'),
+        '#upload_location' => 'temporary://brebo-contact/',
+        '#multiple' => TRUE,
+        '#upload_validators' => [
+          'FileExtension' => ['extensions' => 'pdf doc docx xls xlsx jpg jpeg png webp heic heif zip'],
+          'FileSizeLimit' => ['fileLimit' => 26214400],
+        ],
+        '#description' => $this->t('Maximaal 5 bestanden van 25 MB per bestand. BREBO Office verwerkt de bestanden na verzending.'),
+      ];
+    }
+
     $form['message'] = [
       '#type' => 'textarea',
       '#title' => $journeyActive ? $this->t('Aanvulling (optioneel)') : $this->t('Uw bericht'),
@@ -304,6 +326,11 @@ final class ContactMessageForm extends FormBase {
       $form_state->setErrorByName('contact', $this->t('Vul uw e-mailadres of telefoonnummer in.'));
     }
 
+    $documents = array_values(array_filter((array) $form_state->getValue('documents')));
+    if (count($documents) > 5) {
+      $form_state->setErrorByName('documents', $this->t('Voeg maximaal 5 bestanden toe.'));
+    }
+
     $identifier = $this->contactRequestStack->getCurrentRequest()?->getClientIp() ?? 'unknown';
     if (!$this->flood->isAllowed('brebo_contact.submit', 5, 3600, $identifier)) {
       $form_state->setErrorByName('message', $this->t('Er zijn te veel berichten verzonden. Probeer het later opnieuw of bel BREBO.'));
@@ -313,7 +340,6 @@ final class ContactMessageForm extends FormBase {
   public function submitForm(array &$form, FormStateInterface $form_state): void {
     $request = $this->contactRequestStack->getCurrentRequest();
     $identifier = $request?->getClientIp() ?? 'unknown';
-    $this->flood->register('brebo_contact.submit', 3600, $identifier);
 
     $reference = strtoupper(substr(hash('sha256', microtime(TRUE) . random_int(1000, 999999)), 0, 10));
     $tracking = 'BREBO-WEB-' . date('Ymd') . '-' . $reference;
@@ -326,6 +352,44 @@ final class ContactMessageForm extends FormBase {
     $sourcePath = $request?->getPathInfo() ?? '/contact/bericht';
     $referer = $request?->headers->get('referer') ?? '-';
     $replyTo = filter_var($contact, FILTER_VALIDATE_EMAIL) ? $contact : NULL;
+
+    // Count the public submission attempt before any potentially expensive Office handoff.
+    $this->flood->register('brebo_contact.submit', 3600, $identifier);
+
+    $documentIds = array_values(array_filter(array_map('intval', (array) $form_state->getValue('documents'))));
+    if ($documentIds !== []) {
+      $fileStorage = $this->entityTypeManager->getStorage('file');
+      $metadata = [
+        'schema_version' => '1.0',
+        'source' => 'brebo-platform.contact',
+        'tracking' => $tracking,
+        'building' => $building,
+        'name' => $name,
+        'contact' => $contact,
+        'message' => $text,
+        'journey_route' => $journeyRoute,
+        'journey_context' => $journeyContext,
+        'source_path' => $sourcePath,
+      ];
+
+      foreach ($documentIds as $fileId) {
+        $file = $fileStorage->load($fileId);
+        if ($file === NULL) {
+          $this->messenger()->addError($this->t('Een toegevoegd bestand kon niet worden gelezen. Probeer het opnieuw.'));
+          return;
+        }
+        $handoff = $this->officeDocumentClient->send(
+          (string) $file->getFileUri(),
+          (string) $file->getFilename(),
+          $this->documentRequestUuid($tracking, $fileId),
+          $metadata,
+        );
+        if (empty($handoff['ok'])) {
+          $this->messenger()->addError($this->t('Uw document(en) konden nog niet veilig aan BREBO Office worden overgedragen. Probeer het opnieuw of neem contact met ons op.'));
+          return;
+        }
+      }
+    }
 
     $subject = sprintf('[BREBO-WEB][Contact][%s] Eerste contact – %s', $tracking, $name);
     $body = implode("\n", [
@@ -362,6 +426,15 @@ final class ContactMessageForm extends FormBase {
     }
 
     $this->messenger()->addError($this->t('Het bericht kon niet worden verzonden. Bel BREBO via 085-5003838.'));
+  }
+
+  private function documentRequestUuid(string $tracking, int $fileId): string {
+    $seed = hash('sha256', $tracking . '|' . $fileId, TRUE);
+    $bytes = substr($seed, 0, 16);
+    $bytes[6] = chr((ord($bytes[6]) & 0x0f) | 0x40);
+    $bytes[8] = chr((ord($bytes[8]) & 0x3f) | 0x80);
+    $hex = bin2hex($bytes);
+    return substr($hex, 0, 8) . '-' . substr($hex, 8, 4) . '-' . substr($hex, 12, 4) . '-' . substr($hex, 16, 4) . '-' . substr($hex, 20, 12);
   }
 
 }
