@@ -156,6 +156,9 @@ final class ContactMessageForm extends FormBase {
       ],
     ];
     $journeyDestination = $contextDestination[$journeyContext] ?? '';
+    if ($journeyRoute === 'kozijnen-glas' && $journeyContext === 'glas-aanvragen' && $glassGoal === 'unknown') {
+      $journeyDestination = 'knowledge';
+    }
     $journeyActive = isset(
       $routeLabels[$journeyRoute],
       $contextLabels[$journeyContext],
@@ -233,7 +236,7 @@ final class ContactMessageForm extends FormBase {
       '#type' => 'textfield',
       '#title' => $this->t('Adres of naam van het gebouw'),
       '#description' => $this->t('Bijvoorbeeld straat + huisnummer en plaats. Als het adres nog niet bekend is, kunt u ook een project- of gebouwnaam invullen.'),
-      '#required' => $journeyActive,
+      '#required' => $journeyActive && !$glassActive,
       '#maxlength' => 240,
       '#default_value' => $glassActive ? $glassBuilding : '',
     ];
