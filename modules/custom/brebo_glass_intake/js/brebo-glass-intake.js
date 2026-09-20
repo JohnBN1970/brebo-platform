@@ -83,22 +83,12 @@
         const renderResult = (scroll = true) => {
           if (!selectedGoal || !selectedSource || !result) return;
           const building = root.querySelector('[data-glass-field="building"]')?.value?.trim() || 'Nog niet opgegeven';
-          const location = root.querySelector('[data-glass-field="location"]')?.value?.trim();
-          const quantity = root.querySelector('[data-glass-field="quantity"]')?.value?.trim();
-
           if (resultGoal) resultGoal.textContent = labels.goals[selectedGoal] || '';
-          if (resultBuilding) resultBuilding.textContent = location ? building + ' — ' + location : building;
+          if (resultBuilding) resultBuilding.textContent = building;
           if (resultSource) resultSource.textContent = labels.sources[selectedSource] || '';
 
-          const details = [];
-          if (quantity) details.push(quantity + ' glasvak' + (quantity === '1' ? '' : 'ken'));
-          const frame = root.querySelector('[data-glass-field="frame"]');
-          if (frame?.value) details.push(frame.options[frame.selectedIndex]?.text || '');
-
           if (resultText) {
-            resultText.textContent = details.length
-              ? 'U heeft al ' + details.join(' en ') + ' aangegeven. BREBO gebruikt dit als uitgangspunt en vraagt alleen verder waar dat voor deze situatie nog nodig is.'
-              : 'BREBO gebruikt uw gekozen aanleiding en beschikbare informatie als uitgangspunt en vraagt alleen verder waar dat voor deze situatie nog nodig is.';
+            resultText.textContent = 'BREBO gebruikt uw aanleiding, gebouwcontext en beschikbare informatie als uitgangspunt. Wij bepalen daarna zelf welke technische gegevens, glasposities of opname nog nodig zijn.';
           }
           if (submitLink) {
             const params = new URLSearchParams({
@@ -108,9 +98,6 @@
               informatie: selectedSource,
             });
             if (building !== 'Nog niet opgegeven') params.set('gebouw', building);
-            if (location) params.set('locatie', location);
-            if (quantity) params.set('aantal', quantity);
-            if (frame?.value) params.set('kozijnmateriaal', frame.value);
             submitLink.href = '/contact/bericht?' + params.toString();
           }
 
