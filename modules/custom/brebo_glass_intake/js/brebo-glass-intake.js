@@ -17,6 +17,9 @@
         const resultBuilding = root.querySelector('[data-glass-result-building]');
         const resultSource = root.querySelector('[data-glass-result-source]');
         const submitLink = root.querySelector('[data-glass-submit]');
+        const buildingSummary = root.querySelector('[data-glass-building-summary]');
+        const technical = root.querySelector('[data-glass-technical]');
+        const changeButtons = Array.from(root.querySelectorAll('[data-glass-change]'));
 
         const labels = {
           goals: {
@@ -44,9 +47,10 @@
 
         const showStep = (number) => {
           steps.forEach((step) => {
-            const active = Number(step.dataset.glassStep || 0) <= number;
-            step.hidden = !active;
-            step.classList.toggle('is-active', Number(step.dataset.glassStep || 0) === number);
+            const n = Number(step.dataset.glassStep || 0);
+            step.hidden = n > number;
+            step.classList.toggle('is-active', n === number);
+            step.classList.toggle('is-complete', n < number);
           });
           progress.forEach((item) => {
             const n = Number(item.dataset.glassProgress || 0);
@@ -74,6 +78,7 @@
             if (result) result.hidden = true;
             if (submitLink) submitLink.href = '/contact/bericht';
             showStep(2);
+            root.querySelector('[data-glass-change="1"]')?.removeAttribute('hidden');
             window.requestAnimationFrame(() => {
               root.querySelector('[data-glass-step="2"] input, [data-glass-step="2"] select')?.focus({ preventScroll: true });
             });
@@ -81,6 +86,12 @@
         });
 
         continueButton?.addEventListener('click', () => {
+          const building = root.querySelector('[data-glass-field="building"]')?.value?.trim();
+          if (buildingSummary) {
+            buildingSummary.textContent = building || 'Gebouw nog niet opgegeven';
+            buildingSummary.hidden = false;
+          }
+          root.querySelector('[data-glass-change="2"]')?.removeAttribute('hidden');
           showStep(3);
           window.requestAnimationFrame(() => {
             root.querySelector('[data-glass-step="3"] button')?.focus({ preventScroll: true });
@@ -109,12 +120,30 @@
           }
 
           result.hidden = false;
+          steps.forEach((step) => {
+            step.hidden = true;
+            step.classList.remove('is-active');
+            step.classList.add('is-complete');
+          });
+          if (technical) technical.hidden = false;
           if (scroll) result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         };
 
         root.querySelectorAll('[data-glass-field]').forEach((field) => {
           field.addEventListener('input', refreshResult);
           field.addEventListener('change', refreshResult);
+        });
+
+        changeButtons.forEach((button) => {
+          button.addEventListener('click', () => {
+            const target = Number(button.dataset.glassChange || 1);
+            if (result) result.hidden = true;
+            if (technical) technical.hidden = true;
+            showStep(target);
+            window.requestAnimationFrame(() => {
+              root.querySelector('[data-glass-step="' + target + '"] button, [data-glass-step="' + target + '"] input')?.focus({ preventScroll: true });
+            });
+          });
         });
 
         sourceButtons.forEach((button) => {
