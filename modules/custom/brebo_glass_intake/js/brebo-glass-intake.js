@@ -63,9 +63,16 @@
               goalSummary.hidden = false;
               goalSummary.textContent = labels.goals[selectedGoal] || '';
             }
-            if (result && !result.hidden && selectedSource) {
-              renderResult(false);
+            // Changing the primary choice rewinds the journey. Downstream
+            // information must be chosen again so progress and result stay in sync.
+            selectedSource = '';
+            sourceButtons.forEach((candidate) => candidate.classList.remove('is-selected'));
+            if (sourceSummary) {
+              sourceSummary.hidden = true;
+              sourceSummary.textContent = '';
             }
+            if (result) result.hidden = true;
+            if (submitLink) submitLink.href = '/contact/bericht';
             showStep(2);
             window.requestAnimationFrame(() => {
               root.querySelector('[data-glass-step="2"] input, [data-glass-step="2"] select')?.focus({ preventScroll: true });
@@ -83,22 +90,12 @@
         const renderResult = (scroll = true) => {
           if (!selectedGoal || !selectedSource || !result) return;
           const building = root.querySelector('[data-glass-field="building"]')?.value?.trim() || 'Nog niet opgegeven';
-          const location = root.querySelector('[data-glass-field="location"]')?.value?.trim();
-          const quantity = root.querySelector('[data-glass-field="quantity"]')?.value?.trim();
-
           if (resultGoal) resultGoal.textContent = labels.goals[selectedGoal] || '';
-          if (resultBuilding) resultBuilding.textContent = location ? building + ' — ' + location : building;
+          if (resultBuilding) resultBuilding.textContent = building;
           if (resultSource) resultSource.textContent = labels.sources[selectedSource] || '';
 
-          const details = [];
-          if (quantity) details.push(quantity + ' glasvak' + (quantity === '1' ? '' : 'ken'));
-          const frame = root.querySelector('[data-glass-field="frame"]');
-          if (frame?.value) details.push(frame.options[frame.selectedIndex]?.text || '');
-
           if (resultText) {
-            resultText.textContent = details.length
-              ? 'U heeft al ' + details.join(' en ') + ' aangegeven. BREBO gebruikt dit als uitgangspunt en vraagt alleen verder waar dat voor deze situatie nog nodig is.'
-              : 'BREBO gebruikt uw gekozen aanleiding en beschikbare informatie als uitgangspunt en vraagt alleen verder waar dat voor deze situatie nog nodig is.';
+            resultText.textContent = 'BREBO gebruikt uw aanleiding, gebouwcontext en beschikbare informatie als uitgangspunt. Wij bepalen daarna zelf welke technische gegevens, glasposities of opname nog nodig zijn.';
           }
           if (submitLink) {
             const params = new URLSearchParams({
@@ -108,9 +105,6 @@
               informatie: selectedSource,
             });
             if (building !== 'Nog niet opgegeven') params.set('gebouw', building);
-            if (location) params.set('locatie', location);
-            if (quantity) params.set('aantal', quantity);
-            if (frame?.value) params.set('kozijnmateriaal', frame.value);
             submitLink.href = '/contact/bericht?' + params.toString();
           }
 

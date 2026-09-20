@@ -9,3 +9,5 @@
 
 .brebo-glass-intake__handoff{display:flex;align-items:center;justify-content:space-between;gap:1.5rem;margin-top:1.75rem;padding-top:1.5rem;border-top:1px solid rgba(128,128,128,.35)}.brebo-glass-intake__handoff>div{display:grid;gap:.35rem;max-width:680px}.brebo-glass-intake__handoff span{line-height:1.5}.brebo-glass-intake__submit{display:inline-flex;align-items:center;gap:.8rem;flex:0 0 auto;padding:.95rem 1.15rem;border-radius:.8rem;background:#111827;color:#fff;text-decoration:none;font-weight:800}.brebo-glass-intake__submit:hover,.brebo-glass-intake__submit:focus-visible{text-decoration:underline}
 @media(max-width:700px){.brebo-glass-intake__handoff{align-items:stretch;flex-direction:column}.brebo-glass-intake__submit{justify-content:space-between}}
+
+.brebo-glass-intake [hidden]{display:none!important}.brebo-glass-intake__fields--single{grid-template-columns:minmax(0,680px)}
