@@ -30,6 +30,7 @@
           <button type="button" data-glass-goal="unknown"><strong>{{ 'Ik weet nog niet wat technisch nodig is'|t }}</strong><span>{{ 'U ziet of ervaart iets, maar wilt eerst weten wat verstandig is.'|t }}</span></button>
         </div>
         <div class="brebo-glass-intake__selection" data-glass-goal-summary hidden></div>
+        <button class="brebo-glass-intake__change" type="button" data-glass-change="1" hidden>{{ 'Wijzigen'|t }}</button>
       </div>
     </section>
 
@@ -42,6 +43,8 @@
           <label>{{ 'Adres of naam van het gebouw'|t }}<input type="text" data-glass-field="building" autocomplete="street-address"></label>
         </div>
         <button class="brebo-glass-intake__continue" type="button" data-glass-continue>{{ 'Verder'|t }} <span aria-hidden="true">→</span></button>
+        <div class="brebo-glass-intake__selection" data-glass-building-summary hidden></div>
+        <button class="brebo-glass-intake__change" type="button" data-glass-change="2" hidden>{{ 'Wijzigen'|t }}</button>
       </div>
     </section>
 
@@ -61,7 +64,7 @@
 
     <section class="brebo-glass-intake__result" data-glass-result hidden aria-live="polite">
       <p class="brebo-glass-intake__eyebrow">{{ 'Uw glasroute'|t }}</p>
-      <h2>{{ 'We hebben genoeg om gericht verder te gaan.'|t }}</h2>
+      <h2 tabindex="-1" data-glass-result-heading>{{ 'We hebben genoeg om gericht verder te gaan.'|t }}</h2>
       <p data-glass-result-text></p>
       <div class="brebo-glass-intake__result-grid">
         <div><span>{{ 'Aanleiding'|t }}</span><strong data-glass-result-goal></strong></div>
@@ -79,7 +82,7 @@
       </div>
     </section>
 
-    <section class="brebo-glass-intake__technical">
+    <section class="brebo-glass-intake__technical" data-glass-technical hidden>
       <p class="brebo-glass-intake__eyebrow">{{ 'Wat BREBO daarna bepaalt'|t }}</p>
       <h2>{{ 'De techniek hoort bij BREBO, niet bij het invulwerk van de klant.'|t }}</h2>
       <div>

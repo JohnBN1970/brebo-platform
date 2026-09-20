@@ -11,3 +11,5 @@
 @media(max-width:700px){.brebo-glass-intake__handoff{align-items:stretch;flex-direction:column}.brebo-glass-intake__submit{justify-content:space-between}}
 
 .brebo-glass-intake [hidden]{display:none!important}.brebo-glass-intake__fields--single{grid-template-columns:minmax(0,680px)}
+
+.brebo-glass-intake__step.is-complete>div>h2,.brebo-glass-intake__step.is-complete>div>p,.brebo-glass-intake__step.is-complete .brebo-glass-intake__choices,.brebo-glass-intake__step.is-complete .brebo-glass-intake__fields,.brebo-glass-intake__step.is-complete .brebo-glass-intake__continue,.brebo-glass-intake__step.is-complete .brebo-glass-intake__source-cards{display:none}.brebo-glass-intake__step.is-complete{padding:1rem 0}.brebo-glass-intake__step.is-complete .brebo-glass-intake__selection{display:inline-block!important;margin:0;font-weight:700}.brebo-glass-intake__change{margin-left:1rem;border:0;background:transparent;text-decoration:underline;font:inherit;cursor:pointer}.brebo-glass-intake__technical[hidden]{display:none!important}
