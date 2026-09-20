@@ -93,10 +93,10 @@
           },
           'kozijnen-glas': {
             label: 'Ik wil kozijnen of glas aanpakken',
-            question: 'Wat wilt u bereiken?',
+            question: 'Wat wilt u binnen onderhoud en renovatie aanpakken?',
             contexts: [
               ['kozijnen-aanvragen', 'Kozijnen aanvragen of vervangen'],
-              ['vervangen-verduurzamen', 'Glas vervangen of verduurzamen'],
+              ['glas-aanvragen', 'Glas vervangen of verduurzamen'],
               ['probleem-oplossen', 'Een probleem of gebrek oplossen'],
               ['onderhoud-herstel', 'Onderhoud of herstel uitvoeren'],
               ['advies-nodig', 'Weten wat verstandig of technisch nodig is'],
@@ -168,7 +168,7 @@
             button.addEventListener('click', () => {
               if (selectedRoute === 'kozijnen-glas' && value === 'kozijnen-aanvragen') {
                 const params = new URLSearchParams({ route: selectedRoute, context: value });
-                window.location.assign('/europakozijn/samenstellen?' + params.toString());
+                window.location.assign('/onderhoud-renovatie?' + params.toString());
                 return;
               }
               const params = new URLSearchParams({ route: selectedRoute, context: value });
