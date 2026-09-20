@@ -1,0 +1,5 @@
+intake:
+  version: 1.0.0
+  css:
+    theme:
+      css/brebo-glass-intake.css: {}
