@@ -13,7 +13,7 @@
 
     <nav class="brebo-glass-intake__progress" aria-label="{{ 'Voortgang glas-intake'|t }}">
       <span class="is-active" data-glass-progress="1">1. {{ 'Aanleiding'|t }}</span>
-      <span data-glass-progress="2">2. {{ 'Wat u al weet'|t }}</span>
+      <span data-glass-progress="2">2. {{ 'Uw gebouw'|t }}</span>
       <span data-glass-progress="3">3. {{ 'Beschikbare informatie'|t }}</span>
     </nav>
 
@@ -36,24 +36,12 @@
     <section class="brebo-glass-intake__step" aria-labelledby="glass-known-title" data-glass-step="2" hidden>
       <span class="brebo-glass-intake__number">02</span>
       <div>
-        <h2 id="glass-known-title">{{ 'Wat weet u al?'|t }}</h2>
-        <p>{{ 'Alleen invullen wat bekend is. Onbekend is een geldig antwoord.'|t }}</p>
-        <div class="brebo-glass-intake__fields">
+        <h2 id="glass-known-title">{{ 'Om welk gebouw gaat het?'|t }}</h2>
+        <p>{{ 'Als u het adres of de gebouwnaam weet, is dat genoeg. Weet u dit nog niet, dan kunt u ook gewoon verder.'|t }}</p>
+        <div class="brebo-glass-intake__fields brebo-glass-intake__fields--single">
           <label>{{ 'Adres of naam van het gebouw'|t }}<input type="text" data-glass-field="building" autocomplete="street-address"></label>
-          <label>{{ 'Waar zit het glas?'|t }}<input type="text" data-glass-field="location" placeholder="{{ 'Bijvoorbeeld voorgevel, woning 24, woonkamer'|t }}"></label>
-          <label>{{ 'Kozijnmateriaal'|t }}
-            <select data-glass-field="frame">
-              <option value="">{{ '- Onbekend -'|t }}</option>
-              <option value="wood">{{ 'Hout'|t }}</option>
-              <option value="plastic">{{ 'Kunststof'|t }}</option>
-              <option value="aluminium">{{ 'Aluminium'|t }}</option>
-              <option value="steel">{{ 'Staal'|t }}</option>
-              <option value="other">{{ 'Overig'|t }}</option>
-            </select>
-          </label>
-          <label>{{ 'Aantal ruiten of glasvakken'|t }}<input type="number" min="1" step="1" data-glass-field="quantity"></label>
         </div>
-        <button class="brebo-glass-intake__continue" type="button" data-glass-continue>{{ 'Verder met wat ik weet'|t }} <span aria-hidden="true">→</span></button>
+        <button class="brebo-glass-intake__continue" type="button" data-glass-continue>{{ 'Verder'|t }} <span aria-hidden="true">→</span></button>
       </div>
     </section>
 
