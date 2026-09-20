@@ -139,6 +139,10 @@ jobs:
           # Some hosting checkouts lose executable bits on Composer bin shims.
           # Drush can spawn the site-local executable during module install,
           # so normalize both wrappers before running any mutating command.
+          # Ignore executable-bit changes for this deployment checkout. The host
+          # needs these bits at runtime, but they must not dirty tracked vendor files
+          # and block a later fast-forward pull.
+          git config core.filemode false
           chmod +x vendor/drush/drush/drush vendor/drush/drush/drush.php || {
             echo "::error::Unable to restore Drush executable permissions."
             exit 1
