@@ -95,7 +95,8 @@
             label: 'Ik wil kozijnen of glas aanpakken',
             question: 'Wat wilt u bereiken?',
             contexts: [
-              ['vervangen-verduurzamen', 'Vervangen of verduurzamen'],
+              ['kozijnen-aanvragen', 'Kozijnen aanvragen of vervangen'],
+              ['vervangen-verduurzamen', 'Glas vervangen of verduurzamen'],
               ['probleem-oplossen', 'Een probleem of gebrek oplossen'],
               ['onderhoud-herstel', 'Onderhoud of herstel uitvoeren'],
               ['advies-nodig', 'Weten wat verstandig of technisch nodig is'],
@@ -165,6 +166,11 @@
             strong.textContent = label;
             button.append(strong);
             button.addEventListener('click', () => {
+              if (selectedRoute === 'kozijnen-glas' && value === 'kozijnen-aanvragen') {
+                const params = new URLSearchParams({ route: selectedRoute, context: value });
+                window.location.assign('/europakozijn/samenstellen?' + params.toString());
+                return;
+              }
               const params = new URLSearchParams({ route: selectedRoute, context: value });
               window.location.assign('/contact/bericht?' + params.toString());
             });
