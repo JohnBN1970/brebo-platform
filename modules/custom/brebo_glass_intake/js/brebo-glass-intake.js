@@ -141,6 +141,7 @@
         changeButtons.forEach((button) => {
           button.addEventListener('click', () => {
             const target = Number(button.dataset.glassChange || 1);
+            button.hidden = true;
             if (result) result.hidden = true;
             if (technical) technical.hidden = true;
             showStep(target);
