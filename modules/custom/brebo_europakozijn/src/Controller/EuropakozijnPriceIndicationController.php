@@ -51,6 +51,7 @@ final class EuropakozijnPriceIndicationController extends ControllerBase {
         ],
         'body' => $body,
         'timeout' => 5,
+        'allow_redirects' => FALSE,
         'http_errors' => FALSE,
       ]);
     }
