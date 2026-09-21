@@ -67,7 +67,7 @@
           else {
             result.innerHTML = '<strong>Technische invoer klopt, eindcontrole nog niet compleet</strong><span>Product- en glasregels zijn gecontroleerd. Windbelasting en ventilatieberekening moeten nog compleet zijn voordat een betrouwbare prijs wordt vrijgegeven.</span>';
           }
-          if (priceStatus && contextOk) priceStatus.textContent = 'Technische eindcontrole nog niet compleet';
+          // Price indication has its own readiness path; technical/offerte readiness stays here.
         };
 
         const validate = async () => {
