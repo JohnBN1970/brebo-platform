@@ -14,6 +14,9 @@ use Symfony\Component\HttpFoundation\Request;
 /** Sends a structured website request to the BREBO Office intake. */
 final class EuropakozijnOfficeHandoffController extends ControllerBase {
 
+  private const string OFFICE_PATH = '/brebo-internal/intake/v1/project-request';
+  private const string SOURCE = 'brebo-platform.europakozijn';
+
   public function __construct(private readonly ClientInterface $httpClient) {}
 
   public static function create(ContainerInterface $container): static {
@@ -42,7 +45,7 @@ final class EuropakozijnOfficeHandoffController extends ControllerBase {
     $payload = [
       'schema_version' => '1.0',
       'request_id' => $requestId,
-      'source' => 'brebo-platform-europakozijn',
+      'source' => self::SOURCE,
       'observed' => $observed,
       'detected' => $detected,
       'calculated' => $calculated,
@@ -56,13 +59,12 @@ final class EuropakozijnOfficeHandoffController extends ControllerBase {
       return $this->error(503, 'office_handoff_not_configured');
     }
 
-    $path = '/brebo-internal/intake/europakozijn';
     $timestamp = (string) time();
-    $canonical = implode("\n", ['POST', $path, hash('sha256', $body), $timestamp, $requestId]);
+    $canonical = implode("\n", ['POST', self::OFFICE_PATH, hash('sha256', $body), $timestamp, $requestId]);
     $signature = hash_hmac('sha256', $canonical, $secret);
 
     try {
-      $response = $this->httpClient->request('POST', $officeBaseUrl . $path, [
+      $response = $this->httpClient->request('POST', $officeBaseUrl . self::OFFICE_PATH, [
         'headers' => [
           'Content-Type' => 'application/json',
           'Accept' => 'application/json',
