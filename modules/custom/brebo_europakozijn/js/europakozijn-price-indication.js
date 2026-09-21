@@ -26,6 +26,8 @@
           const fn = fields[0]?.function;
           if (!['vast', 'draaikiep'].includes(fn)) return null;
 
+          const brand = payload.product_selection?.brand || null;
+          if (brand !== 'aluplast') return null;
           return {
             system: payload.product_selection?.system || 'ideal7000_nl',
             width_mm: Number(payload.geometry.width_mm),
@@ -56,12 +58,12 @@
         };
 
         const requestPrice = async () => {
+          const current = ++sequence;
           const config = configuration();
           if (!config || !Number.isFinite(config.width_mm) || !Number.isFinite(config.height_mm)) {
             render({status: 'insufficient_calibration'});
             return;
           }
-          const current = ++sequence;
           priceStatus.textContent = 'Prijsindicatie wordt berekend…';
           try {
             const response = await fetch('/europakozijn/api/price-indication', {
@@ -87,6 +89,7 @@
         root.addEventListener('input', schedule);
         root.addEventListener('change', schedule);
         root.addEventListener('ek:configuration-loaded', schedule);
+        root.addEventListener('ek:configuration-rendered', schedule);
         schedule();
       });
     }
