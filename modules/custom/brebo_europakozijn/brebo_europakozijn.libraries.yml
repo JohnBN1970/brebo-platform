@@ -21,6 +21,7 @@ configurator:
     js/europakozijn-guided-journey.js: {}
     js/europakozijn-address-lookup.js: {}
     js/europakozijn-control-truth-gate.js: {}
+    js/europakozijn-price-indication.js: {}
     js/europakozijn-office-submit.js: {}
     js/europakozijn-upload-package.js: {}
   dependencies:
