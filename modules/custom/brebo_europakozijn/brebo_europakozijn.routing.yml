@@ -79,3 +79,11 @@ brebo_europakozijn.office_handoff:
   requirements:
     _permission: 'access content'
   methods: [POST]
+
+brebo_europakozijn.price_indication:
+  path: '/europakozijn/api/price-indication'
+  defaults:
+    _controller: '\Drupal\brebo_europakozijn\Controller\EuropakozijnPriceIndicationController::calculate'
+  requirements:
+    _permission: 'access content'
+  methods: [POST]
