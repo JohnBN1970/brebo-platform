@@ -28,7 +28,7 @@ final class EuropakozijnPriceIndicationController extends ControllerBase {
 
     $officeBaseUrl = rtrim(trim((string) Settings::get('brebo_office_base_url', getenv('BREBO_OFFICE_BASE_URL') ?: '')), '/');
     $secret = trim((string) Settings::get('brebo_shared_secret', getenv('BREBO_SHARED_SECRET') ?: ''));
-    if ($officeBaseUrl === '' || $secret === '') {
+    if ($officeBaseUrl === '' || $secret === '' || !str_starts_with(strtolower($officeBaseUrl), 'https://')) {
       return $this->unavailable();
     }
 
