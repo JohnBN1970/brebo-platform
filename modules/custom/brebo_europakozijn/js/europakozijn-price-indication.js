@@ -27,7 +27,8 @@
           if (!['vast', 'draaikiep'].includes(fn)) return null;
 
           const brand = payload.product_selection?.brand || null;
-          if (brand !== 'aluplast') return null;
+          const glass = payload.finish?.glass || null;
+          if (brand !== 'aluplast' || glass !== 'HR++') return null;
           return {
             system: payload.product_selection?.system || 'ideal7000_nl',
             width_mm: Number(payload.geometry.width_mm),
