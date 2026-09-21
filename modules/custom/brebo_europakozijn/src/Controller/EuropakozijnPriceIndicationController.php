@@ -34,7 +34,12 @@ final class EuropakozijnPriceIndicationController extends ControllerBase {
 
     $requestId = $this->uuid();
     $payload = ['schema_version' => '1.0', 'configuration' => $input['configuration']];
-    $body = json_encode($payload, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    try {
+      $body = json_encode($payload, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    }
+    catch (\JsonException) {
+      return $this->error(422, 'invalid_payload');
+    }
     $path = '/brebo-internal/price-indication/kozijn';
     $timestamp = (string) time();
     $canonical = implode("\n", ['POST', $path, hash('sha256', $body), $timestamp, $requestId]);
