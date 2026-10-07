@@ -13,7 +13,7 @@ use Drupal\node\NodeInterface;
  *
  * This importer never deletes existing KnowledgeItems. It creates missing
  * catalog items and may refresh untouched editorial seed nodes. Reviewed,
- * sourced or published KnowledgeItems are never overwritten.
+ * sourced or formally reviewed KnowledgeItems are never overwritten.
  */
 final class KnowledgeItemSeedImporter {
 
@@ -88,8 +88,12 @@ final class KnowledgeItemSeedImporter {
             foreach ($this->contentValues($item) as $field => $value) {
               $node->set($field, $value);
             }
+            $node->setPublished(TRUE);
+            $basis = (string) $node->get('field_knowledge_basis')->value;
+            $basis = str_replace('Publieke vrijgave: nee', 'Publieke vrijgave: redactioneel', $basis);
+            $node->set('field_knowledge_basis', $basis);
             $node->setNewRevision(TRUE);
-            $node->setRevisionLogMessage('Redactionele website-seed bijgewerkt vanuit KnowledgeCatalog; nog niet publiek vrijgegeven.');
+            $node->setRevisionLogMessage('Redactionele website-seed bijgewerkt vanuit KnowledgeCatalog en publiek zichtbaar voor beoordeling; AI-vrijgave blijft uit.');
             $node->save();
             $refreshed[] = $item['slug'];
           }
@@ -110,10 +114,11 @@ final class KnowledgeItemSeedImporter {
     return [
       'type' => self::BUNDLE,
       'title' => (string) $item['title'],
-      // Seed objects are deliberately unpublished until human review.
-      'status' => NodeInterface::NOT_PUBLISHED,
+      // Editorial website knowledge is visible for practical review, while
+      // AI authority remains separately gated and disabled by default.
+      'status' => NodeInterface::PUBLISHED,
       ...$this->contentValues($item),
-      'field_knowledge_basis' => $marker . "\nStatus: editorial\nOnderwerp: " . $topic . "\nBronnen: nog niet vastgesteld\nGeldigheid: nog niet gecontroleerd\nDeskundige controle: nog niet uitgevoerd\nPublieke vrijgave: nee\nAI-vrijgave: nee",
+      'field_knowledge_basis' => $marker . "\nStatus: editorial\nOnderwerp: " . $topic . "\nBronnen: nog niet vastgesteld\nGeldigheid: nog niet gecontroleerd\nDeskundige controle: nog niet uitgevoerd\nPublieke vrijgave: redactioneel\nAI-vrijgave: nee",
     ];
   }
 
@@ -139,10 +144,6 @@ final class KnowledgeItemSeedImporter {
   }
 
   private function isUntouchedEditorialSeed(NodeInterface $node): bool {
-    if ($node->isPublished()) {
-      return FALSE;
-    }
-
     $basis = (string) $node->get('field_knowledge_basis')->value;
     if (!str_contains($basis, 'Status: editorial')) {
       return FALSE;
