@@ -94,7 +94,7 @@ final class EuropakozijnOfficeProjectDocumentClient {
       'recognition' => $recognition,
       'document_count' => (int) ($recognition['document_count'] ?? 0),
       'extracted_count' => (int) ($recognition['extracted_count'] ?? 0),
-      'review_required' => (($decoded['intake']['status'] ?? '') === 'review_required'),
+      'review_required' => (($decoded['intake']['state'] ?? '') === 'review_required'),
     ];
   }
 }
