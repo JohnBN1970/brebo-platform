@@ -13,21 +13,53 @@ final class CustomerServiceLandingController extends ControllerBase {
 
   public function page(): array {
     $situations = [
-      ['icon' => '!', 'id' => 'schade', 'title' => 'Ik zie schade of slijtage', 'text' => 'Bijvoorbeeld houtrot, scheuren, corrosie, beschadigingen of onderdelen die zichtbaar achteruitgaan.', 'next' => 'Bekijk eerst waar de schade zit en of deze terugkomt. BREBO helpt daarna onderscheid maken tussen plaatselijk herstel, nader onderzoek en vervanging.', 'links' => [['label' => 'Kennis over kozijnen', 'href' => '/klantenservice/kennis/kozijnen'], ['label' => 'Kennis over gevels', 'href' => '/klantenservice/kennis/gevel-aansluitingen']]],
-      ['icon' => '≈', 'id' => 'vocht', 'title' => 'Ik heb vocht, condens of lekkage', 'text' => 'Vocht is zichtbaar, glas beslaat, er lekt water of een aansluiting lijkt niet waterdicht.', 'next' => 'De plek waar vocht zichtbaar wordt is niet altijd de oorzaak. Begin daarom bij waar en wanneer het probleem optreedt.', 'links' => [['label' => 'Kennis over glas', 'href' => '/klantenservice/kennis/glas'], ['label' => 'Kennis over aansluitingen', 'href' => '/klantenservice/kennis/gevel-aansluitingen']]],
-      ['icon' => '↔', 'id' => 'comfort', 'title' => 'Ik heb last van tocht of comfortproblemen', 'text' => 'Bijvoorbeeld tocht, koudeval, geluid, warmte of slecht sluitende ramen en deuren.', 'next' => 'Comfortproblemen kunnen uit glas, kozijnen, kierdichting, aansluitingen of ventilatie komen. We kijken daarom eerst naar de samenhang.', 'links' => [['label' => 'Kennis over kozijnen', 'href' => '/klantenservice/kennis/kozijnen'], ['label' => 'Kennis over glas', 'href' => '/klantenservice/kennis/glas']]],
-      ['icon' => '◒', 'id' => 'verbeteren', 'title' => 'Ik wil mijn gebouw verbeteren of verduurzamen', 'text' => 'U wilt comfort, energieprestatie of kwaliteit verbeteren, maar de juiste maatregel staat nog niet vast.', 'next' => 'Begin niet automatisch bij een product. Eerst bepalen we welke verbetering past bij het gebouw en welke bouwdelen elkaar beïnvloeden.', 'links' => [['label' => 'Kennis over verduurzaming', 'href' => '/klantenservice/kennis/verduurzaming'], ['label' => 'Kennis over onderhoud & renovatie', 'href' => '/klantenservice/kennis/onderhoud-renovatie']]],
-      ['icon' => '↻', 'id' => 'terugkerend', 'title' => 'Onderhoud of gebreken blijven terugkomen', 'text' => 'Reparaties volgen elkaar op, dezelfde klacht keert terug of meerdere onderdelen vragen tegelijk aandacht.', 'next' => 'Terugkerende problemen zijn een reden om niet alleen het afzonderlijke gebrek, maar oorzaak, samenhang en resterende levensduur te beoordelen.', 'links' => [['label' => 'Kennis over onderhoud & renovatie', 'href' => '/klantenservice/kennis/onderhoud-renovatie'], ['label' => 'Kennis over onderhoudsplanning', 'href' => '/klantenservice/kennis/gebouwbeheer']]],
-      ['icon' => '▤', 'id' => 'plannen', 'title' => 'Ik wil onderhoud en investeringen vooruit plannen', 'text' => 'U wilt weten wat wanneer nodig is, welke risico’s prioriteit hebben en welke werkzaamheden logisch gecombineerd kunnen worden.', 'next' => 'Een bruikbare planning begint bij conditie, risico, resterende levensduur en samenhang. Daarna kunnen maatregelen in tijd en budget worden gezet.', 'links' => [['label' => 'Kennis over onderhoudsplanning', 'href' => '/klantenservice/kennis/gebouwbeheer'], ['label' => 'Kennis over onderhoud & renovatie', 'href' => '/klantenservice/kennis/onderhoud-renovatie']]],
+      ['icon' => '!', 'id' => 'schade', 'title' => 'Ik zie schade of slijtage', 'text' => 'Bijvoorbeeld houtrot, scheuren, corrosie, beschadigingen of onderdelen die zichtbaar achteruitgaan.', 'question' => 'Waar ziet u de schade?', 'choices' => [
+        ['label' => 'Aan kozijnen, ramen of deuren', 'href' => '/klantenservice/kennis/kozijnen'],
+        ['label' => 'Aan metselwerk, voegen of gevelaansluitingen', 'href' => '/klantenservice/kennis/gevel-aansluitingen'],
+        ['label' => 'Aan glas of beglazing', 'href' => '/klantenservice/kennis/glas'],
+        ['label' => 'Op meerdere plekken of bouwdelen', 'href' => '/klantenservice/kennis/onderhoud-renovatie'],
+      ], 'contact' => 'Laat BREBO de schade beoordelen'],
+      ['icon' => '≈', 'id' => 'vocht', 'title' => 'Ik heb vocht, condens of lekkage', 'text' => 'Vocht is zichtbaar, glas beslaat, er lekt water of een aansluiting lijkt niet waterdicht.', 'question' => 'Waar merkt u het probleem?', 'choices' => [
+        ['label' => 'Tussen de glasbladen', 'href' => '/klantenservice/kennis/vraag/condens-tussen-glasbladen'],
+        ['label' => 'Aan het glas of bij de glasrand', 'href' => '/klantenservice/kennis/glas'],
+        ['label' => 'Rond het kozijn of de gevelaansluiting', 'href' => '/klantenservice/kennis/vraag/lekkage-rond-kozijn'],
+        ['label' => 'Ik kan niet bepalen waar het vandaan komt', 'href' => '/klantenservice/kennis/gevel-aansluitingen'],
+      ], 'contact' => 'Laat BREBO de situatie beoordelen'],
+      ['icon' => '↔', 'id' => 'comfort', 'title' => 'Ik heb last van tocht of comfortproblemen', 'text' => 'Bijvoorbeeld tocht, koudeval, geluid, warmte of slecht sluitende ramen en deuren.', 'question' => 'Wat merkt u vooral?', 'choices' => [
+        ['label' => 'Tocht langs ramen, deuren of kozijnen', 'href' => '/klantenservice/kennis/vraag/tocht-langs-kozijnen'],
+        ['label' => 'Kou of onvoldoende isolatie bij glas', 'href' => '/klantenservice/kennis/glas'],
+        ['label' => 'Geluid van buiten', 'href' => '/klantenservice/kennis/vraag/geluidswerend-glas'],
+        ['label' => 'Warmte of oververhitting', 'href' => '/klantenservice/kennis/vraag/zonwering-oververhitting'],
+        ['label' => 'Een raam of deur sluit slecht', 'href' => '/klantenservice/kennis/vraag/hang-en-sluitwerk-kozijnen'],
+      ], 'contact' => 'Bespreek uw comfortprobleem'],
+      ['icon' => '◒', 'id' => 'verbeteren', 'title' => 'Ik wil mijn gebouw verbeteren of verduurzamen', 'text' => 'U wilt comfort, energieprestatie of kwaliteit verbeteren, maar de juiste maatregel staat nog niet vast.', 'question' => 'Wat wilt u vooral bereiken?', 'choices' => [
+        ['label' => 'Minder energieverlies', 'href' => '/klantenservice/kennis/verduurzaming'],
+        ['label' => 'Beter comfort', 'href' => '/klantenservice/kennis/verduurzaming'],
+        ['label' => 'Glas of kozijnen verbeteren', 'href' => '/klantenservice/kennis/vraag/glas-vervangen-verduurzamen'],
+        ['label' => 'Verduurzaming combineren met gepland onderhoud', 'href' => '/klantenservice/kennis/vraag/verduurzaming-combineren-onderhoud'],
+      ], 'contact' => 'Bespreek wat u wilt verbeteren'],
+      ['icon' => '↻', 'id' => 'terugkerend', 'title' => 'Onderhoud of gebreken blijven terugkomen', 'text' => 'Reparaties volgen elkaar op, dezelfde klacht keert terug of meerdere onderdelen vragen tegelijk aandacht.', 'question' => 'Wat komt steeds terug?', 'choices' => [
+        ['label' => 'Lekkage of vocht', 'href' => '/klantenservice/kennis/gevel-aansluitingen'],
+        ['label' => 'Schilderwerk of kozijnschade', 'href' => '/klantenservice/kennis/kozijnen'],
+        ['label' => 'Losse reparaties aan meerdere onderdelen', 'href' => '/klantenservice/kennis/vraag/onderhoud-of-renovatie'],
+        ['label' => 'Onderhoudsmomenten lopen door elkaar', 'href' => '/klantenservice/kennis/gebouwbeheer'],
+      ], 'contact' => 'Laat BREBO naar de samenhang kijken'],
+      ['icon' => '▤', 'id' => 'plannen', 'title' => 'Ik wil onderhoud en investeringen vooruit plannen', 'text' => 'U wilt weten wat wanneer nodig is, welke risico’s prioriteit hebben en welke werkzaamheden logisch gecombineerd kunnen worden.', 'question' => 'Waar zoekt u vooral inzicht in?', 'choices' => [
+        ['label' => 'De technische staat van het gebouw', 'href' => '/klantenservice/kennis/vraag/conditiemeting-gebouw'],
+        ['label' => 'Een MJOP of onderhoudsplanning', 'href' => '/klantenservice/kennis/vraag/mjop-wat-is-het'],
+        ['label' => 'Prioriteiten en urgente gebreken', 'href' => '/klantenservice/kennis/vraag/onderhoud-prioriteren'],
+        ['label' => 'Een realistisch onderhoudsbudget', 'href' => '/klantenservice/kennis/vraag/onderhoudsbudget-reserveren'],
+        ['label' => 'Werkzaamheden logisch combineren', 'href' => '/klantenservice/kennis/vraag/onderhoud-bundelen'],
+      ], 'contact' => 'Bespreek uw onderhoudsplanning'],
     ];
 
     $topicMarkup = '';
     foreach ($situations as $situation) {
-      $links = '';
-      foreach ($situation['links'] as $link) {
-        $links .= '<a href="' . $link['href'] . '">' . $link['label'] . ' <span aria-hidden="true">→</span></a>';
+      $choices = '';
+      foreach ($situation['choices'] as $choice) {
+        $choices .= '<a class="brebo-knowledge-card__choice" href="' . $choice['href'] . '"><span>' . $choice['label'] . '</span><span aria-hidden="true">→</span></a>';
       }
-      $topicMarkup .= '<details class="brebo-knowledge-card brebo-knowledge-card--situation" id="situatie-' . $situation['id'] . '"><summary><span class="brebo-knowledge-card__icon" aria-hidden="true">' . $situation['icon'] . '</span><div><h3>' . $situation['title'] . '</h3><p>' . $situation['text'] . '</p><span class="brebo-knowledge-card__action">Bekijk wat dit kan betekenen <span aria-hidden="true">↓</span></span></div></summary><div class="brebo-knowledge-card__followup"><p>' . $situation['next'] . '</p><div class="brebo-knowledge-card__links">' . $links . '</div><a class="brebo-knowledge-card__contact" href="/contact/bericht">Vraag BREBO om mee te kijken <span aria-hidden="true">→</span></a></div></details>';
+      $topicMarkup .= '<details class="brebo-knowledge-card brebo-knowledge-card--situation" id="situatie-' . $situation['id'] . '"><summary><span class="brebo-knowledge-card__icon" aria-hidden="true">' . $situation['icon'] . '</span><div><h3>' . $situation['title'] . '</h3><p>' . $situation['text'] . '</p><span class="brebo-knowledge-card__action">Kies wat het beste past <span aria-hidden="true">↓</span></span></div></summary><div class="brebo-knowledge-card__followup"><h4>' . $situation['question'] . '</h4><div class="brebo-knowledge-card__choices">' . $choices . '</div><a class="brebo-knowledge-card__contact" href="/contact/bericht">' . $situation['contact'] . ' <span aria-hidden="true">→</span></a></div></details>';
     }
 
     return [

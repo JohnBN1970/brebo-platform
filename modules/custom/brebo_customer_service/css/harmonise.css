@@ -380,3 +380,35 @@
     border-top: 1px solid rgba(17, 24, 39, .12);
   }
 }
+
+
+.brebo-knowledge-card__followup h4 {
+  margin: 0 0 .9rem;
+  font-size: 1.05rem;
+}
+
+.brebo-knowledge-card__choices {
+  display: grid;
+  gap: .55rem;
+}
+
+.brebo-knowledge-card__choice {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+  padding: .85rem 1rem;
+  border: 1px solid rgba(15, 23, 42, .12);
+  background: #fff;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.brebo-knowledge-card__choice:hover,
+.brebo-knowledge-card__choice:focus-visible {
+  border-color: #7137b5;
+}
+
+.brebo-knowledge-card__contact {
+  margin-top: 1.25rem;
+}
