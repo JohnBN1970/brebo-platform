@@ -42,7 +42,7 @@ final class EuropakozijnOfficeHandoffController extends ControllerBase {
     $payload = [
       'schema_version' => '1.0',
       'request_id' => $requestId,
-      'source' => 'brebo-platform-europakozijn',
+      'source' => 'brebo-platform.europakozijn',
       'observed' => $observed,
       'detected' => $detected,
       'calculated' => $calculated,
@@ -52,7 +52,7 @@ final class EuropakozijnOfficeHandoffController extends ControllerBase {
 
     $officeBaseUrl = rtrim(trim((string) Settings::get('brebo_office_base_url', getenv('BREBO_OFFICE_BASE_URL') ?: '')), '/');
     $secret = trim((string) Settings::get('brebo_shared_secret', getenv('BREBO_SHARED_SECRET') ?: ''));
-    if ($officeBaseUrl === '' || $secret === '') {
+    if (!str_starts_with($officeBaseUrl, 'https://') || $secret === '') {
       return $this->error(503, 'office_handoff_not_configured');
     }
 
