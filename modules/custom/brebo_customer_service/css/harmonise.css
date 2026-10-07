@@ -584,3 +584,41 @@
 .brebo-knowledge-index__accordion-body p {
   margin: 0;
 }
+
+
+/* Quiet next-step CTA on individual knowledge answers. */
+.brebo-knowledge-article__cta {
+  display: flex;
+  justify-content: space-between;
+  gap: 2rem;
+  align-items: center;
+  margin-top: 2rem;
+  padding: 1.25rem 0;
+  border-top: 1px solid rgba(17, 24, 39, .14);
+  border-bottom: 1px solid rgba(17, 24, 39, .14);
+  background: transparent;
+}
+
+.brebo-knowledge-article__cta p {
+  margin: .3rem 0 0;
+  color: var(--brebo-page-muted, #667085);
+}
+
+.brebo-knowledge-article__cta a {
+  flex: 0 0 auto;
+  color: var(--brebo-page-accent, #7137b5);
+  font-size: .9rem;
+  font-weight: 700;
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+}
+
+@media (max-width: 640px) {
+  .brebo-knowledge-article__cta {
+    display: block;
+  }
+  .brebo-knowledge-article__cta a {
+    display: inline-block;
+    margin-top: 1rem;
+  }
+}
