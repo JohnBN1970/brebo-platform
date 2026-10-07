@@ -72,7 +72,7 @@ final class KnowledgeCatalogController extends ControllerBase {
         . '<a class="brebo-knowledge-article__back" href="/klantenservice/kennis/' . $item['topic'] . '">← Terug naar ' . $topic['title'] . '</a>'
         . '<header><p class="brebo-knowledge-library__eyebrow">' . $topic['title'] . '</p><h1>' . $item['title'] . '</h1><p class="brebo-knowledge-article__lead">' . $item['summary'] . '</p></header>'
         . '<div class="brebo-knowledge-article__body">'
-        . $this->guidance($question)
+        . $this->guidance($item)
         . '<aside><strong>Wat BREBO hiervoor wil weten</strong><p>' . $this->needed($item['topic']) . '</p></aside>'
         . '<aside class="brebo-knowledge-article__quality"><strong>Kennisstatus: ' . $status . '</strong><p>' . $ai . '</p></aside>'
         . '</div></article>',
@@ -215,27 +215,17 @@ final class KnowledgeCatalogController extends ControllerBase {
     };
   }
 
-  private function guidance(string $slug): string {
-    $specific = [
-      'condens-tussen-glasbladen' => ['Bepaal eerst waar de condens zit', 'Condens aan de binnenzijde, buitenzijde en tussen de glasbladen heeft niet dezelfde betekenis. Vocht of waas tussen de glasbladen bevindt zich in de afgesloten spouw van het isolatieglas.', 'Kijk ook naar de beglazing als systeem', 'Bij vervanging is het verstandig ook randafdichting, glasoplegging, sponning en vochtbelasting rondom de ruit te beoordelen.'],
-      'kozijnen-herstellen-of-vervangen' => ['Begin bij oorzaak en omvang', 'Afbladderende verf, open verbindingen of plaatselijke aantasting zijn niet automatisch een reden voor volledige vervanging. Eerst moet duidelijk zijn welk deel is aangetast en waarom.', 'Vergelijk herstel met resterende levensduur', 'Herstel is vooral logisch wanneer voldoende gezond materiaal aanwezig blijft en de oorzaak duurzaam kan worden weggenomen.'],
-      'hrpp-bestaande-kozijnen' => ['Controleer eerst het bestaande kozijn', 'Sponning, glaslatten, ondersteuning, kierdichting en staat van het kozijn bepalen mede of een andere glasopbouw passend kan worden aangebracht.', 'Neem ventilatie mee', 'Een betere isolatie en luchtdichtheid veranderen het comfort en de vochtbalans. Gecontroleerde ventilatie blijft daarom onderdeel van de beoordeling.'],
-      'onderhoud-of-renovatie' => ['Kijk naar herhaling en samenhang', 'Wanneer dezelfde reparaties terugkomen of meerdere bouwdelen elkaar beïnvloeden, wordt alleen incidentgericht herstellen steeds minder logisch.', 'Vergelijk scenario’s', 'Directe kosten zijn niet het enige criterium. Ook resterende levensduur, gevolgschade, bereikbaarheid, hinder en toekomstige onderhoudsbehoefte horen in de afweging.'],
-      'bouwbegeleiding-wanneer' => ['Zorg voor regie vóórdat de uitvoering begint', 'Onafhankelijke bouwbegeleiding is vooral waardevol wanneer u als opdrachtgever grip wilt houden op kwaliteit, planning, kosten en technische keuzes zonder zelf dagelijks op het werk aanwezig te zijn.', 'Controleer tijdens het werk, niet alleen achteraf', 'Door afspraken, details, afwijkingen en voortgang tijdens de uitvoering vast te leggen, kunnen problemen worden bijgestuurd voordat ze bij oplevering tot discussie, herstelwerk of extra kosten leiden.'],
-      'bouwbegeleiding-controlepunten' => ['Maak vooraf duidelijk wat gecontroleerd wordt', 'De controlepunten volgen uit contractstukken, tekeningen, technische eisen, planning en kritieke uitvoeringsmomenten. Zo is vooraf duidelijk waarop de uitvoering wordt beoordeeld.', 'Leg afwijkingen en besluiten aantoonbaar vast', 'Foto’s, bevindingen, afspraken, meer- en minderwerk en openstaande acties horen in één dossier. Daarmee blijft voor opdrachtgever en uitvoerende partijen zichtbaar wat is afgesproken en wat nog moet gebeuren.'],
-      'oplevering-restpunten' => ['Begin de oplevering al tijdens de uitvoering', 'Een goede oplevering ontstaat niet op de laatste dag. Tussentijdse controles maken gebreken en onafgemaakte onderdelen eerder zichtbaar, zodat herstel kan worden ingepland voordat het werk als gereed wordt beschouwd.', 'Maak ieder restpunt concreet en controleerbaar', 'Leg per punt vast wat niet voldoet, waar het zich bevindt, wie actie neemt en wanneer nacontrole plaatsvindt. Foto’s en een eenduidige status voorkomen discussie over wat wel of niet is afgehandeld.'],
-      'renovatie-bewoners-hinder' => ['Plan de uitvoering vanuit het gebruik van het gebouw', 'Bewoners en gebruikers merken vooral bereikbaarheid, geluid, stof, tijdelijke afsluitingen en veranderingen in voorzieningen. De werkvolgorde moet daarom niet alleen technisch kloppen, maar ook praktisch uitvoerbaar zijn.', 'Communiceer vóórdat hinder ontstaat', 'Duidelijke informatie over planning, toegang, veiligheidsmaatregelen, contactpersonen en wijzigingen geeft bewoners en gebruikers handelingsperspectief en voorkomt onnodige verstoring en misverstanden.'],
-    ];
-    if (isset($specific[$slug])) {
-      [$h1, $p1, $h2, $p2] = $specific[$slug];
+  private function guidance(array $item): string {
+    $guidance = $item['guidance'] ?? [];
+    if ($guidance === []) {
+      return '';
     }
-    else {
-      $h1 = 'Begin bij wat u daadwerkelijk waarneemt';
-      $p1 = 'Dezelfde zichtbare klacht kan verschillende oorzaken hebben. Leg daarom eerst plaats, omvang, omstandigheden en ontwikkeling in de tijd vast voordat een maatregel wordt gekozen.';
-      $h2 = 'Beoordeel het bouwdeel in samenhang';
-      $p2 = 'Kozijn, glas, gevel, afdichtingen, vocht, ventilatie, gebruik en onderhoud kunnen elkaar beïnvloeden. Een goede oplossing pakt niet alleen het zichtbare symptoom aan.';
+
+    $markup = '';
+    foreach ($guidance as [$heading, $text]) {
+      $markup .= '<section class="brebo-knowledge-article__section"><h2>' . $heading . '</h2><p>' . $text . '</p></section>';
     }
-    return '<section class="brebo-knowledge-article__section"><h2>' . $h1 . '</h2><p>' . $p1 . '</p></section><section class="brebo-knowledge-article__section"><h2>' . $h2 . '</h2><p>' . $p2 . '</p></section>';
+    return $markup;
   }
 
   private function needed(string $topic): string {
