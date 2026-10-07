@@ -622,3 +622,50 @@
     margin-top: 1rem;
   }
 }
+
+
+/* Individual knowledge answers: keep the answer primary and supporting intake secondary. */
+.brebo-knowledge-article__body {
+  max-width: 920px;
+}
+
+.brebo-knowledge-article__section {
+  display: grid;
+  grid-template-columns: minmax(180px, .55fr) minmax(0, 1.45fr);
+  gap: clamp(1.5rem, 4vw, 4rem);
+  padding: 1.4rem 0;
+  border-top: 1px solid rgba(17, 24, 39, .12);
+}
+
+.brebo-knowledge-article__section h2 {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.35;
+  letter-spacing: -.015em;
+}
+
+.brebo-knowledge-article__section p {
+  margin: 0;
+  color: var(--brebo-page-muted, #667085);
+  line-height: 1.65;
+}
+
+.brebo-knowledge-article__body > aside:not(.brebo-knowledge-article__cta) {
+  margin-top: 1.6rem;
+  padding: 1.15rem 1.25rem;
+  background: var(--brebo-page-soft, #f7f8fb);
+  border: 0;
+}
+
+.brebo-knowledge-article__body > aside:not(.brebo-knowledge-article__cta) p {
+  margin: .35rem 0 0;
+  color: var(--brebo-page-muted, #667085);
+  line-height: 1.6;
+}
+
+@media (max-width: 700px) {
+  .brebo-knowledge-article__section {
+    grid-template-columns: 1fr;
+    gap: .55rem;
+  }
+}
