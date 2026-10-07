@@ -43,7 +43,10 @@ final class KnowledgeCatalogController extends ControllerBase {
         . '<a class="brebo-knowledge-article__back" href="/klantenservice">← Terug naar klantenservice</a>'
         . '<header><p class="brebo-knowledge-library__eyebrow">BREBO Kennis</p><h1>' . $topics[$topic]['title'] . '</h1><p>' . $topics[$topic]['intro'] . '</p></header>'
         . '<section class="brebo-knowledge-landing__intro"><div><p class="brebo-knowledge-library__eyebrow">Waar het om gaat</p><h2>' . $landing['heading'] . '</h2><p>' . $landing['lead'] . '</p></div><aside><strong>Eerst vaststellen</strong><p>' . $landing['first'] . '</p></aside></section>'
-        . '<section class="brebo-knowledge-landing__points"><h2>Belangrijke afwegingen</h2><div class="brebo-knowledge-landing__point-grid">' . $this->landingPoints($landing['points']) . '</div></section>'
+        . '<section class="brebo-knowledge-landing__signals"><div><p class="brebo-knowledge-library__eyebrow">Herkenning</p><h2>Wanneer is dit onderwerp relevant?</h2></div><div class="brebo-knowledge-landing__signal-grid">' . $this->landingList($this->landingSignals($topic)) . '</div></section>'
+        . '<section class="brebo-knowledge-landing__points"><h2>Hoe BREBO dit beoordeelt</h2><div class="brebo-knowledge-landing__point-grid">' . $this->landingPoints($landing['points']) . '</div></section>'
+        . '<section class="brebo-knowledge-landing__scenarios"><div><p class="brebo-knowledge-library__eyebrow">Mogelijke richtingen</p><h2>Niet ieder gebouw vraagt om dezelfde ingreep</h2><p>De juiste richting volgt pas nadat oorzaak, toestand, risico en samenhang voldoende duidelijk zijn.</p></div><div class="brebo-knowledge-landing__scenario-grid">' . $this->landingPoints($this->landingScenarios($topic)) . '</div></section>'
+        . '<section class="brebo-knowledge-landing__research"><div><p class="brebo-knowledge-library__eyebrow">Wanneer nader onderzoek nodig is</p><h2>' . $this->landingResearch($topic)[0] . '</h2><p>' . $this->landingResearch($topic)[1] . '</p></div></section>'
         . '<section class="brebo-knowledge-landing__questions"><div><p class="brebo-knowledge-library__eyebrow">Verdieping</p><h2>Vragen die vaak bij ' . strtolower($topics[$topic]['title']) . ' horen</h2><p>Gebruik deze vragen om gericht verder te kijken. Een afzonderlijk antwoord is niet automatisch een diagnose voor uw gebouw.</p></div><div class="brebo-knowledge-index__grid">' . $cards . '</div></section>'
         . '<section class="brebo-knowledge-landing__action"><div><p class="brebo-knowledge-library__eyebrow">Uw gebouw</p><h2>Wilt u weten wat in uw situatie verstandig is?</h2><p>' . $landing['action'] . '</p></div><a class="brebo-knowledge-library__button" href="/contact/bericht">Bespreek uw situatie <span aria-hidden="true">→</span></a></section>'
         . '</main>',
@@ -74,6 +77,50 @@ final class KnowledgeCatalogController extends ControllerBase {
         . '<aside class="brebo-knowledge-article__quality"><strong>Kennisstatus: ' . $status . '</strong><p>' . $ai . '</p></aside>'
         . '</div></article>',
     ];
+  }
+
+  private function landingList(array $items): string {
+    $markup = '';
+    foreach ($items as $item) {
+      $markup .= '<div class="brebo-knowledge-landing__signal"><span aria-hidden="true">→</span><p>' . $item . '</p></div>';
+    }
+    return $markup;
+  }
+
+  private function landingSignals(string $topic): array {
+    return match ($topic) {
+      'kozijnen' => ['Zichtbare houtaantasting, corrosie of open verbindingen.', 'Ramen of deuren sluiten slecht, klemmen of tochten.', 'Schilderwerk verslechtert opvallend snel of plaatselijk.', 'U overweegt ander glas of vervanging maar weet niet wat het kozijn nog aankan.'],
+      'glas' => ['Condens, waas of vocht rond of tussen glasbladen.', 'U wilt HR++, triple, veiligheidsglas of geluidswering toepassen.', 'Ruiten zijn groot, zwaar of liggen op een windbelaste positie.', 'Er is lekkage, thermische breuk, geluidsoverlast of comfortverlies.'],
+      'gevel-aansluitingen' => ['Vocht of lekkage rond kozijnen, dorpels, dakranden of doorvoeren.', 'Scheuren, los voegwerk of afspattend metselwerk worden zichtbaar.', 'Binnenoppervlakken voelen koud aan of vertonen condens/schimmel.', 'Kitnaden of aansluitingen laten los of zijn meerdere keren hersteld.'],
+      'onderhoud-renovatie' => ['Dezelfde reparaties blijven terugkomen.', 'Meerdere bouwdelen bereiken ongeveer tegelijk een onderhoudsmoment.', 'Steiger, bereikbaarheid of bewonershinder maken losse ingrepen inefficiënt.', 'U twijfelt tussen doorgaan met onderhoud, gedeeltelijk verbeteren of integraal renoveren.'],
+      'verduurzaming' => ['U wilt energiegebruik of comfort verbeteren zonder losse maatregelen te stapelen.', 'Glas, kozijnen of gevels zijn toch aan onderhoud of vervanging toe.', 'Tocht, koudeval, oververhitting of ventilatieproblemen spelen mee.', 'U wilt investeringen faseren en combineren met toekomstig onderhoud.'],
+      'gebouwbeheer' => ['Het MJOP bevat vooral jaartallen en bedragen maar weinig onderbouwing.', 'U wilt risico en urgentie beter prioriteren.', 'Onderhoudskosten zijn moeilijk voorspelbaar of lopen onverwacht op.', 'Inspecties, foto’s, garanties en besluiten staan verspreid of ontbreken.'],
+      default => [],
+    };
+  }
+
+  private function landingScenarios(string $topic): array {
+    return match ($topic) {
+      'kozijnen' => [['Plaatselijk herstellen', 'Logisch wanneer schade beperkt is, de oorzaak kan worden weggenomen en voldoende restlevensduur aanwezig blijft.'], ['Gericht verbeteren', 'Bijvoorbeeld kierdichting, beslag, beglazing of deelvervanging wanneer de basis nog goed is.'], ['Vervangen', 'In beeld wanneer schade omvangrijk of terugkerend is, prestaties tekortschieten en herstel niet meer in verhouding staat.']],
+      'glas' => [['Alleen ruit vervangen', 'Kan passend zijn wanneer kozijn, sponning en beglazingssysteem technisch geschikt zijn.'], ['Glas en kozijn samen beoordelen', 'Nodig wanneer gewicht, sponning, veiligheid, kierdichting of ventilatie mee verandert.'], ['Onderzoek vóór keuze', 'Bij lekkage, thermische breuk, geluid of onbekende glasopbouw is eerst oorzaak en randvoorwaarde nodig.']],
+      'gevel-aansluitingen' => [['Plaatselijk herstel', 'Mogelijk bij een duidelijk, afgebakend gebrek zonder bredere oorzaak.'], ['Detail of aansluiting verbeteren', 'Wanneer het probleem terugkomt door ontwerp, beweging, afwatering of materiaalaansluiting.'], ['Breder gevelonderzoek', 'Nodig wanneer vocht- of scheurpatronen niet lokaal verklaarbaar zijn of meerdere bouwdelen betrokken zijn.']],
+      'onderhoud-renovatie' => [['Correctief blijven herstellen', 'Alleen logisch wanneer risico, omvang en terugkeer beperkt blijven.'], ['Planmatig bundelen', 'Werkzaamheden combineren op moment, gevel of bereikbaarheid om kosten en hinder te beperken.'], ['Renovatiescenario', 'Passend wanneer meerdere functies, bouwdelen en prestaties tegelijk structureel aandacht vragen.']],
+      'verduurzaming' => [['Gerichte comfortmaatregel', 'Een beperkte ingreep kan logisch zijn wanneer doel en oorzaak helder zijn.'], ['Combineren met onderhoud', 'Vaak doelmatiger wanneer een bouwdeel toch open, bereikbaar of aan vervanging toe is.'], ['Gefaseerd verduurzamingsplan', 'Geschikt wanneer techniek, budget en onderhoudsmomenten over meerdere jaren moeten worden afgestemd.']],
+      'gebouwbeheer' => [['Actualiseren bestaand MJOP', 'Passend wanneer basisdata bruikbaar zijn maar conditie, prijzen of prioriteiten verouderd zijn.'], ['Nieuwe nulmeting en risicoanalyse', 'Nodig wanneer betrouwbare conditiedata ontbreken of het gebouw onvoldoende in beeld is.'], ['Doorlopend onderhoudsmanagement', 'Geschikt wanneer inspectie, planning, budget, besluiten en uitvoering structureel in één regieproces moeten samenkomen.']],
+      default => [],
+    };
+  }
+
+  private function landingResearch(string $topic): array {
+    return match ($topic) {
+      'kozijnen' => ['Als oorzaak of restlevensduur niet duidelijk is', 'Bij verborgen houtaantasting, herhaalde lekkage, vervorming of twijfel over draagkracht en sponning is alleen visuele beoordeling vaak onvoldoende. Dan kan gerichte opname of meting nodig zijn.'],
+      'glas' => ['Als glasopbouw, belasting of oorzaak onzeker is', 'Bij grote afmetingen, onbekende glasopbouw, veiligheidseisen, thermische breuk of windbelasting kan een projectspecifieke berekening of nadere technische controle nodig zijn.'],
+      'gevel-aansluitingen' => ['Als vocht of scheuren niet lokaal verklaarbaar zijn', 'Bij terugkerende lekkage, onduidelijke waterroute of actieve scheurvorming kan aanvullend onderzoek nodig zijn, bijvoorbeeld destructief onderzoek, vochtmeting of specialistische beoordeling.'],
+      'onderhoud-renovatie' => ['Als scenario’s financieel en technisch dicht bij elkaar liggen', 'Dan helpt een conditieopname, hoeveelhedenstaat, scenariovergelijking en raming om onderhoud, verbetering en renovatie op dezelfde uitgangspunten te vergelijken.'],
+      'verduurzaming' => ['Als maatregelen elkaar technisch beïnvloeden', 'Bij wijzigingen aan isolatie, luchtdichtheid, ventilatie, zonbelasting of constructieve randvoorwaarden kan aanvullende berekening of specialistische toetsing nodig zijn.'],
+      'gebouwbeheer' => ['Als de basisdata onvoldoende betrouwbaar zijn', 'Een planning kan niet beter zijn dan de onderliggende gebouwinformatie. Bij ontbrekende of verouderde gegevens is eerst een gerichte opname, conditiemeting en dossiercontrole nodig.'],
+      default => ['', ''],
+    };
   }
 
   private function landingPoints(array $points): string {
