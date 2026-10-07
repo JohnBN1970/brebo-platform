@@ -11,8 +11,9 @@ use Drupal\node\NodeInterface;
 /**
  * Idempotent bridge from the temporary website catalog to KnowledgeItem nodes.
  *
- * This importer never updates or deletes existing KnowledgeItems. It only
- * creates a catalog item when no exact seed marker is already present.
+ * This importer never deletes existing KnowledgeItems. It creates missing
+ * catalog items and may refresh untouched editorial seed nodes. Reviewed,
+ * sourced or published KnowledgeItems are never overwritten.
  */
 final class KnowledgeItemSeedImporter {
 
@@ -63,6 +64,7 @@ final class KnowledgeItemSeedImporter {
 
     $created = [];
     $existing = [];
+    $refreshed = [];
     $storage = $this->entityTypeManager->getStorage('node');
 
     foreach (KnowledgeCatalog::items() as $topic => $items) {
@@ -81,6 +83,16 @@ final class KnowledgeItemSeedImporter {
         }
         if ($ids) {
           $existing[] = $item['slug'];
+          $node = $storage->load(reset($ids));
+          if ($node instanceof NodeInterface && $this->isUntouchedEditorialSeed($node)) {
+            foreach ($this->contentValues($item) as $field => $value) {
+              $node->set($field, $value);
+            }
+            $node->setNewRevision(TRUE);
+            $node->setRevisionLogMessage('Redactionele website-seed bijgewerkt vanuit KnowledgeCatalog; nog niet publiek vrijgegeven.');
+            $node->save();
+            $refreshed[] = $item['slug'];
+          }
           continue;
         }
 
@@ -91,24 +103,65 @@ final class KnowledgeItemSeedImporter {
       }
     }
 
-    return ['created' => $created, 'existing' => $existing, 'errors' => $errors];
+    return ['created' => $created, 'existing' => $existing, 'refreshed' => $refreshed, 'errors' => $errors];
   }
 
   private function values(string $topic, array $item, string $marker): array {
-    $summary = (string) $item['summary'];
     return [
       'type' => self::BUNDLE,
       'title' => (string) $item['title'],
       // Seed objects are deliberately unpublished until human review.
       'status' => NodeInterface::NOT_PUBLISHED,
-      'field_knowledge_observation' => $summary,
-      'field_knowledge_meaning' => 'Redactionele seed uit de BREBO Kennisbibliotheek. Mogelijke betekenis en oorzaken moeten inhoudelijk en met bronnen worden beoordeeld voordat deze kennis wordt vrijgegeven.',
-      'field_knowledge_risk' => 'Urgentie en risico zijn nog niet gevalideerd. Geen projectspecifieke conclusie trekken zonder beoordeling van de werkelijke situatie.',
-      'field_knowledge_next_step' => 'Controleer de feitelijke situatie, relevante bouwdelen en beschikbare documentatie. Vul daarna bron, geldigheid en deskundige beoordeling aan.',
-      'field_knowledge_basis' => $marker . "\nStatus: editorial\nOnderwerp: " . $topic . "\nBronnen: nog niet vastgesteld\nGeldigheid: nog niet gecontroleerd\nDeskundige controle: nog niet uitgevoerd\nAI-vrijgave: nee",
-      'field_knowledge_regie' => 'Bepaal na inhoudelijke beoordeling welke informatie, inspectie of besluitvorming nodig is en wie daarvoor verantwoordelijk is.',
-      'field_knowledge_realization' => 'Nog geen oplossingsrichting als BREBO-kennis vrijgegeven. Eerst oorzaak, randvoorwaarden en bronbasis valideren.',
+      ...$this->contentValues($item),
+      'field_knowledge_basis' => $marker . "\nStatus: editorial\nOnderwerp: " . $topic . "\nBronnen: nog niet vastgesteld\nGeldigheid: nog niet gecontroleerd\nDeskundige controle: nog niet uitgevoerd\nPublieke vrijgave: nee\nAI-vrijgave: nee",
     ];
+  }
+
+  private function contentValues(array $item): array {
+    $guidance = $item['guidance'] ?? [];
+    $meaningParts = [];
+    foreach ($guidance as $section) {
+      if (is_array($section) && count($section) >= 2) {
+        $meaningParts[] = trim((string) $section[0]) . ': ' . trim((string) $section[1]);
+      }
+    }
+
+    return [
+      'field_knowledge_observation' => (string) $item['summary'],
+      'field_knowledge_meaning' => $meaningParts !== []
+        ? implode("\n\n", $meaningParts)
+        : (string) $item['summary'],
+      'field_knowledge_risk' => 'Urgentie en risico hangen af van oorzaak, omvang, ontwikkeling, functie en mogelijke gevolgschade. Trek zonder projectspecifieke beoordeling geen automatische conclusie over noodzaak of maatregel.',
+      'field_knowledge_next_step' => 'Leg de feitelijke situatie, locatie, omvang en relevante omstandigheden vast. Beoordeel daarna oorzaak, samenhang en randvoorwaarden voordat een maatregel wordt gekozen.',
+      'field_knowledge_regie' => 'Maak expliciet welke informatie nog ontbreekt, welke aannames worden gebruikt en welke technische keuze of vervolgstap eerst moet worden besloten.',
+      'field_knowledge_realization' => 'Kies uitvoering pas nadat oorzaak, technische randvoorwaarden en gewenste prestatie voldoende zijn vastgesteld.',
+    ];
+  }
+
+  private function isUntouchedEditorialSeed(NodeInterface $node): bool {
+    if ($node->isPublished()) {
+      return FALSE;
+    }
+
+    $basis = (string) $node->get('field_knowledge_basis')->value;
+    if (!str_contains($basis, 'Status: editorial')) {
+      return FALSE;
+    }
+
+    foreach (['Bronnen:', 'Geldigheid:', 'Deskundige controle:'] as $prefix) {
+      foreach (preg_split('/\R/', $basis) ?: [] as $line) {
+        $line = trim($line);
+        if (!str_starts_with($line, $prefix)) {
+          continue;
+        }
+        $value = strtolower(trim(substr($line, strlen($prefix))));
+        if ($value !== '' && !str_contains($value, 'nog niet') && !str_contains($value, 'niet vastgesteld') && !str_contains($value, 'niet gecontroleerd') && !str_contains($value, 'niet uitgevoerd')) {
+          return FALSE;
+        }
+      }
+    }
+
+    return TRUE;
   }
 
   private function marker(string $slug): string {
