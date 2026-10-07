@@ -119,7 +119,23 @@ jobs:
           }
 
           git fetch origin "$branch"
-          git pull --ff-only origin "$branch"
+          # Production must reflect the tracked repository exactly. A plain
+          # fast-forward pull does not restore a locally deleted tracked file
+          # when HEAD already equals origin/develop.
+          git reset --hard "origin/$branch"
+
+          expected_sha="$(git rev-parse "origin/$branch")"
+          deployed_tree_sha="$(git rev-parse HEAD)"
+          [[ "$deployed_tree_sha" == "$expected_sha" ]] || {
+            echo "::error::Production checkout is not at origin/$branch."
+            exit 1
+          }
+
+          ventilation_controller="modules/custom/brebo_europakozijn/src/Controller/EuropakozijnVentilationController.php"
+          [[ -s "$ventilation_controller" ]] || {
+            echo "::error::Tracked Europakozijn ventilation controller is missing after authoritative checkout."
+            exit 1
+          }
 
           if [[ -x /opt/alt/php83/usr/bin/php ]]; then
             php_bin=/opt/alt/php83/usr/bin/php
@@ -131,6 +147,17 @@ jobs:
             echo "::error::No usable PHP binary found."
             exit 1
           }
+
+          "$php_bin" -l "$ventilation_controller"
+          "$php_bin" -r '
+            require "autoload.php";
+            $file = "modules/custom/brebo_europakozijn/src/Controller/EuropakozijnVentilationController.php";
+            if (!is_file($file)) {
+              fwrite(STDERR, "Ventilation controller file missing.\n");
+              exit(1);
+            }
+          '
+          echo "TRACKED_RUNTIME_FILES_OK=1"
 
           # Drush batch workers may redispatch through an env-php shebang.
           # Put the validated PHP binary's directory first so workers use
