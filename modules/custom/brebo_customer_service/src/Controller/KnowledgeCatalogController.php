@@ -62,8 +62,7 @@ final class KnowledgeCatalogController extends ControllerBase {
     if ($topic === NULL) {
       throw new NotFoundHttpException();
     }
-    $status = KnowledgeApproval::statusLabel($item);
-    $ai = KnowledgeApproval::aiReason($item);
+    $contactHref = $this->contactHref($item['topic'], $item['slug']);
     return [
       '#attached' => ['library' => ['brebo_customer_service/service']],
       '#cache' => ['tags' => ['brebo_public_knowledge', 'node:' . $item['nid']]],
@@ -73,22 +72,20 @@ final class KnowledgeCatalogController extends ControllerBase {
         . '<div class="brebo-knowledge-article__body">'
         . $this->guidance($item)
         . '<aside><strong>Wat BREBO hiervoor wil weten</strong><p>' . $this->needed($item['topic']) . '</p></aside>'
-        . '<aside class="brebo-knowledge-article__quality"><strong>Kennisstatus: ' . $status . '</strong><p>' . $ai . '</p></aside>'
-        . '<aside class="brebo-knowledge-article__cta"><div><strong>Heeft u dit probleem bij uw gebouw?</strong><p>BREBO kan de situatie beoordelen en aangeven wat een logische volgende stap is.</p></div><a href="/contact/bericht?route=probleem&amp;context=' . rawurlencode($item['slug']) . '">Situatie voorleggen <span aria-hidden="true">→</span></a></aside>'
+        . '<aside class="brebo-knowledge-article__cta"><div><strong>Gaat dit over uw gebouw?</strong><p>Leg uw situatie aan BREBO voor. We bekijken wat bekend is, wat nog moet worden vastgesteld en wat een logische volgende stap is.</p></div><a href="' . $contactHref . '">Situatie voorleggen <span aria-hidden="true">→</span></a></aside>'
         . '</div></article>',
     ];
   }
 
-  private function contactHref(string $topic): string {
-    return match ($topic) {
-      'kozijnen' => '/contact/bericht?route=kozijnen-glas&amp;context=advies-nodig',
-      'glas' => '/contact/bericht?route=kozijnen-glas&amp;context=glas-aanvragen',
-      'gevel-aansluitingen' => '/contact/bericht?route=probleem&amp;context=lekkage-tocht',
-      'onderhoud-renovatie' => '/contact/bericht?route=kozijnen-glas&amp;context=onderhoud-herstel',
-      'verduurzaming' => '/contact/bericht?route=kozijnen-glas&amp;context=vervangen-verduurzamen',
-      'gebouwbeheer' => '/contact/bericht?route=orientatie&amp;context=onderhoudsplanning',
-      default => '/contact/bericht',
+  private function contactHref(string $topic, string $slug): string {
+    $route = match ($topic) {
+      'kozijnen', 'glas', 'onderhoud-renovatie', 'verduurzaming' => 'kozijnen-glas',
+      'gevel-aansluitingen' => 'probleem',
+      'gebouwbeheer' => 'orientatie',
+      default => 'orientatie',
     };
+
+    return '/contact/bericht?route=' . $route . '&amp;context=' . rawurlencode($slug);
   }
 
   private function landingList(array $items): string {
