@@ -16,6 +16,7 @@
         let timer = null;
         let productState = {status: 'pending', message: 'Productregels worden server-side gecontroleerd.'};
         let glassState = {status: 'pending', value: 'Broncontrole loopt', message: 'Glasvelden worden tegen de geverifieerde Kenniscentrum Glas-scope gehouden.'};
+        let ventilationState = {status: 'pending', value: 'Beoordeling nodig', message: 'Ventilatie wordt server-side beoordeeld zodra voldoende geverifieerde informatie beschikbaar is.'};
 
         const val = (name) => String(form.elements.namedItem(name)?.value || '').trim();
         const card = (title, value, state, help) => {
@@ -48,13 +49,14 @@
           const productOk = productState.status === 'ok';
           const productBlocked = productState.status === 'blocked';
           const glassOk = glassState.status === 'ok';
+          const ventilationOk = ventilationState.status === 'ok';
 
           grid.replaceChildren(
             card('Locatie', addressOk ? 'Officieel adres bevestigd' : 'Nog niet bevestigd', addressOk ? 'ok' : 'warn', addressOk ? 'PDOK/BAG-adres is als bron vastgelegd.' : 'Bevestig eerst postcode en huisnummer bij Situatie.'),
             card('Productregels', productOk ? 'Gecontroleerd' : productBlocked ? 'Niet akkoord' : 'Controle loopt', productOk ? 'ok' : 'warn', productState.message),
             card('Windbelasting', 'Technische beoordeling nodig', 'warn', 'De windrekenkern is aanwezig; automatische locatie/hoogte-naar-winddruk koppeling moet nog worden vrijgegeven.'),
             card('Glas & veiligheid', glassState.value, glassOk ? 'ok' : 'warn', glassState.message),
-            card('Ventilatie', contextOk ? 'Invoer bekend' : 'Invoer aanvullen', 'warn', contextOk ? 'De ventilatiesituatie is bekend, maar de vereiste ventilatieprestatie wordt nog niet automatisch berekend.' : 'Ruimte, oppervlakte, verdieping en ventilatiesysteem moeten compleet zijn.')
+            card('Ventilatie', contextOk ? ventilationState.value : 'Invoer aanvullen', contextOk && ventilationOk ? 'ok' : 'warn', contextOk ? ventilationState.message : 'Ruimte, oppervlakte, verdieping en ventilatiesysteem moeten compleet zijn.')
           );
 
           result.className = 'ek-control-screen__result is-blocked';
@@ -65,7 +67,7 @@
             result.innerHTML = '<strong>Technische invoer klopt, glasadvies nog niet vrijgegeven</strong><span>De glasvelden zijn nu bron- en scopegestuurd gecontroleerd. Een automatische glasopbouw volgt pas zodra de geverifieerde tabeldata en winddruk-koppeling compleet zijn.</span>';
           }
           else {
-            result.innerHTML = '<strong>Technische invoer klopt, eindcontrole nog niet compleet</strong><span>Product- en glasregels zijn gecontroleerd. Windbelasting en ventilatieberekening moeten nog compleet zijn voordat een betrouwbare prijs wordt vrijgegeven.</span>';
+            result.innerHTML = '<strong>Technische invoer klopt, eindcontrole nog niet compleet</strong><span>Product- en glasregels zijn gecontroleerd. Windbelasting en ventilatiebeoordeling moeten nog compleet zijn voordat de technische eindcontrole vrijgegeven kan worden.</span>';
           }
           if (priceStatus && contextOk) priceStatus.textContent = 'Technische eindcontrole nog niet compleet';
         };
@@ -75,19 +77,24 @@
           if (!body || body.schema_version !== 4) {
             productState = {status: 'pending', message: 'Configuratie is nog niet gereed voor productcontrole.'};
             glassState = {status: 'pending', value: 'Nog niet beoordeeld', message: 'Configuratie is nog niet gereed voor glascontrole.'};
+            ventilationState = {status: 'pending', value: 'Beoordeling nodig', message: 'Configuratie is nog niet gereed voor ventilatiebeoordeling.'};
             render();
             return;
           }
           const current = ++sequence;
           productState = {status: 'pending', message: 'Productregels worden server-side gecontroleerd.'};
           glassState = {status: 'pending', value: 'Broncontrole loopt', message: 'Glasvelden worden tegen de geverifieerde Kenniscentrum Glas-scope gehouden.'};
+          ventilationState = {status: 'pending', value: 'Beoordeling loopt', message: 'Ventilatie-eis wordt server-side beoordeeld.'};
           render();
 
-          const [productResult, glassResult] = await Promise.allSettled([
+          const [productResult, glassResult, ventilationResult] = await Promise.allSettled([
             fetch('/europakozijn/api/rules', {
               method: 'POST', headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}, body: JSON.stringify(body)
             }).then(async (response) => ({response, data: await response.json()})),
             fetch('/europakozijn/api/glass-advice', {
+              method: 'POST', headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}, body: JSON.stringify(body)
+            }).then(async (response) => ({response, data: await response.json()})),
+            fetch('/europakozijn/api/ventilation', {
               method: 'POST', headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}, body: JSON.stringify(body)
             }).then(async (response) => ({response, data: await response.json()}))
           ]);
@@ -126,6 +133,25 @@
           }
           else {
             glassState = {status: 'pending', value: 'Broncontrole niet beschikbaar', message: 'Glasadvies-endpoint is tijdelijk niet bereikbaar; daarom geen groen resultaat.'};
+          }
+
+          if (ventilationResult.status === 'fulfilled') {
+            const {response, data} = ventilationResult.value;
+            if (response.ok && data.frame_supply_required === false) {
+              ventilationState = {status: 'ok', value: 'Geen extra kozijnventilatie vastgesteld', message: data.message || 'De ventilatiebeoordeling is afgerond.'};
+            }
+            else if (response.ok && data.frame_supply_required === true) {
+              ventilationState = {status: 'ok', value: 'Ventilatie via kozijn vereist', message: data.message || 'Ventilatie via het kozijn is geverifieerd vereist.'};
+            }
+            else if (response.ok) {
+              ventilationState = {status: 'pending', value: 'Beoordeling nodig', message: data.message || 'Nog niet genoeg geverifieerde informatie om de ventilatie-eis vast te stellen.'};
+            }
+            else {
+              ventilationState = {status: 'blocked', value: 'Beoordeling niet mogelijk', message: data.message || 'Ventilatiebeoordeling kon niet worden uitgevoerd.'};
+            }
+          }
+          else {
+            ventilationState = {status: 'pending', value: 'Beoordeling niet beschikbaar', message: 'Ventilatie-endpoint is tijdelijk niet bereikbaar; daarom geen groen resultaat.'};
           }
           render();
         };
