@@ -69,7 +69,16 @@ final class EuropakozijnOfficeHandoffController extends ControllerBase {
     $status = $response->getStatusCode();
     $officeResponse = json_decode((string) $response->getBody(), TRUE);
     if ($status < 200 || $status >= 300) {
-      return $this->error(502, 'intake_api_rejected_request');
+      $upstreamStatus = is_array($officeResponse) ? ($officeResponse['error']['upstream_status'] ?? NULL) : NULL;
+      $upstreamCode = is_array($officeResponse) ? ($officeResponse['error']['upstream_code'] ?? NULL) : NULL;
+      $error = ['code' => 'intake_api_rejected_request'];
+      if (is_int($upstreamStatus)) {
+        $error['upstream_status'] = $upstreamStatus;
+      }
+      if (is_string($upstreamCode) && preg_match('/^[a-z0-9_]{1,80}$/', $upstreamCode)) {
+        $error['upstream_code'] = $upstreamCode;
+      }
+      return new JsonResponse(['status' => 'error', 'error' => $error], 502, ['Cache-Control' => 'private, no-store']);
     }
 
     return new JsonResponse([
