@@ -74,7 +74,7 @@ final class ContactMessageForm extends FormBase {
     $glassQuantity = trim((string) ($request?->query->get('aantal') ?? ''));
     $glassFrame = trim((string) ($request?->query->get('kozijnmateriaal') ?? ''));
     $routeLabels = [
-      'orientatie' => 'Ik wil weten wat er aan de hand is',
+      'orientatie' => 'Ik heb een probleem, maar weet niet wat de oorzaak is',
       'probleem' => 'Ik heb een concreet onderhoudsprobleem',
       'kozijnen-glas' => 'Ik wil kozijnen of glas aanpakken',
       'documenten' => 'Ik heb al plannen of documenten',
