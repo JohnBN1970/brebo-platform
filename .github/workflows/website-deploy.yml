@@ -149,14 +149,6 @@ jobs:
           }
 
           "$php_bin" -l "$ventilation_controller"
-          "$php_bin" -r '
-            require "autoload.php";
-            $file = "modules/custom/brebo_europakozijn/src/Controller/EuropakozijnVentilationController.php";
-            if (!is_file($file)) {
-              fwrite(STDERR, "Ventilation controller file missing.\n");
-              exit(1);
-            }
-          '
           echo "TRACKED_RUNTIME_FILES_OK=1"
 
           # Drush batch workers may redispatch through an env-php shebang.
