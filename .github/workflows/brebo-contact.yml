@@ -1,0 +1,57 @@
+name: BREBO Contact and privacy
+
+on:
+  pull_request:
+    branches:
+      - develop
+    paths:
+      - 'modules/custom/brebo_contact/**'
+      - 'modules/custom/brebo_customer_service/src/Controller/LegalController.php'
+      - '.github/workflows/brebo-contact.yml'
+      - 'composer.json'
+      - 'composer.lock'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: PHP syntax and contact unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          show-progress: false
+          fetch-depth: 0
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, xml, dom
+          coverage: none
+          tools: composer:v2
+
+      - name: Validate Composer metadata
+        run: composer validate --no-check-publish --quiet
+
+      - name: Install project dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress --quiet
+
+      - name: Install Drupal test dependencies
+        run: composer require --dev drupal/core-dev:^11.4 --with-all-dependencies --no-interaction --prefer-dist --no-progress --quiet
+
+      - name: Check repository diff
+        run: git diff --check "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}"
+
+      - name: Check PHP syntax
+        run: |
+          find modules/custom/brebo_contact -name '*.php' -print0 | xargs -0 -n1 php -l
+          php -l modules/custom/brebo_customer_service/src/Controller/LegalController.php
+
+      - name: Run contact unit tests
+        run: vendor/bin/phpunit -c core --colors=never modules/custom/brebo_contact/tests/src/Unit/JourneyContextRoutingTest.php
