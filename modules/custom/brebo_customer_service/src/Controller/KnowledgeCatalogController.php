@@ -48,7 +48,7 @@ final class KnowledgeCatalogController extends ControllerBase {
         . '<section class="brebo-knowledge-landing__scenarios"><div><p class="brebo-knowledge-library__eyebrow">Mogelijke richtingen</p><h2>Niet ieder gebouw vraagt om dezelfde ingreep</h2><p>De juiste richting volgt pas nadat oorzaak, toestand, risico en samenhang voldoende duidelijk zijn.</p></div><div class="brebo-knowledge-landing__scenario-grid">' . $this->landingPoints($this->landingScenarios($topic)) . '</div></section>'
         . '<section class="brebo-knowledge-landing__research"><div><p class="brebo-knowledge-library__eyebrow">Wanneer nader onderzoek nodig is</p><h2>' . $this->landingResearch($topic)[0] . '</h2><p>' . $this->landingResearch($topic)[1] . '</p></div></section>'
         . '<section class="brebo-knowledge-landing__questions"><div><p class="brebo-knowledge-library__eyebrow">Verdieping</p><h2>Vragen die vaak bij ' . strtolower($topics[$topic]['title']) . ' horen</h2><p>Gebruik deze vragen om gericht verder te kijken. Een afzonderlijk antwoord is niet automatisch een diagnose voor uw gebouw.</p></div><div class="brebo-knowledge-index__grid">' . $cards . '</div></section>'
-        . '<section class="brebo-knowledge-landing__action"><div><p class="brebo-knowledge-library__eyebrow">Uw gebouw</p><h2>Wilt u weten wat in uw situatie verstandig is?</h2><p>' . $landing['action'] . '</p></div><a class="brebo-knowledge-library__button" href="/contact/bericht">Bespreek uw situatie <span aria-hidden="true">→</span></a></section>'
+        . '<section class="brebo-knowledge-landing__action"><div><p class="brebo-knowledge-library__eyebrow">Uw gebouw</p><h2>Wilt u weten wat in uw situatie verstandig is?</h2><p>' . $landing['action'] . '</p></div><a class="brebo-knowledge-library__button" href="' . $this->contactHref($topic) . '">Bespreek uw situatie <span aria-hidden="true">→</span></a></section>'
         . '</main>',
     ];
   }
@@ -77,6 +77,18 @@ final class KnowledgeCatalogController extends ControllerBase {
         . '<aside class="brebo-knowledge-article__quality"><strong>Kennisstatus: ' . $status . '</strong><p>' . $ai . '</p></aside>'
         . '</div></article>',
     ];
+  }
+
+  private function contactHref(string $topic): string {
+    return match ($topic) {
+      'kozijnen' => '/contact/bericht?route=kozijnen-glas&amp;context=advies-nodig',
+      'glas' => '/contact/bericht?route=kozijnen-glas&amp;context=glas-aanvragen',
+      'gevel-aansluitingen' => '/contact/bericht?route=probleem&amp;context=lekkage-tocht',
+      'onderhoud-renovatie' => '/contact/bericht?route=kozijnen-glas&amp;context=onderhoud-herstel',
+      'verduurzaming' => '/contact/bericht?route=kozijnen-glas&amp;context=vervangen-verduurzamen',
+      'gebouwbeheer' => '/contact/bericht?route=orientatie&amp;context=onderhoudsplanning',
+      default => '/contact/bericht',
+    };
   }
 
   private function landingList(array $items): string {
