@@ -102,12 +102,15 @@ final class KnowledgeItemRepository {
     $review = $this->meaningfulValue($this->lineValue($basisText, 'Deskundige controle:'));
     $aiRelease = strtolower($this->lineValue($basisText, 'AI-vrijgave:') ?? 'nee');
 
+    $catalogItem = $this->catalogItem($slug);
+
     return [
       'nid' => (int) $node->id(),
       'slug' => $slug,
       'topic' => $topic,
       'title' => $node->label(),
       'summary' => (string) $node->get('field_knowledge_observation')->value,
+      'guidance' => $catalogItem['guidance'] ?? [],
       'meaning' => (string) $node->get('field_knowledge_meaning')->value,
       'risk' => (string) $node->get('field_knowledge_risk')->value,
       'next_step' => (string) $node->get('field_knowledge_next_step')->value,
@@ -125,6 +128,17 @@ final class KnowledgeItemRepository {
       'reviewed_by' => $review,
       'reviewed_at' => $validity,
     ];
+  }
+
+  private function catalogItem(string $slug): ?array {
+    foreach (KnowledgeCatalog::items() as $items) {
+      foreach ($items as $item) {
+        if (($item['slug'] ?? NULL) === $slug) {
+          return $item;
+        }
+      }
+    }
+    return NULL;
   }
 
   private function lineValue(string $text, string $prefix): ?string {
