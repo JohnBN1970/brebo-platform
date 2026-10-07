@@ -455,3 +455,30 @@
     grid-template-columns: 1fr;
   }
 }
+
+
+/* Customer-service routing is navigation, not a sales CTA. Keep it light. */
+.brebo-primary-route__actions .brebo-knowledge-library__button {
+  padding: .5rem 0;
+  min-height: 0;
+  border: 0;
+  border-bottom: 1px solid currentColor;
+  border-radius: 0;
+  background: transparent;
+  color: #7137b5;
+  box-shadow: none;
+  font-size: .9rem;
+  font-weight: 700;
+}
+
+.brebo-primary-route__actions .brebo-knowledge-library__button--secondary {
+  background: transparent;
+  color: #111827;
+}
+
+.brebo-primary-route__actions .brebo-knowledge-library__button:hover,
+.brebo-primary-route__actions .brebo-knowledge-library__button:focus-visible {
+  background: transparent;
+  transform: none;
+  opacity: .72;
+}
