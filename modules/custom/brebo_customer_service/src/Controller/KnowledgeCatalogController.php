@@ -28,12 +28,11 @@ final class KnowledgeCatalogController extends ControllerBase {
     $items = $this->knowledgeItems->itemsByTopic()[$topic] ?? [];
     $cards = '';
     foreach ($items as $item) {
-      $cards .= '<article class="brebo-knowledge-index__card">'
-        . '<p class="brebo-knowledge-library__eyebrow">' . $topics[$topic]['title'] . '</p>'
-        . '<h2><a href="/klantenservice/kennis/vraag/' . $item['slug'] . '">' . $item['title'] . '</a></h2>'
-        . '<p>' . $item['summary'] . '</p>'
-        . '<a class="brebo-knowledge-index__more" href="/klantenservice/kennis/vraag/' . $item['slug'] . '">Lees verder <span aria-hidden="true">→</span></a>'
-        . '</article>';
+      $cards .= '<details class="brebo-knowledge-index__card brebo-knowledge-index__accordion">'
+        . '<summary><span>' . $item['title'] . '</span><span class="brebo-knowledge-index__accordion-icon" aria-hidden="true">+</span></summary>'
+        . '<div class="brebo-knowledge-index__accordion-body"><p>' . $item['summary'] . '</p>'
+        . '<a class="brebo-knowledge-index__more" href="/klantenservice/kennis/vraag/' . $item['slug'] . '">Lees verder <span aria-hidden="true">→</span></a></div>'
+        . '</details>';
     }
     $landing = $this->landing($topic);
     return [
