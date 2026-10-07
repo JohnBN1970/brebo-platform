@@ -669,3 +669,14 @@
     gap: .55rem;
   }
 }
+
+
+/* Keep the knowledge answer CTA together as one compact left-aligned next step. */
+.brebo-knowledge-article__cta {
+  display: block;
+}
+
+.brebo-knowledge-article__cta a {
+  display: inline-block;
+  margin-top: .85rem;
+}
