@@ -309,6 +309,10 @@ final class ContactMessageForm extends FormBase {
       '#button_type' => 'primary',
     ];
 
+    $form['privacy_notice'] = [
+      '#markup' => '<p class="brebo-contact-message__privacy"><small>* Door dit formulier te versturen, gebruikt BREBO uw gegevens om uw vraag te behandelen en contact met u op te nemen. Lees meer in onze <a href="/privacy">privacyverklaring</a>.</small></p>',
+    ];
+
     if (!$journeyActive) {
       $form['aftercare'] = [
         '#markup' => '<p class="brebo-contact-message__note">Na uw eerste bericht kunnen we gericht aangeven welke aanvullende informatie eventueel nuttig is. Heeft u al een lopend project bij BREBO? Gebruik dan de <a href="/klantenservice">Klantenservice</a>.</p>',
