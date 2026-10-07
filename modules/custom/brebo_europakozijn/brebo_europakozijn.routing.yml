@@ -67,7 +67,7 @@ brebo_europakozijn.address_lookup:
 brebo_europakozijn.ventilation_assess:
   path: '/europakozijn/api/ventilation'
   defaults:
-    _controller: '\\Drupal\\brebo_europakozijn\\Controller\\EuropakozijnVentilationController::assess'
+    _controller: '\Drupal\brebo_europakozijn\Controller\EuropakozijnVentilationController::assess'
   requirements:
     _permission: 'access content'
   methods: [POST]
