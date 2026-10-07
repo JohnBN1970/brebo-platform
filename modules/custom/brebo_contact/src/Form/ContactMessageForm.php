@@ -8,6 +8,7 @@ use Drupal\Core\Flood\FloodInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Mail\MailManagerInterface;
+use Drupal\Core\PrivateKey;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -17,6 +18,7 @@ final class ContactMessageForm extends FormBase {
     private readonly MailManagerInterface $mailManager,
     private readonly FloodInterface $flood,
     private readonly RequestStack $contactRequestStack,
+    private readonly PrivateKey $privateKey,
   ) {}
 
   public static function create(ContainerInterface $container): static {
@@ -24,6 +26,7 @@ final class ContactMessageForm extends FormBase {
       $container->get('plugin.manager.mail'),
       $container->get('flood'),
       $container->get('request_stack'),
+      $container->get('private_key'),
     );
   }
 
@@ -34,6 +37,7 @@ final class ContactMessageForm extends FormBase {
   public function buildForm(array $form, FormStateInterface $form_state): array {
     $form['#attached']['library'][] = 'brebo_contact/contact';
     $form['#attributes']['class'][] = 'brebo-contact-message';
+    $form['#cache']['max-age'] = 0;
 
     $request = $this->contactRequestStack->getCurrentRequest();
     $routeName = (string) ($request?->attributes->get('_route') ?? '');
@@ -273,9 +277,29 @@ final class ContactMessageForm extends FormBase {
       ])) : '',
     ];
 
-    $form['company_website'] = [
+    // A real text input catches simple form-fill bots. It is kept off-screen
+    // for human visitors instead of using type="hidden", which many bots skip.
+    $form['office_number'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Office number'),
+      '#default_value' => '',
+      '#required' => FALSE,
+      '#attributes' => [
+        'autocomplete' => 'off',
+        'tabindex' => '-1',
+        'aria-hidden' => 'true',
+      ],
+      '#wrapper_attributes' => [
+        'aria-hidden' => 'true',
+        'style' => 'position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden;',
+      ],
+    ];
+
+    // The timestamp is signed with Drupal's private key. A bot cannot simply
+    // forge an older timestamp to bypass the minimum form-fill time.
+    $form['form_guard'] = [
       '#type' => 'hidden',
-      '#value' => '',
+      '#value' => $this->createFormGuard(time()),
     ];
 
     $form['actions'] = ['#type' => 'actions'];
@@ -295,8 +319,12 @@ final class ContactMessageForm extends FormBase {
   }
 
   public function validateForm(array &$form, FormStateInterface $form_state): void {
-    if (trim((string) $form_state->getValue('company_website')) !== '') {
+    if (trim((string) $form_state->getValue('office_number')) !== '') {
       $form_state->setErrorByName('message', $this->t('Uw bericht kon niet worden verzonden.'));
+    }
+
+    if (!$this->isValidFormGuard((string) $form_state->getValue('form_guard'))) {
+      $form_state->setErrorByName('message', $this->t('Uw bericht kon niet worden verzonden. Vernieuw de pagina en probeer het opnieuw.'));
     }
 
     $contact = trim((string) $form_state->getValue('contact'));
@@ -308,6 +336,19 @@ final class ContactMessageForm extends FormBase {
     if (!$this->flood->isAllowed('brebo_contact.submit', 5, 3600, $identifier)) {
       $form_state->setErrorByName('message', $this->t('Er zijn te veel berichten verzonden. Probeer het later opnieuw of bel BREBO.'));
     }
+
+    if ($contact !== '') {
+      $contactIdentifier = hash('sha256', mb_strtolower($contact));
+      if (!$this->flood->isAllowed('brebo_contact.contact', 5, 3600, $contactIdentifier)) {
+        $form_state->setErrorByName('message', $this->t('Er zijn te veel berichten verzonden. Probeer het later opnieuw of bel BREBO.'));
+      }
+    }
+
+    $message = trim((string) $form_state->getValue('message'));
+    $duplicateIdentifier = hash('sha256', mb_strtolower($contact) . "\n" . $message);
+    if (!$this->flood->isAllowed('brebo_contact.duplicate', 2, 3600, $duplicateIdentifier)) {
+      $form_state->setErrorByName('message', $this->t('Dit bericht is al ontvangen. Wilt u iets toevoegen, neem dan telefonisch contact met ons op.'));
+    }
   }
 
   public function submitForm(array &$form, FormStateInterface $form_state): void {
@@ -315,12 +356,18 @@ final class ContactMessageForm extends FormBase {
     $identifier = $request?->getClientIp() ?? 'unknown';
     $this->flood->register('brebo_contact.submit', 3600, $identifier);
 
+    $contact = trim((string) $form_state->getValue('contact'));
+    if ($contact !== '') {
+      $this->flood->register('brebo_contact.contact', 3600, hash('sha256', mb_strtolower($contact)));
+    }
+    $message = trim((string) $form_state->getValue('message'));
+    $this->flood->register('brebo_contact.duplicate', 3600, hash('sha256', mb_strtolower($contact) . "\n" . $message));
+
     $reference = strtoupper(substr(hash('sha256', microtime(TRUE) . random_int(1000, 999999)), 0, 10));
     $tracking = 'BREBO-WEB-' . date('Ymd') . '-' . $reference;
     $name = trim((string) $form_state->getValue('name'));
-    $contact = trim((string) $form_state->getValue('contact'));
     $building = trim((string) $form_state->getValue('building'));
-    $text = trim((string) $form_state->getValue('message'));
+    $text = $message;
     $journeyRoute = trim((string) $form_state->getValue('journey_route'));
     $journeyContext = trim((string) $form_state->getValue('journey_context'));
     $sourcePath = $request?->getPathInfo() ?? '/contact/bericht';
@@ -362,6 +409,29 @@ final class ContactMessageForm extends FormBase {
     }
 
     $this->messenger()->addError($this->t('Het bericht kon niet worden verzonden. Bel BREBO via 085-5003838.'));
+  }
+
+  private function createFormGuard(int $timestamp): string {
+    $signature = hash_hmac('sha256', (string) $timestamp, $this->privateKey->get());
+    return $timestamp . ':' . $signature;
+  }
+
+  private function isValidFormGuard(string $guard): bool {
+    [$timestamp, $signature] = array_pad(explode(':', $guard, 2), 2, '');
+    if ($timestamp === '' || !ctype_digit($timestamp) || $signature === '') {
+      return FALSE;
+    }
+
+    $issuedAt = (int) $timestamp;
+    $age = time() - $issuedAt;
+
+    // Human submissions take at least a moment; stale copied forms are rejected.
+    if ($age < 3 || $age > 21600) {
+      return FALSE;
+    }
+
+    $expected = hash_hmac('sha256', $timestamp, $this->privateKey->get());
+    return hash_equals($expected, $signature);
   }
 
 }
