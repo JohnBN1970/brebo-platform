@@ -72,7 +72,7 @@
 
         const routes = {
           'orientatie': {
-            label: 'Ik weet nog niet wat er nodig is',
+            label: 'Ik wil weten wat er aan de hand is',
             question: 'Wat is voor u nu de belangrijkste aanleiding?',
             contexts: [
               ['staat-inzicht', 'Ik wil eerst weten wat de staat van het gebouw is'],
