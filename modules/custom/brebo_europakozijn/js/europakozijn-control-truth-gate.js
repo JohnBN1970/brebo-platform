@@ -17,6 +17,7 @@
         let productState = {status: 'pending', message: 'Productregels worden server-side gecontroleerd.'};
         let glassState = {status: 'pending', value: 'Broncontrole loopt', message: 'Glasvelden worden tegen de geverifieerde Kenniscentrum Glas-scope gehouden.'};
         let ventilationState = {status: 'pending', value: 'Beoordeling nodig', message: 'Ventilatie wordt server-side beoordeeld zodra voldoende geverifieerde informatie beschikbaar is.'};
+        let windState = {status: 'pending', value: 'Beoordeling nodig', message: 'Windbelasting wordt server-side beoordeeld zodra traceerbare norminputs beschikbaar zijn.'};
 
         const val = (name) => String(form.elements.namedItem(name)?.value || '').trim();
         const card = (title, value, state, help) => {
@@ -50,11 +51,12 @@
           const productBlocked = productState.status === 'blocked';
           const glassOk = glassState.status === 'ok';
           const ventilationOk = ventilationState.status === 'ok';
+          const windOk = windState.status === 'ok';
 
           grid.replaceChildren(
             card('Locatie', addressOk ? 'Officieel adres bevestigd' : 'Nog niet bevestigd', addressOk ? 'ok' : 'warn', addressOk ? 'PDOK/BAG-adres is als bron vastgelegd.' : 'Bevestig eerst postcode en huisnummer bij Situatie.'),
             card('Productregels', productOk ? 'Gecontroleerd' : productBlocked ? 'Niet akkoord' : 'Controle loopt', productOk ? 'ok' : 'warn', productState.message),
-            card('Windbelasting', 'Technische beoordeling nodig', 'warn', 'De windrekenkern is aanwezig; automatische locatie/hoogte-naar-winddruk koppeling moet nog worden vrijgegeven.'),
+            card('Windbelasting', windState.value, windOk ? 'ok' : 'warn', windState.message),
             card('Glas & veiligheid', glassState.value, glassOk ? 'ok' : 'warn', glassState.message),
             card('Ventilatie', contextOk ? ventilationState.value : 'Invoer aanvullen', contextOk && ventilationOk ? 'ok' : 'warn', contextOk ? ventilationState.message : 'Ruimte, oppervlakte, verdieping en ventilatiesysteem moeten compleet zijn.')
           );
@@ -78,6 +80,7 @@
             productState = {status: 'pending', message: 'Configuratie is nog niet gereed voor productcontrole.'};
             glassState = {status: 'pending', value: 'Nog niet beoordeeld', message: 'Configuratie is nog niet gereed voor glascontrole.'};
             ventilationState = {status: 'pending', value: 'Beoordeling nodig', message: 'Configuratie is nog niet gereed voor ventilatiebeoordeling.'};
+            windState = {status: 'pending', value: 'Beoordeling nodig', message: 'Configuratie is nog niet gereed voor windbeoordeling.'};
             render();
             return;
           }
@@ -85,9 +88,11 @@
           productState = {status: 'pending', message: 'Productregels worden server-side gecontroleerd.'};
           glassState = {status: 'pending', value: 'Broncontrole loopt', message: 'Glasvelden worden tegen de geverifieerde Kenniscentrum Glas-scope gehouden.'};
           ventilationState = {status: 'pending', value: 'Beoordeling loopt', message: 'Ventilatie-eis wordt server-side beoordeeld.'};
+          windState = {status: 'pending', value: 'Beoordeling loopt', message: 'Windbelasting wordt server-side beoordeeld.'};
           render();
 
-          const [productResult, glassResult, ventilationResult] = await Promise.allSettled([
+          const windPayload = body.wind_context && typeof body.wind_context === 'object' ? body.wind_context : {};
+          const [productResult, glassResult, ventilationResult, windResult] = await Promise.allSettled([
             fetch('/europakozijn/api/rules', {
               method: 'POST', headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}, body: JSON.stringify(body)
             }).then(async (response) => ({response, data: await response.json()})),
@@ -96,6 +101,9 @@
             }).then(async (response) => ({response, data: await response.json()})),
             fetch('/europakozijn/api/ventilation', {
               method: 'POST', headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}, body: JSON.stringify(body)
+            }).then(async (response) => ({response, data: await response.json()})),
+            fetch('/europakozijn/api/wind', {
+              method: 'POST', headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}, body: JSON.stringify(windPayload)
             }).then(async (response) => ({response, data: await response.json()}))
           ]);
           if (current !== sequence) return;
@@ -152,6 +160,37 @@
           }
           else {
             ventilationState = {status: 'pending', value: 'Beoordeling niet beschikbaar', message: 'Ventilatie-endpoint is tijdelijk niet bereikbaar; daarom geen groen resultaat.'};
+          }
+
+          if (windResult.status === 'fulfilled') {
+            const {response, data} = windResult.value;
+            if (response.ok && data.state === 'passed' && data.verified === true) {
+              windState = {
+                status: 'ok',
+                value: 'Geverifieerd',
+                message: `Ontwerpwinddruk ${data.design_pressure_kpa} kPa · ${data.standard_reference} · bron ${data.calculation_reference}.`
+              };
+            }
+            else if (data.state === 'needs_input') {
+              const missing = Array.isArray(data.missing) ? data.missing.length : 0;
+              windState = {
+                status: 'pending',
+                value: 'Brongegevens nodig',
+                message: missing
+                  ? `Nog ${missing} traceerbare windgegeven${missing === 1 ? '' : 's'} nodig voordat de windbelasting kan worden vrijgegeven.`
+                  : (data.message || 'Traceerbare windgegevens ontbreken nog.')
+              };
+            }
+            else {
+              windState = {
+                status: 'blocked',
+                value: 'Nog niet geverifieerd',
+                message: data.message || (Array.isArray(data.issues) ? data.issues[0] : null) || 'De windbelasting is nog niet vrijgegeven.'
+              };
+            }
+          }
+          else {
+            windState = {status: 'pending', value: 'Beoordeling niet beschikbaar', message: 'Wind-endpoint is tijdelijk niet bereikbaar; daarom geen groen resultaat.'};
           }
           render();
         };
