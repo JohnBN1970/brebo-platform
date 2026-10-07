@@ -482,3 +482,51 @@
   transform: none;
   opacity: .72;
 }
+
+
+/* Knowledge landing: verdieping is secondary navigation, not another hero. */
+.brebo-knowledge-landing__questions .brebo-knowledge-index__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 2.25rem;
+  margin-top: 1.75rem;
+}
+
+.brebo-knowledge-landing__questions .brebo-knowledge-index__card {
+  padding: 1.25rem 0 1.35rem;
+  border-top: 1px solid rgba(17, 24, 39, .12);
+}
+
+.brebo-knowledge-landing__questions .brebo-knowledge-index__card h2 {
+  margin: .25rem 0 .55rem;
+  font-size: clamp(1.15rem, 1.55vw, 1.45rem);
+  line-height: 1.2;
+  letter-spacing: -.02em;
+}
+
+.brebo-knowledge-landing__questions .brebo-knowledge-index__card h2 a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.brebo-knowledge-landing__questions .brebo-knowledge-index__card p {
+  margin: 0;
+  color: var(--brebo-page-muted, #667085);
+  font-size: .92rem;
+  line-height: 1.55;
+}
+
+.brebo-knowledge-landing__questions .brebo-knowledge-index__more {
+  display: inline-block;
+  margin-top: .65rem;
+  color: var(--brebo-page-accent, #7137b5);
+  font-size: .82rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+@media (max-width: 700px) {
+  .brebo-knowledge-landing__questions .brebo-knowledge-index__grid {
+    grid-template-columns: 1fr;
+  }
+}
