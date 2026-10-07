@@ -299,7 +299,7 @@ final class ContactMessageForm extends FormBase {
     // forge an older timestamp to bypass the minimum form-fill time.
     $form['form_guard'] = [
       '#type' => 'hidden',
-      '#value' => $this->createFormGuard(time()),
+      '#default_value' => $this->createFormGuard(time()),
     ];
 
     $form['actions'] = ['#type' => 'actions'];
@@ -349,7 +349,7 @@ final class ContactMessageForm extends FormBase {
     }
 
     $message = trim((string) $form_state->getValue('message'));
-    $duplicateIdentifier = hash('sha256', mb_strtolower($contact) . "\n" . $message);
+    $duplicateIdentifier = $this->duplicateIdentifier($form_state, $contact, $message);
     if (!$this->flood->isAllowed('brebo_contact.duplicate', 2, 3600, $duplicateIdentifier)) {
       $form_state->setErrorByName('message', $this->t('Dit bericht is al ontvangen. Wilt u iets toevoegen, neem dan telefonisch contact met ons op.'));
     }
@@ -361,11 +361,8 @@ final class ContactMessageForm extends FormBase {
     $this->flood->register('brebo_contact.submit', 3600, $identifier);
 
     $contact = trim((string) $form_state->getValue('contact'));
-    if ($contact !== '') {
-      $this->flood->register('brebo_contact.contact', 3600, hash('sha256', mb_strtolower($contact)));
-    }
     $message = trim((string) $form_state->getValue('message'));
-    $this->flood->register('brebo_contact.duplicate', 3600, hash('sha256', mb_strtolower($contact) . "\n" . $message));
+    $duplicateIdentifier = $this->duplicateIdentifier($form_state, $contact, $message);
 
     $reference = strtoupper(substr(hash('sha256', microtime(TRUE) . random_int(1000, 999999)), 0, 10));
     $tracking = 'BREBO-WEB-' . date('Ymd') . '-' . $reference;
@@ -407,12 +404,27 @@ final class ContactMessageForm extends FormBase {
     );
 
     if (!empty($result['result'])) {
+      if ($contact !== '') {
+        $this->flood->register('brebo_contact.contact', 3600, hash('sha256', mb_strtolower($contact)));
+      }
+      $this->flood->register('brebo_contact.duplicate', 3600, $duplicateIdentifier);
       $form_state->clearErrors();
       $form_state->setRedirect('brebo_contact.confirmation', [], ['query' => ['kenmerk' => $tracking]]);
       return;
     }
 
     $this->messenger()->addError($this->t('Het bericht kon niet worden verzonden. Bel BREBO via 085-5003838.'));
+  }
+
+  private function duplicateIdentifier(FormStateInterface $form_state, string $contact, string $message): string {
+    $parts = [
+      mb_strtolower($contact),
+      trim((string) $form_state->getValue('building')),
+      trim((string) $form_state->getValue('journey_route')),
+      trim((string) $form_state->getValue('journey_context')),
+      $message,
+    ];
+    return hash('sha256', implode("\n", $parts));
   }
 
   private function createFormGuard(int $timestamp): string {
