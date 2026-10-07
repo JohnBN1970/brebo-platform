@@ -27,7 +27,7 @@ final class BreboPillarsBlock extends BlockBase {
         'machine_name' => 'inzicht',
         'title' => $this->t('Inzicht'),
         'heading' => $this->t('Wat is er werkelijk aan de hand?'),
-        'text' => $this->t("We brengen eerst vast wat aan uw gebouw speelt: oorzaak, omvang, technische staat, risico's en onderhoudsbehoefte. Zo kunt u een maatregel beoordelen voordat u tijd en geld vastlegt."),
+        'text' => $this->t("We stellen eerst vast wat er aan de hand is: oorzaak, omvang, technische staat, risico's en onderhoudsbehoefte. Zo kunt u een maatregel beoordelen voordat u tijd en geld vastlegt."),
         'url' => Url::fromUserInput('/inzicht')->toString(),
         'link_text' => $this->t('Krijg inzicht'),
       ],
