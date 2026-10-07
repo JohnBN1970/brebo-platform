@@ -69,11 +69,25 @@ final class CustomerServiceLandingController extends ControllerBase {
           <div class="brebo-knowledge-library__hero"><div class="brebo-knowledge-library__hero-inner">
             <div class="brebo-knowledge-library__hero-copy brebo-knowledge-library__hero-copy--full"><p class="brebo-knowledge-library__eyebrow">BREBO Klantenservice</p><h1>Waar kunnen we u mee helpen?</h1><p class="brebo-knowledge-library__lead">Kies wat bij uw situatie past. Voor een lopend project, een servicevraag, technische informatie of een nieuwe opgave komt u direct op de juiste plek.</p></div>
           </div></div>
-          <div class="brebo-knowledge-library__routes">
-            <article><div class="brebo-route-icon" aria-hidden="true">▦</div><div><p class="brebo-knowledge-library__eyebrow">Lopend project</p><h2>Vraag over uw project?</h2><p>Stel een vraag, geef een wijziging door of leg een afspraak over een lopend BREBO-project vast.</p><a class="brebo-knowledge-library__button" href="/klantenservice/projectvraag">Naar projectservice <span aria-hidden="true">→</span></a></div></article>
-            <article><div class="brebo-route-icon" aria-hidden="true">!</div><div><p class="brebo-knowledge-library__eyebrow">Service & melding</p><h2>Iets melden over uitgevoerd werk?</h2><p>Meld een servicepunt, gebrek of andere vraag die hoort bij eerder door BREBO uitgevoerd werk.</p><a class="brebo-knowledge-library__button brebo-knowledge-library__button--secondary" href="/contact/bericht">Service melden <span aria-hidden="true">→</span></a></div></article>
-            <article><div class="brebo-route-icon" aria-hidden="true">◇</div><div><p class="brebo-knowledge-library__eyebrow">Kennis</p><h2>Technische informatie zoeken?</h2><p>Bekijk BREBO-kennis over kozijnen, glas, gevels, onderhoud, renovatie, verduurzaming, inspecties en onderhoudsplanning.</p><a class="brebo-knowledge-library__button brebo-knowledge-library__button--secondary" href="#brebo-kennis">Bekijk kennis <span aria-hidden="true">→</span></a></div></article>
-            <article><div class="brebo-route-icon" aria-hidden="true">◉</div><div><p class="brebo-knowledge-library__eyebrow">Nieuwe opgave</p><h2>Nog geen BREBO-project?</h2><p>Wilt u kozijnen of glas vervangen, renoveren, verduurzamen of advies? Vertel ons kort wat u wilt aanpakken.</p><a class="brebo-knowledge-library__button brebo-knowledge-library__button--secondary" href="/contact/bericht">Bespreek uw opgave <span aria-hidden="true">→</span></a></div></article>
+          <div class="brebo-knowledge-library__primary-routes">
+            <article class="brebo-primary-route">
+              <div class="brebo-route-icon" aria-hidden="true">▦</div>
+              <div><p class="brebo-knowledge-library__eyebrow">BREBO is al betrokken</p><h2>Gaat uw vraag over een project of uitgevoerd werk?</h2><p>Kies deze route voor een lopend project, een wijziging of afspraak, of voor een servicepunt na uitvoering.</p>
+                <div class="brebo-primary-route__actions">
+                  <a class="brebo-knowledge-library__button" href="/klantenservice/projectvraag">Lopend project <span aria-hidden="true">→</span></a>
+                  <a class="brebo-knowledge-library__button brebo-knowledge-library__button--secondary" href="/contact/bericht">Service na uitvoering <span aria-hidden="true">→</span></a>
+                </div>
+              </div>
+            </article>
+            <article class="brebo-primary-route">
+              <div class="brebo-route-icon" aria-hidden="true">◉</div>
+              <div><p class="brebo-knowledge-library__eyebrow">Nog geen BREBO-project</p><h2>Wilt u iets onderzoeken, verbeteren of laten uitvoeren?</h2><p>Gebruik de kennisroute als u eerst wilt begrijpen wat er aan de hand kan zijn. Heeft u al een concrete opgave, dan kunt u die direct aan BREBO voorleggen.</p>
+                <div class="brebo-primary-route__actions">
+                  <a class="brebo-knowledge-library__button" href="#brebo-kennis">Eerst situatie verkennen <span aria-hidden="true">↓</span></a>
+                  <a class="brebo-knowledge-library__button brebo-knowledge-library__button--secondary" href="/contact/bericht">Opgave voorleggen <span aria-hidden="true">→</span></a>
+                </div>
+              </div>
+            </article>
           </div>
           <div class="brebo-knowledge-library__section" id="brebo-kennis"><div class="brebo-knowledge-library__section-head"><p class="brebo-knowledge-library__eyebrow">BREBO Kennis</p><h2>Wat wilt u aan uw gebouw aanpakken?</h2><p>U hoeft de technische oorzaak of oplossing niet te kennen. Kies wat u ziet, merkt of wilt bereiken. Van daaruit helpen we u verder.</p></div><div class="brebo-knowledge-library__grid">' . $topicMarkup . '</div></div>
           <div class="brebo-knowledge-library__promise"><div class="brebo-knowledge-library__promise-mark" aria-hidden="true">✓</div><div class="brebo-knowledge-library__promise-title"><p class="brebo-knowledge-library__eyebrow">Onze kwaliteitsbelofte</p><h2>We maken duidelijk wat we weten en wat we aannemen.</h2></div><p>BREBO gebruikt eigen vakkennis, beschikbare projectinformatie en relevante externe bronnen. Ontbreekt informatie, dan kunnen we werken met een aanname. Die benoemen we als zodanig. Is er onvoldoende informatie om een verantwoorde conclusie te trekken, dan geven we dat aan. We presenteren een aanname nooit als een feit.</p></div>
