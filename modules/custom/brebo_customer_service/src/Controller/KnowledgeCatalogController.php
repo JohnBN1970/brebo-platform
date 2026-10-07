@@ -77,15 +77,26 @@ final class KnowledgeCatalogController extends ControllerBase {
     ];
   }
 
-  private function contactHref(string $topic, string $slug): string {
-    $route = match ($topic) {
-      'kozijnen', 'glas', 'onderhoud-renovatie', 'verduurzaming' => 'kozijnen-glas',
-      'gevel-aansluitingen' => 'probleem',
-      'gebouwbeheer' => 'orientatie',
-      default => 'orientatie',
-    };
+  private function contactHref(string $topic, ?string $slug = NULL): string {
+    if ($slug !== NULL && $slug !== '') {
+      $route = match ($topic) {
+        'kozijnen', 'glas', 'onderhoud-renovatie', 'verduurzaming' => 'kozijnen-glas',
+        'gevel-aansluitingen' => 'probleem',
+        'gebouwbeheer' => 'orientatie',
+        default => 'orientatie',
+      };
+      return '/contact/bericht?route=' . $route . '&amp;context=' . rawurlencode($slug);
+    }
 
-    return '/contact/bericht?route=' . $route . '&amp;context=' . rawurlencode($slug);
+    return match ($topic) {
+      'kozijnen' => '/contact/bericht?route=kozijnen-glas&amp;context=advies-nodig',
+      'glas' => '/contact/bericht?route=kozijnen-glas&amp;context=glas-aanvragen',
+      'gevel-aansluitingen' => '/contact/bericht?route=probleem&amp;context=lekkage-tocht',
+      'onderhoud-renovatie' => '/contact/bericht?route=kozijnen-glas&amp;context=onderhoud-herstel',
+      'verduurzaming' => '/contact/bericht?route=kozijnen-glas&amp;context=vervangen-verduurzamen',
+      'gebouwbeheer' => '/contact/bericht?route=orientatie&amp;context=onderhoudsplanning',
+      default => '/contact/bericht',
+    };
   }
 
   private function landingList(array $items): string {
