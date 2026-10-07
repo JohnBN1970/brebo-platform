@@ -1,5 +1,6 @@
 name: BREBO Website deploy
 
+# Every push to develop must deploy the canonical public website.
 on:
   push:
     branches:
