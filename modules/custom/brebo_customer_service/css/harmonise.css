@@ -170,3 +170,53 @@
     padding-bottom: 3.5rem;
   }
 }
+
+
+/* Situation-led customer-service cards. */
+.brebo-knowledge-card--situation {
+  display: block;
+}
+
+.brebo-knowledge-card--situation > summary {
+  display: flex;
+  gap: 1rem;
+  cursor: pointer;
+  list-style: none;
+}
+
+.brebo-knowledge-card--situation > summary::-webkit-details-marker {
+  display: none;
+}
+
+.brebo-knowledge-card--situation .brebo-knowledge-card__action {
+  display: inline-block;
+  margin-top: 1rem;
+  font-weight: 700;
+}
+
+.brebo-knowledge-card__followup {
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(15, 23, 42, .14);
+}
+
+.brebo-knowledge-card__followup > p {
+  margin-top: 0;
+}
+
+.brebo-knowledge-card__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .65rem 1.1rem;
+  margin-top: 1rem;
+}
+
+.brebo-knowledge-card__contact {
+  display: inline-block;
+  margin-top: 1rem;
+  font-weight: 700;
+}
+
+.brebo-knowledge-card--situation[open] .brebo-knowledge-card__action {
+  opacity: .7;
+}
