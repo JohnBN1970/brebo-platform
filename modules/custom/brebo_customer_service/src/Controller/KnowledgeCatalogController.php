@@ -74,6 +74,7 @@ final class KnowledgeCatalogController extends ControllerBase {
         . $this->guidance($item)
         . '<aside><strong>Wat BREBO hiervoor wil weten</strong><p>' . $this->needed($item['topic']) . '</p></aside>'
         . '<aside class="brebo-knowledge-article__quality"><strong>Kennisstatus: ' . $status . '</strong><p>' . $ai . '</p></aside>'
+        . '<aside class="brebo-knowledge-article__cta"><div><strong>Heeft u dit probleem bij uw gebouw?</strong><p>BREBO kan de situatie beoordelen en aangeven wat een logische volgende stap is.</p></div><a href="/contact/bericht?route=probleem&amp;context=' . rawurlencode($item['slug']) . '">Situatie voorleggen <span aria-hidden="true">→</span></a></aside>'
         . '</div></article>',
     ];
   }
