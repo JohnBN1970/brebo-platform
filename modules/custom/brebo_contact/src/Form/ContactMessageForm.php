@@ -53,7 +53,7 @@ final class ContactMessageForm extends FormBase {
         'icon' => ['#markup' => '<div class="brebo-contact-message__check" aria-hidden="true"><span></span></div>'],
         'eyebrow' => ['#markup' => '<p class="brebo-contact__eyebrow">Bericht ontvangen</p>'],
         'title' => ['#markup' => '<h1>Bedankt. Uw bericht is ontvangen.</h1>'],
-        'lead' => ['#markup' => '<p class="brebo-contact-message__confirmation-lead">We bekijken eerst wat er speelt en nemen van daaruit contact met u op.<br>Als aanvullende informatie nodig is, vragen we daar gericht om.</p>'],
+        'lead' => ['#markup' => '<p class="brebo-contact-message__confirmation-lead">We bekijken eerst uw vraag en nemen van daaruit contact met u op.<br>Als aanvullende informatie nodig is, vragen we daar gericht om.</p>'],
         'reference' => [
           '#markup' => $safeTracking !== '' ? '<div class="brebo-contact-message__reference">Kenmerk: <strong>' . $safeTracking . '</strong></div>' : '',
         ],
@@ -141,7 +141,7 @@ final class ContactMessageForm extends FormBase {
     ];
     $destinationInfo = [
       'knowledge' => [
-        'title' => 'Eerst begrijpen wat er speelt en wat verstandig is.',
+        'title' => 'Eerst begrijpen wat er aan de hand is en wat verstandig is.',
         'summary' => 'Kennis & advies helpt om de technische situatie, oorzaak, risico’s, keuzes en prioriteiten helder te krijgen voordat een maatregel wordt gekozen.',
         'url' => '/kennis-advies',
         'link' => 'Bekijk Kennis & advies',
