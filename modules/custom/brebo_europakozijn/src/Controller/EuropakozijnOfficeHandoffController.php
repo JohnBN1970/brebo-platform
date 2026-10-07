@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Drupal\brebo_europakozijn\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
-use Drupal\Core\Site\Settings;
 use GuzzleHttp\ClientInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -50,25 +49,13 @@ final class EuropakozijnOfficeHandoffController extends ControllerBase {
     ];
     $body = json_encode($payload, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
-    $officeBaseUrl = rtrim(trim((string) Settings::get('brebo_office_base_url', getenv('BREBO_OFFICE_BASE_URL') ?: '')), '/');
-    $secret = trim((string) Settings::get('brebo_shared_secret', getenv('BREBO_SHARED_SECRET') ?: ''));
-    if (!str_starts_with($officeBaseUrl, 'https://') || $secret === '') {
-      return $this->error(503, 'office_handoff_not_configured');
-    }
-
-    $path = '/brebo-internal/intake/europakozijn';
-    $timestamp = (string) time();
-    $canonical = implode("\n", ['POST', $path, hash('sha256', $body), $timestamp, $requestId]);
-    $signature = hash_hmac('sha256', $canonical, $secret);
+    $intakeUrl = 'https://brebo-integration-api.john-boon.workers.dev/v1/intake/europakozijn';
 
     try {
-      $response = $this->httpClient->request('POST', $officeBaseUrl . $path, [
+      $response = $this->httpClient->request('POST', $intakeUrl, [
         'headers' => [
           'Content-Type' => 'application/json',
           'Accept' => 'application/json',
-          'X-BREBO-Timestamp' => $timestamp,
-          'X-BREBO-Request-Id' => $requestId,
-          'X-BREBO-Signature' => 'v1=' . $signature,
         ],
         'body' => $body,
         'timeout' => 10,
@@ -76,13 +63,13 @@ final class EuropakozijnOfficeHandoffController extends ControllerBase {
       ]);
     }
     catch (\Throwable) {
-      return $this->error(502, 'office_unavailable');
+      return $this->error(502, 'intake_api_unavailable');
     }
 
     $status = $response->getStatusCode();
     $officeResponse = json_decode((string) $response->getBody(), TRUE);
     if ($status < 200 || $status >= 300) {
-      return $this->error(502, 'office_rejected_request');
+      return $this->error(502, 'intake_api_rejected_request');
     }
 
     return new JsonResponse([
