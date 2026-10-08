@@ -38,12 +38,13 @@
           const product = payload.product_selection || {};
           const finish = payload.finish || {};
 
+          if (product.brand_status === 'brebo_to_select') return null;
           if (product.brand !== 'aluplast') return null;
           if (!['ideal4000', 'ideal7000_nl'].includes(product.system)) return null;
-          if ((product.joint_type || 'normal') !== 'normal') return null;
-          if ((product.rebate_type || 'with_rebate') !== 'with_rebate') return null;
-          if ((finish.glass || 'HR++') !== 'HR++') return null;
-          if ((finish.colour || 'RAL 7016') !== 'RAL 7016') return null;
+          if (product.joint_type !== 'normal') return null;
+          if (product.rebate_type !== 'with_rebate') return null;
+          if (finish.glass !== 'HR++') return null;
+          if (finish.colour !== 'RAL 7016') return null;
 
           return {
             system: product.system,
@@ -83,7 +84,9 @@
           const payload = readPayload();
           const configuration = eligibleConfiguration(payload);
           if (!configuration) {
-            showUnavailable('Prijs volgt na technische controle');
+            showUnavailable(payload?.product_selection?.brand_status === 'brebo_to_select'
+              ? 'Prijs volgt na profielkeuze door BREBO'
+              : 'Prijs volgt na technische controle');
             return;
           }
 
