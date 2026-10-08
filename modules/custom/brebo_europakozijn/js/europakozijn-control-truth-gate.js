@@ -9,7 +9,6 @@
         const panel = root.querySelector('.ek-control-screen');
         const grid = panel?.querySelector('[data-ek-control-grid]');
         const result = panel?.querySelector('[data-ek-control-result]');
-        const priceStatus = root.querySelector('[data-ek-price-status]');
         if (!form || !calibration || !panel || !grid || !result) return;
 
         let sequence = 0;
@@ -71,7 +70,6 @@
           else {
             result.innerHTML = '<strong>Technische invoer klopt, eindcontrole nog niet compleet</strong><span>Product- en glasregels zijn gecontroleerd. Windbelasting en ventilatiebeoordeling moeten nog compleet zijn voordat de technische eindcontrole vrijgegeven kan worden.</span>';
           }
-          if (priceStatus && contextOk) priceStatus.textContent = 'Technische eindcontrole nog niet compleet';
         };
 
         const validate = async () => {
