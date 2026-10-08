@@ -7,7 +7,7 @@ use GuzzleHttp\ClientInterface;
 
 final class EuropakozijnOfficeProjectDocumentClient {
 
-  private const PATH = '/brebo-internal/intake/europakozijn/project-document';
+  private const PATH = '/brebo-internal/intake/v1/project-document';
 
   public function __construct(private readonly ClientInterface $httpClient) {}
 
@@ -43,6 +43,7 @@ final class EuropakozijnOfficeProjectDocumentClient {
       default => 'application/octet-stream',
     };
 
+    $metadata = ['source' => 'brebo-platform.europakozijn', 'source_label' => 'Website - Europakozijn'] + $metadata;
     $multipart = [[
       'name' => 'document',
       'contents' => $contents,
