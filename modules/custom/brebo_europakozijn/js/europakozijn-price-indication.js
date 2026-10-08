@@ -30,6 +30,7 @@
           if (!payload || payload.schema_version !== 4 || !payload.geometry) return null;
           const fields = Array.isArray(payload.geometry.fields) ? payload.geometry.fields : [];
           if (fields.length !== 1) return null;
+          if ((payload.geometry.vertical_mullions || []).length || (payload.geometry.horizontal_transoms || []).length) return null;
 
           const field = fields[0] || {};
           if (!['vast', 'draaikiep'].includes(field.function)) return null;
@@ -37,14 +38,15 @@
           const product = payload.product_selection || {};
           const finish = payload.finish || {};
 
-          if ((product.brand || 'aluplast') !== 'aluplast') return null;
+          if (product.brand !== 'aluplast') return null;
+          if (!['ideal4000', 'ideal7000_nl'].includes(product.system)) return null;
           if ((product.joint_type || 'normal') !== 'normal') return null;
           if ((product.rebate_type || 'with_rebate') !== 'with_rebate') return null;
           if ((finish.glass || 'HR++') !== 'HR++') return null;
           if ((finish.colour || 'RAL 7016') !== 'RAL 7016') return null;
 
           return {
-            system: product.system || 'ideal7000_nl',
+            system: product.system,
             width_mm: Number(payload.geometry.width_mm),
             height_mm: Number(payload.geometry.height_mm),
             fields: 1,
@@ -77,6 +79,7 @@
         };
 
         const requestPrice = async () => {
+          const sequence = ++requestSequence;
           const payload = readPayload();
           const configuration = eligibleConfiguration(payload);
           if (!configuration) {
@@ -84,7 +87,6 @@
             return;
           }
 
-          const sequence = ++requestSequence;
           status.textContent = 'Prijsindicatie wordt berekend...';
 
           try {
