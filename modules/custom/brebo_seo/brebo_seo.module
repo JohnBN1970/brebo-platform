@@ -72,6 +72,26 @@ function brebo_seo_structured_data(string $path, string $canonical): array {
       'url' => $canonical,
     ];
   }
+  elseif ($path === '/onderhoud-renovatie') {
+    $graph[] = [
+      '@type' => 'Service',
+      '@id' => 'https://brebobv.nl/onderhoud-renovatie#service',
+      'name' => 'Onderhoud en renovatie van gebouwen',
+      'description' => 'Onderhoud en renovatie met technisch inzicht, voorbereiding, regie en gerichte realisatie.',
+      'provider' => ['@id' => $organization_id],
+      'url' => $canonical,
+    ];
+  }
+  elseif ($path === '/kennis-advies') {
+    $graph[] = [
+      '@type' => 'Service',
+      '@id' => 'https://brebobv.nl/kennis-advies#service',
+      'name' => 'Technische kennis en advies voor gebouwen',
+      'description' => 'Technische kennis en praktisch advies over kozijnen, glas, gevels, onderhoud en renovatie.',
+      'provider' => ['@id' => $organization_id],
+      'url' => $canonical,
+    ];
+  }
   elseif ($path === '/bouwbegeleiding') {
     $graph[] = [
       '@type' => 'Service',
