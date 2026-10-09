@@ -1,0 +1,9 @@
+name: BREBO Project
+type: module
+description: 'Beheert BREBO-projectobjecten op de gedeelde Runtime 1.0.'
+package: BREBO
+core_version_requirement: ^11
+dependencies:
+  - drupal:node
+  - drupal:text
+  - brebo_runtime:brebo_runtime
